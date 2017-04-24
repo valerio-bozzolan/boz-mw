@@ -18,6 +18,7 @@
 require 'load.php';
 
 enqueue_js('leaflet');
+enqueue_js('jquery');
 enqueue_js('wikimap');
 
 enqueue_css('leaflet');
@@ -32,6 +33,8 @@ Header::spawn('index', [
 	<div id="map"></div>
 
 	<script>
+	WikiMap.wiki    = '<?php echo DEFAULT_WIKI ?>';
+	WikiMap.dataAPI = '<?php echo ROOT ?>/data/data.min.js';
 	WikiMap.start();
 	</script>
 

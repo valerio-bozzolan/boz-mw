@@ -186,45 +186,44 @@ function file2array($file) {
 	return array_unique($v);
 }
 
-function deep_count($cat, & $cats_done = [], $level = 0) {
-	if( isset( $cats_done[ $cat ] ) ) {
-		die("Recursion in deep count!?!?\n");
-	}
+function deep_count($cat, & $cats_ready = [], & $cats_seen = [], $level = 0) {
+	isset( $cats_seen[ $cat ] )
+		and die("Recursion in deep count!?!?\n");
 
-	$cats_done[ $cat ] = true;
+	$cats_seen[ $cat ] = true;
 
 	$n = count( file2array(CATEGORY_PAGES . __ . $cat) );
 
 	$cat_children = file2array(CATEGORY_CHILDREN . __ . $cat);
 	foreach($cat_children as $cat_child) {
 		$n += count( file2array(CATEGORY_PAGES . __ . $cat_child) );
-		$n += deep_count($cat_child, $cats_done, $level + 1);
+		$n += deep_count($cat_child, $cats_ready, $cats_seen, $level + 1);
 	}
 
 	logit(INFO, "count $cat = \t $n");
 
-	$cats_done[ $cat ] = new MapArea($cat, $n, $level);
+	$cats_ready[] = new MapArea($cat, $n, $level);
 
 	return $n;
 }
 
-fetch_cat($api, $cat);
+// fetch_cat($api, $cat);
 
-$cats_done = [];
-deep_count($cat, $cats_done);
+$cats_ready = [];
+deep_count($cat, $cats_ready);
 
-foreach($cats_done as $cat_done) {
-	$latlng = @ file_get_contents( CATEGORY_LATLNG . __ . $cat_done->getTitle() );
+foreach($cats_ready as $cat_ready) {
+	$latlng = @ file_get_contents( CATEGORY_LATLNG . __ . $cat_ready->getTitle() );
 	if( $latlng ) {
 		list($lat, $lng) = explode(';', trim( $latlng ) );
-		$cat_done->setLatLng($lat, $lng);
+		$cat_ready->setLatLng($lat, $lng);
 	}
 
-	$osmid = @ file_get_contents( CATEGORY_OSM . __ . $cat_done->getTitle() );
+	$osmid = @ file_get_contents( CATEGORY_OSM . __ . $cat_ready->getTitle() );
 	if( $osmid ) {
-		$cat_done->setOSMID( trim( $osmid ) );
+		$cat_ready->setOSMID( trim( $osmid ) );
 	}
 }
 
-file_put_contents(PUBLIC_DATA . __ . 'data.min.js', json_encode( $cats_done ) );
-file_put_contents(PUBLIC_DATA . __ . 'data.js',     json_encode( $cats_done, JSON_PRETTY_PRINT ) );
+file_put_contents(PUBLIC_DATA . __ . 'data.min.js', json_encode( $cats_ready ) );
+file_put_contents(PUBLIC_DATA . __ . 'data.js',     json_encode( $cats_ready, JSON_PRETTY_PRINT ) );

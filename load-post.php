@@ -17,6 +17,9 @@
 
 defined('BOZ_PHP') or exit;
 
+defined('DEFAULT_WIKI')
+	or define('DEFAULT_WIKI', 'https://it.wikipedia.org');
+
 // Absolute URL pathname of Debian libjs packages
 defined('JAVASCRIPT')
 	or define('JAVASCRIPT', '/javascript');

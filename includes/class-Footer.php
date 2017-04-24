@@ -21,6 +21,10 @@ class Footer {
 			echo "\n\t<div><!-- /container -->\n";
 		}
 ?>
+	<p><?php printf('<a href="%s">Codice sorgente</a>. Sei libero di fruire di questo software libero sotto i termini della licenza <a href="%s">GNU AGPL v3+</a>.',
+		'https://github.com/valerio-bozzolan/wiki-users-leaflet/',
+		'https://www.gnu.org/licenses/agpl.html'
+	) ?></p>
 </body>
 </html><?php
 

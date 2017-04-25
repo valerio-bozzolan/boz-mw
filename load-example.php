@@ -20,4 +20,4 @@ define('ABSPATH', __DIR__ );
 define('ROOT', '');
 
 // Boz PHP framework pathname
-require '/usr/share/boz-php-another-php-framework/load.php';
+require 'boz-php-another-php-framework/load.php';

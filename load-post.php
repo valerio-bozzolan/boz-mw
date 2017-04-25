@@ -44,7 +44,7 @@ defined('PUBLIC_DATA_DIR')
 	or define('PUBLIC_DATA_DIR', 'data');
 
 defined('PUBLIC_DATA')
-	or define('PUBLIC_DATA',  ABSPATH . __ . PUBLIC_DATA_DIR);
+	or define('PUBLIC_DATA', ABSPATH . __ . PUBLIC_DATA_DIR);
 
 defined('PRIVATE_DATA')
 	or define('PRIVATE_DATA', ABSPATH . __ . '/private-data');

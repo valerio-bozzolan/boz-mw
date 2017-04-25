@@ -34,7 +34,7 @@ Header::spawn('index', [
 
 	<script>
 	WikiMap.wiki    = '<?php echo DEFAULT_WIKI ?>';
-	WikiMap.dataAPI = '<?php echo ROOT ?>/data/data.min.js';
+	WikiMap.dataPath = '<?php echo ROOT ?>/<?php echo PUBLIC_DATA_DIR ?>';
 	WikiMap.start();
 	</script>
 

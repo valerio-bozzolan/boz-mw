@@ -28,7 +28,7 @@ $lang = 'it';
 $wiki = 'wikipedia.org';
 $api  = "https://$lang.$wiki/w/api.php";
 
-$cat  = isset( $argv[1] ) ? $argv[1] : 'Categoria:Utenti dall\'Italia';
+$cat  = isset( $argv[1] ) ? $argv[1] : "Categoria:Utenti per provenienza territoriale";
 // --
 
 function logit($type, $msg) {
@@ -44,6 +44,7 @@ define('CATEGORY_WDATA',     PRIVATE_DATA . __ . 'category=>wdata');
 define('CATEGORY_GEOQ',      PRIVATE_DATA . __ . 'category=>geoq');
 define('CATEGORY_LATLNG',    PRIVATE_DATA . __ . 'category=>latlng');
 define('CATEGORY_OSM',       PRIVATE_DATA . __ . 'category=>osm');
+define('CATEGORY_GEOJSON',   PRIVATE_DATA . __ . 'category=>geojson');
 
 @ mkdir(CATEGORY_PAGES);
 @ mkdir(CATEGORY_CHILDREN);
@@ -115,6 +116,20 @@ function fetch_cat($api, $cat, & $oldcats = [] ) {
 						logit(INFO, "OSMID \t $osmid");
 
 						file_put_contents(CATEGORY_OSM . __ . $cat, $osmid);
+
+						$geojson_path = PUBLIC_DATA . __ . sprintf("geojson.%d.js", $osmid);
+						if( file_exists($geojson_path) ) {
+							logit(INFO, "Skipped GeoJSON");
+						} else {
+							logit(INFO, "Fetching GeoJSON");
+							$geojson = file_get_contents( sprintf('http://polygons.openstreetmap.fr/get_geojson.py?id=%d', $osmid ) );
+							if($geojson && $geojson !== 'None') {
+								logit(INFO, "Fetched GeoJSON");
+								file_put_contents($geojson_path, $geojson);
+							} else {
+								logit(WARNING, "Missing GeoJSON");
+							}
+						}
 					} else {
 						logit(ERROR, "Missing P402 OSMID from $geoq");
 					}
@@ -212,7 +227,7 @@ function deep_count($cat, & $cats_ready = [], & $cats_seen = [], $level = 0) {
 $cats_ready = [];
 deep_count($cat, $cats_ready);
 
-foreach($cats_ready as $cat_ready) {
+foreach($cats_ready as $i => $cat_ready) {
 	$latlng = @ file_get_contents( CATEGORY_LATLNG . __ . $cat_ready->getTitle() );
 	if( $latlng ) {
 		list($lat, $lng) = explode(';', trim( $latlng ) );

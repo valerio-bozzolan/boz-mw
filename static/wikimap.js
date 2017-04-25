@@ -1,4 +1,4 @@
-/**
+/*
 * Leaflet Wikipedians map
 * Copyright (C) 2017 Valerio Bozzolan
 *
@@ -18,13 +18,10 @@
 
 WikiMap = {};
 
+WikiMap.dataPath = '/data';
 WikiMap.wiki = 'https://it.wikipedia.org';
-WikiMap.map = null;
-WikiMap.dataAPI = 'data/data.min.js';
-WikiMap.data = {};
-WikiMap.levelGroup = [];
-WikiMap.activeLayer = null;
 WikiMap.firstZoom = 5;
+WikiMap.minLevelArea = 1;
 
 WikiMap.start = function () {
 	this.map = L.map('map').setView([43, 16], 2);
@@ -40,9 +37,9 @@ WikiMap.start = function () {
 	this.activeLayer = L.layerGroup().addTo(this.map);
 
 	var that = this;
-	$.getJSON(this.dataAPI, function (data) {
+	$.getJSON(this.dataPath + '/data.min.js', function (data) {
 		that.data = data;
-		that.preparePlot();
+		that.initPlot();
 		that.plot();
 	} );
 
@@ -51,12 +48,18 @@ WikiMap.start = function () {
 	} );
 };
 
-WikiMap.preparePlot = function () {
-	var maxLevel = 0;
+WikiMap.initPlot = function () {
+	this.levelGroup = [];
+	this.maxLevel = 0;
+	this.minLevel = 999;
 	for(var i=0; i<this.data.length; i++) {
-		maxLevel = Math.max(maxLevel, this.data[i].level);
+		var row = this.data[i];
+		if(row.lat && row.lng) {
+			this.maxLevel = Math.max(this.maxLevel, row.level);
+			this.minLevel = Math.min(this.minLevel, row.level);
+		}
 	}
-	for(var i=0; i<=maxLevel; i++) {
+	for(var i=this.minLevel; i<=this.maxLevel; i++) {
 		this.levelGroup[i] = L.layerGroup(); 
 	}
 	for(var i=0; i<this.data.length; i++) {
@@ -65,27 +68,57 @@ WikiMap.preparePlot = function () {
 			continue;
 		}
 		var m = L.marker( [ row.lat, row.lng ] );
-		m.bindPopup( this.format(
-			'<a href="{1}/wiki/{2}">{3}</a>:<br />{4}',
-			this.wiki,
-			row.title,
-			row.title,
-			row.count
-		) );
+		m.bindPopup( this.popupContent(row) );
 		this.levelGroup[ row.level ].addLayer(m);
+		this.osmRelation = [];
+		this.initOSMRelation(row);
 	}
 };
 
 WikiMap.plot = function () {
 	var z = WikiMap.map.getZoom() - this.firstZoom;
 
-	if( z < 0 ) {
+	if( z <= this.minLevel ) {
 		this.activeLayer.clearLayers()
-			.addLayer( this.levelGroup[0] );
+			.addLayer( this.levelGroup[ this.minLevel ] );
 	} else if( this.levelGroup[ z ] ) {
 		this.activeLayer.clearLayers()
 			.addLayer( this.levelGroup[ z ] );
 	}
+};
+
+WikiMap.initOSMRelation = function (row) {
+	if( ! row.osmid || row.level < this.minLevelArea ) {
+		return;
+	}
+
+	if( this.osmRelation[ row.osmid ] === undefined ) {
+		var that = this;
+		$.getJSON(this.dataPath + '/geojson.' + row.osmid + '.js', function (data) {
+			that.osmRelation[row.osmid] = data;
+			if( ! data ) {
+				return;
+			}
+			var geojson = L.geoJson(data, {
+				onEachFeature: function (feature, layer) {
+					// Why it does not work? °^°
+					layer.bindPopup( that.popupContent(row) );
+				}
+			} );
+			that.levelGroup[ row.level ].addLayer( L.geoJson(data) );
+		} );		
+	}
+	
+};
+
+WikiMap.popupContent = function (row) {
+	return this.format(
+		'<a href="{1}/wiki/{2}">{3}</a>:<br />{4}',
+		this.wiki,
+		row.title,
+		row.title,
+		row.count
+	);
 };
 
 WikiMap.format = function () {

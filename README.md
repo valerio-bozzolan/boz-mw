@@ -7,6 +7,7 @@ Because I have a lot of other work to do, but I absolutely don't want to do it n
 ## Hacking
 First of all:
 
+    git clone https://github.com/valerio-bozzolan/boz-php-another-php-framework.git
     cp load-example.php load.php
     ./bot.php
 

@@ -22,6 +22,7 @@ class MapArea {
 	var $lat;
 	var $lng;
 	var $osmid;
+	var $parent;
 
 	function __construct($title, $count, $level) {
 		$this->title = $title;
@@ -49,5 +50,9 @@ class MapArea {
 
 	function setOSMID($osmid) {
 		$this->osmid = $osmid;
+	}
+
+	function setParent($parent) {
+		$this->parent = $parent;
 	}
 }

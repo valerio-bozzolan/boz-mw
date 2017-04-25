@@ -45,9 +45,11 @@ define('CATEGORY_GEOQ',      PRIVATE_DATA . __ . 'category=>geoq');
 define('CATEGORY_LATLNG',    PRIVATE_DATA . __ . 'category=>latlng');
 define('CATEGORY_OSM',       PRIVATE_DATA . __ . 'category=>osm');
 define('CATEGORY_GEOJSON',   PRIVATE_DATA . __ . 'category=>geojson');
+define('CATEGORY_PARENT',    PRIVATE_DATA . __ . 'category=>parent');
 
 @ mkdir(CATEGORY_PAGES);
 @ mkdir(CATEGORY_CHILDREN);
+@ mkdir(CATEGORY_PARENT);
 @ mkdir(CATEGORY_WDATA);
 @ mkdir(CATEGORY_GEOQ);
 @ mkdir(CATEGORY_LATLNG);
@@ -138,6 +140,7 @@ function fetch_cat($api, $cat, & $oldcats = [] ) {
 				}
 			}
 		}
+		// End query->pages
 
 		// Append purpose
 		$handle_pages = fopen(CATEGORY_PAGES  . __ . $cat, 'a');
@@ -145,6 +148,7 @@ function fetch_cat($api, $cat, & $oldcats = [] ) {
 		if($handle_pages === false) {
 			die( sprintf("Can't write in %s\n", $file) );
 		}
+
 		foreach( $next->query->categorymembers as $categorymember ) {
 			$title = $categorymember->title;
 			switch( $categorymember->ns )  {
@@ -182,6 +186,7 @@ function fetch_cat($api, $cat, & $oldcats = [] ) {
 
 	foreach($children as $child) {
 		$oldcats[] = $child;
+		file_put_contents(CATEGORY_PARENT . __ . $child, $cat);
 	}
 
 	foreach($children as $child) {
@@ -222,7 +227,7 @@ function deep_count($cat, & $cats_ready = [], & $cats_seen = [], $level = 0) {
 	return $n;
 }
 
-// fetch_cat($api, $cat);
+fetch_cat($api, $cat);
 
 $cats_ready = [];
 deep_count($cat, $cats_ready);
@@ -237,6 +242,11 @@ foreach($cats_ready as $i => $cat_ready) {
 	$osmid = @ file_get_contents( CATEGORY_OSM . __ . $cat_ready->getTitle() );
 	if( $osmid ) {
 		$cat_ready->setOSMID( trim( $osmid ) );
+	}
+
+	$parent = @ file_get_contents( CATEGORY_PARENT . __ . $cat_ready->getTitle() );
+	if( $parent ) {
+		$cat_ready->setParent( trim( $parent ) );
 	}
 }
 

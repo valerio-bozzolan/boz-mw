@@ -21,7 +21,7 @@ WikiMap = {};
 WikiMap.dataPath = '/data';
 WikiMap.wiki = 'https://it.wikipedia.org';
 WikiMap.firstZoom = 5;
-WikiMap.minLevelArea = 1;
+WikiMap.minLevelArea = 2;
 
 WikiMap.start = function () {
 	this.map = L.map('map').setView([43, 16], 2);
@@ -49,16 +49,30 @@ WikiMap.start = function () {
 };
 
 WikiMap.initPlot = function () {
+	this.lastZoom = this.map.getZoom();
 	this.levelGroup = [];
+	this.dataByTitle = {};
+	this.childrenByParent = {};
 	this.maxLevel = 0;
 	this.minLevel = 999;
 	for(var i=0; i<this.data.length; i++) {
 		var row = this.data[i];
-		if(row.lat && row.lng) {
-			this.maxLevel = Math.max(this.maxLevel, row.level);
-			this.minLevel = Math.min(this.minLevel, row.level);
+		if(! row.lat || ! row.lng) {
+			continue;
+		}
+		this.maxLevel = Math.max(this.maxLevel, row.level);
+		this.minLevel = Math.min(this.minLevel, row.level);
+
+		this.dataByTitle[ row.title ] = row;
+
+		if( row.parent ) {
+			if( ! this.childrenByParent[ row.parent ] ) {
+				this.childrenByParent[ row.parent ] = [];
+			}
+			this.childrenByParent[ row.parent ].push(row);
 		}
 	}
+
 	for(var i=this.minLevel; i<=this.maxLevel; i++) {
 		this.levelGroup[i] = L.layerGroup(); 
 	}
@@ -70,6 +84,10 @@ WikiMap.initPlot = function () {
 		var m = L.marker( [ row.lat, row.lng ] );
 		m.bindPopup( this.popupContent(row) );
 		this.levelGroup[ row.level ].addLayer(m);
+		if( ! this.childrenByParent[ row.title ] && row.level < this.maxLevel ) {
+			console.log( this.childrenByParent );
+			this.levelGroup[ row.level + 1 ].addLayer(m);
+		}
 		this.osmRelation = [];
 		this.initOSMRelation(row);
 	}

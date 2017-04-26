@@ -44,12 +44,12 @@ class MapArea {
 	}
 
 	function setLatLng($lat, $lng) {
-		$this->lat = $lat;
-		$this->lng = $lng;
+		$this->lat = (float) $lat;
+		$this->lng = (float) $lng;
 	}
 
 	function setOSMID($osmid) {
-		$this->osmid = $osmid;
+		$this->osmid = (int) $osmid;
 	}
 
 	function setParent($parent) {

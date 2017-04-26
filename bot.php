@@ -46,14 +46,16 @@ define('CATEGORY_LATLNG',    PRIVATE_DATA . __ . 'category=>latlng');
 define('CATEGORY_OSM',       PRIVATE_DATA . __ . 'category=>osm');
 define('CATEGORY_GEOJSON',   PRIVATE_DATA . __ . 'category=>geojson');
 define('CATEGORY_PARENT',    PRIVATE_DATA . __ . 'category=>parent');
+define('USER_LASTCONTRIB',   PRIVATE_DATA . __ . 'user=>lastcontrib');
 
 @ mkdir(CATEGORY_PAGES);
 @ mkdir(CATEGORY_CHILDREN);
-@ mkdir(CATEGORY_PARENT);
 @ mkdir(CATEGORY_WDATA);
 @ mkdir(CATEGORY_GEOQ);
 @ mkdir(CATEGORY_LATLNG);
 @ mkdir(CATEGORY_OSM);
+@ mkdir(CATEGORY_PARENT);
+@ mkdir(USER_LASTCONTRIB);
 
 function fetch_cat($api, $cat, & $oldcats = [] ) {
 	// https://it.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=Categoria:Utenti_dall%27Italia&prop=pageprops&titles=Categoria:Utenti_dall%27Italia
@@ -68,6 +70,7 @@ function fetch_cat($api, $cat, & $oldcats = [] ) {
 		'titles'  => $cat
 	] );
 
+	$users = [];
 	$children = [];
 
 	while( $apiRequest->hasNext() ) {
@@ -81,7 +84,20 @@ function fetch_cat($api, $cat, & $oldcats = [] ) {
 					logit(ERROR, "Missing Wikidata Q for $cat");
 					continue;
 				}
+
+				$ok  = file_exists(CATEGORY_OSM    . __ . $cat);
+				$ok &= file_exists(CATEGORY_LATLNG . __ . $cat);
+				if($ok) {
+					$osmid = file_get_contents(CATEGORY_OSM . __ . $cat);
+					$ok &= file_exists(PUBLIC_DATA . __ . sprintf("geojson.%d.js", $osmid) );
+				}
+				if($ok) {
+					logit(INFO, "Skipping full category \t $cat");
+					continue;
+				}
+
 				$wikidata_el = $page->pageprops->wikibase_item;
+
 				logit(INFO, "WikidataQ \t $wikidata_el");
 
 				file_put_contents(CATEGORY_WDATA . __ . $cat, $wikidata_el);
@@ -174,6 +190,7 @@ function fetch_cat($api, $cat, & $oldcats = [] ) {
 					}
 					logit(INFO, "$cat \t +$title");
 					fwrite($handle_pages, "\n$title");
+					$users[] = $title;
 					break;
 				default:
 					logit(INFO, "ignored \t $title");
@@ -187,6 +204,25 @@ function fetch_cat($api, $cat, & $oldcats = [] ) {
 	foreach($children as $child) {
 		$oldcats[] = $child;
 		file_put_contents(CATEGORY_PARENT . __ . $child, $cat);
+	}
+
+	foreach($users as $user) {
+		$timestamp = @ file_get_contents(USER_LASTCONTRIB . __ . $user);
+		if( ! $timestamp ) {
+			$userdata = APIRequest::factory($api, [
+				'action'  => 'query',
+				'list'    => 'usercontribs',
+				'uclimit' => 1,
+				'ucuser'  => $user
+			] )->fetch();
+			$timestamp = @$userdata->query->usercontribs[0]->timestamp;
+			if( ! isset($timestamp) ) {
+				logit(ERROR, "No timestamp in usercontribs $user");
+				continue;
+			}
+			logit(INFO, "Lastcontrib \t $user \t $timestamp");
+			file_put_contents(USER_LASTCONTRIB . __ . $user, $timestamp);
+		}
 	}
 
 	foreach($children as $child) {

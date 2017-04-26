@@ -49,6 +49,7 @@ WikiMap.start = function () {
 };
 
 WikiMap.initPlot = function () {
+	this.osmRelation = [];
 	this.lastZoom = this.map.getZoom();
 	this.levelGroup = [];
 	this.dataByTitle = {};
@@ -76,20 +77,33 @@ WikiMap.initPlot = function () {
 	for(var i=this.minLevel; i<=this.maxLevel; i++) {
 		this.levelGroup[i] = L.layerGroup(); 
 	}
+	var that = this;
+
 	for(var i=0; i<this.data.length; i++) {
 		var row = this.data[i];
 		if( ! row.lat || ! row.lng ) {
 			continue;
 		}
-		var m = L.marker( [ row.lat, row.lng ] );
-		m.bindPopup( this.popupContent(row) );
-		this.levelGroup[ row.level ].addLayer(m);
-		if( ! this.childrenByParent[ row.title ] && row.level < this.maxLevel ) {
-			console.log( this.childrenByParent );
-			this.levelGroup[ row.level + 1 ].addLayer(m);
+		this.initOSMRelation(row, function (row, geojson) {
+			if( geojson ) {
+				that.addDataLayer(row, geojson);
+			} else {
+				var m = L.marker( [ row.lat, row.lng ] ).bindPopup( that.popupContent(row) );
+				that.addDataLayer(row, m);
+			}
+		} );
+	}
+};
+
+WikiMap.addDataLayer = function (data, layer) {
+	if( this.childrenByParent[ data.title ] ) {
+		this.levelGroup[ data.level ].addLayer(layer);
+	} else {
+		// No childrens
+		for(var i=data.level; i<=this.maxLevel; i++) {
+			// Append in children levels
+			this.levelGroup[i].addLayer(layer);
 		}
-		this.osmRelation = [];
-		this.initOSMRelation(row);
 	}
 };
 
@@ -105,28 +119,29 @@ WikiMap.plot = function () {
 	}
 };
 
-WikiMap.initOSMRelation = function (row) {
+WikiMap.initOSMRelation = function (row, callback) {
 	if( ! row.osmid || row.level < this.minLevelArea ) {
+		callback(row, false);
 		return;
 	}
-
-	if( this.osmRelation[ row.osmid ] === undefined ) {
-		var that = this;
-		$.getJSON(this.dataPath + '/geojson.' + row.osmid + '.js', function (data) {
-			that.osmRelation[row.osmid] = data;
-			if( ! data ) {
-				return;
-			}
+	if( this.osmRelation[ row.osmid ] !== undefined ) {
+		callback(row, false);
+		return;
+	}
+	var that = this;
+	$.getJSON(this.dataPath + '/geojson.' + row.osmid + '.js', function (data) {
+		that.osmRelation[row.osmid] = false;
+		if( data ) {
 			var geojson = L.geoJson(data, {
 				onEachFeature: function (feature, layer) {
-					// Why it does not work? °^°
+					// Why it does not work?!?!?!?
 					layer.bindPopup( that.popupContent(row) );
 				}
 			} );
-			that.levelGroup[ row.level ].addLayer( L.geoJson(data) );
-		} );		
-	}
-	
+			that.osmRelation[row.osmid] = geojson;
+		}
+		callback(row, geojson);
+	} );		
 };
 
 WikiMap.popupContent = function (row) {

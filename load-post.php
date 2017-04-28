@@ -47,7 +47,7 @@ defined('PUBLIC_DATA')
 	or define('PUBLIC_DATA', ABSPATH . __ . PUBLIC_DATA_DIR);
 
 defined('PRIVATE_DATA')
-	or define('PRIVATE_DATA', ABSPATH . __ . '/private-data');
+	or define('PRIVATE_DATA', ABSPATH . __ . 'private-data');
 
 register_js( 'jquery',  JQUERY     );
 register_js( 'leaflet', LEAFLET_JS );

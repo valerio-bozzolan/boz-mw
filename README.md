@@ -1,7 +1,9 @@
 # wiki-users-leaflet
 Wikipedians on a Leaflet map. Automagically.
 
-This is the source code of the tool hosted on [https://tools.wmflabs.org/](
+This is the source code of a tool hosted in [Wikimedia Foundation Labs](https://tools.wmflabs.org/).
+
+* <https://tools.wmflabs.org/it-wiki-users-leaflet/>
 
 ## How to add yourself
 * Insert your user page in a sub-category of [Categoria:Utenti per provenienza territoriale](https://it.wikipedia.org/wiki/Categoria:Utenti_per_provenienza_territoriale)
@@ -14,10 +16,9 @@ The PHP website uses an unknown framework called [Boz-PHP](https://github.com/va
     cp load-example.php load.php
     ./bot.php
 
-The map is based on Leaflet.
-* [Leaflet's reference](http://leafletjs.com/reference.html).
+The map uses [Leaflet's reference](http://leafletjs.com/reference.html).
 
-The bot scan can be run calling `./bot.php` and will gain informations from Wikipedia APIs and Wikidata. It recursively scanns every user category like [Categoria:Utenti dall'Italia](https://it.wikipedia.org/wiki/Categoria:Utenti_dall%27Italia).
+The bot scan can be run calling `./bot.php` and will gain informations from Wikipedia APIs and Wikidata. It recursively scans every user territorial category like [Categoria:Utenti dall'Italia](https://it.wikipedia.org/wiki/Categoria:Utenti_dall%27Italia).
 
 It will take some time finally generating the file `data/data.js` and `data/data.min.js`:
 

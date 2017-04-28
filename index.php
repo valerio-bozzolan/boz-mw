@@ -30,7 +30,8 @@ Header::spawn('index', [
 ] );
 
 ?>
-	<div id="map"></div>
+	<div id="wikimap-users"></div>
+	<div id="wikimap-map"></div>
 
 	<script>
 	WikiMap.wiki    = '<?php echo DEFAULT_WIKI ?>';

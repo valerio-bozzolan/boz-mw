@@ -57,6 +57,26 @@ define('USER_LASTCONTRIB',   PRIVATE_DATA . __ . 'user=>lastcontrib');
 @ mkdir(CATEGORY_PARENT);
 @ mkdir(USER_LASTCONTRIB);
 
+function fetch_user_contrib($api, $user) {
+	$timestamp = @ file_get_contents(USER_LASTCONTRIB . __ . $user);
+	if( ! $timestamp ) {
+		$userdata = APIRequest::factory($api, [
+			'action'  => 'query',
+			'list'    => 'usercontribs',
+			'uclimit' => 1,
+			'ucuser'  => $user
+		] )->fetch();
+		$timestamp = @$userdata->query->usercontribs[0]->timestamp;
+		if( ! isset($timestamp) ) {
+			logit(ERROR, "No timestamp in usercontribs $user");
+			$timestamp = '1991-01-01T00:00:00Z';
+		}
+		logit(INFO, "Lastcontrib \t $user \t $timestamp");
+		file_put_contents(USER_LASTCONTRIB . __ . $user, $timestamp);
+	}
+	return $timestamp;
+}
+
 function fetch_cat($api, $cat, & $oldcats = [] ) {
 	// https://it.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=Categoria:Utenti_dall%27Italia&prop=pageprops&titles=Categoria:Utenti_dall%27Italia
 	$apiRequest = new APIRequest($api, [
@@ -207,22 +227,7 @@ function fetch_cat($api, $cat, & $oldcats = [] ) {
 	}
 
 	foreach($users as $user) {
-		$timestamp = @ file_get_contents(USER_LASTCONTRIB . __ . $user);
-		if( ! $timestamp ) {
-			$userdata = APIRequest::factory($api, [
-				'action'  => 'query',
-				'list'    => 'usercontribs',
-				'uclimit' => 1,
-				'ucuser'  => $user
-			] )->fetch();
-			$timestamp = @$userdata->query->usercontribs[0]->timestamp;
-			if( ! isset($timestamp) ) {
-				logit(ERROR, "No timestamp in usercontribs $user");
-				continue;
-			}
-			logit(INFO, "Lastcontrib \t $user \t $timestamp");
-			file_put_contents(USER_LASTCONTRIB . __ . $user, $timestamp);
-		}
+		fetch_user_contrib($api, $user);
 	}
 
 	foreach($children as $child) {
@@ -263,26 +268,45 @@ function deep_count($cat, & $cats_ready = [], & $cats_seen = [], $level = 0) {
 	return $n;
 }
 
-fetch_cat($api, $cat);
+// fetch_cat($api, $cat);
 
 $cats_ready = [];
 deep_count($cat, $cats_ready);
 
+$now = new DateTime();
+
+$six_months = 6 * 30;
+
 foreach($cats_ready as $i => $cat_ready) {
-	$latlng = @ file_get_contents( CATEGORY_LATLNG . __ . $cat_ready->getTitle() );
+	$title = $cat_ready->getTitle();
+
+	$latlng = @ file_get_contents( CATEGORY_LATLNG . __ . $title );
 	if( $latlng ) {
 		list($lat, $lng) = explode(';', trim( $latlng ) );
 		$cat_ready->setLatLng($lat, $lng);
 	}
 
-	$osmid = @ file_get_contents( CATEGORY_OSM . __ . $cat_ready->getTitle() );
-	if( $osmid ) {
-		$cat_ready->setOSMID( trim( $osmid ) );
-	}
+	$osmid = @ file_get_contents( CATEGORY_OSM . __ . $title );
+	$osmid and $cat_ready->setOSMID( trim( $osmid ) );
 
-	$parent = @ file_get_contents( CATEGORY_PARENT . __ . $cat_ready->getTitle() );
-	if( $parent ) {
-		$cat_ready->setParent( trim( $parent ) );
+	$parent = @ file_get_contents( CATEGORY_PARENT . __ . $title );
+	$parent and $cat_ready->setParent( trim( $parent ) );
+
+	$children = @file_get_contents(CATEGORY_CHILDREN . __ . $title);
+	if( empty($children) ) {
+		$cat_ready->isLeaf(true);
+		$users = file2array(CATEGORY_PAGES . __ . $title );
+		foreach($users as $j => $user) {
+			$lastcontrib = fetch_user_contrib($api, $user);
+			if($lastcontrib) {
+				$lastcontrib = DateTime::createFromFormat(DateTime::ISO8601, $lastcontrib);
+				$days = $lastcontrib->diff($now)->days;
+				if($days > $six_months) {
+					unset($users[$j]);
+				}
+			}
+		}
+		$cat_ready->setUsers( array_values($users) );
 	}
 }
 

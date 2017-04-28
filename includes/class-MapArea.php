@@ -18,11 +18,14 @@
 class MapArea {
 	var $title;
 	var $count;
+	var $recentCount;
 	var $level;
 	var $lat;
 	var $lng;
 	var $osmid;
 	var $parent;
+	var $users;
+	var $isLeaf;
 
 	function __construct($title, $count, $level) {
 		$this->title = $title;
@@ -54,5 +57,17 @@ class MapArea {
 
 	function setParent($parent) {
 		$this->parent = $parent;
+	}
+
+	function setRecentCount($count) {
+		$this->recentCount = $count;
+	}
+
+	function isLeaf($isLeaf) {
+		$this->isLeaf = $isLeaf;
+	}
+
+	function setUsers($users) {
+		$this->users = $users;
 	}
 }

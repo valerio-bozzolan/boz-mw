@@ -16,7 +16,7 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#map {
+#wikimap-map {
 	width: 100%;
 	height:500px;
 	min-height:200px;

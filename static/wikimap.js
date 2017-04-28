@@ -22,9 +22,13 @@ WikiMap.dataPath = '/data';
 WikiMap.wiki = 'https://it.wikipedia.org';
 WikiMap.firstZoom = 5;
 WikiMap.minLevelArea = 2;
+WikiMap.userPrefix = 'Utente';
+WikiMap.zoomMessage = '(Zoomma)';
 
 WikiMap.start = function () {
-	this.map = L.map('map').setView([43, 16], 2);
+	this.map = L.map('wikimap-map').setView([43, 16], 2);
+
+	this.$usersContainer = this.$usersContainer || $('#wikimap-users');
 
 	L.tileLayer('http://{s}.tiles.wmflabs.org/osm/{z}/{x}/{y}.png', {
 		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, '+
@@ -45,6 +49,17 @@ WikiMap.start = function () {
 
 	this.map.on('zoomend', function () {
 		that.plot();
+	} );
+
+	this.map.on('popupopen', function(popup) {
+		var data = popup.popup._source.wikimapData;
+		if( ! data ) {
+			for(var i in popup.popup._source._eventParents) {
+				data = popup.popup._source._eventParents[i].wikimapData;
+			}
+		}
+		console.log(data);
+		that.printUsers(data);
 	} );
 };
 
@@ -86,9 +101,11 @@ WikiMap.initPlot = function () {
 		}
 		this.initOSMRelation(row, function (row, geojson) {
 			if( geojson ) {
+				geojson.wikimapData = row;
 				that.addDataLayer(row, geojson);
 			} else {
 				var m = L.marker( [ row.lat, row.lng ] ).bindPopup( that.popupContent(row) );
+				m.wikimapData = row;				
 				that.addDataLayer(row, m);
 			}
 		} );
@@ -134,8 +151,8 @@ WikiMap.initOSMRelation = function (row, callback) {
 		if( data ) {
 			var geojson = L.geoJson(data, {
 				onEachFeature: function (feature, layer) {
-					// Why it does not work?!?!?!?
 					layer.bindPopup( that.popupContent(row) );
+					layer.wikimapData = row;
 				}
 			} );
 			that.osmRelation[row.osmid] = geojson;
@@ -160,4 +177,16 @@ WikiMap.format = function () {
 		s = s.replace('{' + arg + '}', arguments[arg] );
 	}
 	return s;
+};
+
+WikiMap.printUsers = function (data) {
+	var users = this.zoomMessage;
+	if(data && data.users) {
+		users = '';
+		for(var i=0; i<data.users.length; i++) {
+			users += (i > 0) ? ', ' : '';
+			users += this.format('<a href="{1}/wiki/{2}:{3}">{4}</a>', this.wiki, this.userPrefix, data.users[i], data.users[i]);
+		}
+	}
+	this.$usersContainer.empty().html(users);
 };

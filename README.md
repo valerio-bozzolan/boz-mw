@@ -18,7 +18,7 @@ The PHP website uses an unknown framework called [Boz-PHP](https://github.com/va
 
 Make sure that the `./data` and the `./private-data` folder (or whatever you choose) are writable by the user that will run the bot.
 
-The map uses [Leaflet's reference](http://leafletjs.com/reference.html).
+The map uses [Leaflet](http://leafletjs.com/reference.html).
 
 The bot scan can be run calling `./bot.php` and will gain informations from Wikipedia APIs and Wikidata. It recursively scans every user territorial category like [Categoria:Utenti dall'Italia](https://it.wikipedia.org/wiki/Categoria:Utenti_dall%27Italia).
 

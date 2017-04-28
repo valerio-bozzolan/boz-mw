@@ -268,7 +268,7 @@ function deep_count($cat, & $cats_ready = [], & $cats_seen = [], $level = 0) {
 	return $n;
 }
 
-// fetch_cat($api, $cat);
+fetch_cat($api, $cat);
 
 $cats_ready = [];
 deep_count($cat, $cats_ready);

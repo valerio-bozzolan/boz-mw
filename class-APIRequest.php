@@ -1,5 +1,5 @@
 <?php
-# Leaflet Wikipedians map
+# Boz-MW - Another MediaWiki API handler in PHP
 # Copyright (C) 2017 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@ class APIRequest {
 		$this->args = array_merge( [
 	                'maxlag'  =>  5,
 			'format'  => 'json',
-			'hello'   => sprintf("boz-mw-php/%s", self::VERSION)
+			'hello'   => sprintf("boz-mw/%s", self::VERSION)
 		], $args);
 
 		$this->api = $api;

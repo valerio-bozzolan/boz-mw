@@ -19,6 +19,8 @@ class APIRequest {
 	const WAIT = 2;
 	const WAIT_DOS = 5;
 
+	const VERSION = 0.1;
+
 	private $api;
 	private $args;
 	private $continue;
@@ -29,20 +31,18 @@ class APIRequest {
 	function __construct($api, $args) {
 		$this->args = array_merge( [
 	                'maxlag'  =>  5,
-			'format'  => 'json'
+			'format'  => 'json',
+			'hello'   => sprintf("boz-mw-php/%s", self::VERSION)
 		], $args);
 
-		$this->api  = $api;
+		$this->api = $api;
 
-		self::hello();
+		$this->args['hello'] and
+			self::hello( $this->args['hello'] );
 	}
 
 	static function factory($api, $args) {
 		return new self($api, $args);
-	}
-
-	static function hello() {
-		ini_set('user_agent', 'it-wiki-users-leaflet/0.1 (https://wikitech.wikimedia.org/wiki/User_talk:Valerio_Bozzolan; gnu@linux.it) PHP/5.5.9');
 	}
 
 	function lastfetch() {
@@ -62,15 +62,15 @@ class APIRequest {
 		$args = $args ? $args : $this->args;
 
 		if( $wait ) {
-			logit(INFO, "Waiting");
+			logit('INFO', "Waiting");
 			sleep(self::WAIT);
 		}
-		logit(INFO, "Fetching");
+		logit('INFO', "Fetching");
 
 		$query = http_build_query($args);
 		$result = json_decode( file_get_contents("{$this->api}?$query") );
 
-		logit(INFO, "Fetched");
+		logit('INFO', "Fetched");
 
 		if( isset( $next->error ) ) {
 			if( $next->error->code == 'maxlag' ) {
@@ -87,7 +87,7 @@ class APIRequest {
 		$args = $this->args;
 
 		if( $this->continue ) {
-			logit(INFO, "Will continue");
+			logit('INFO', "Will continue");
 			$args['continue']   = $this->continue;
 			$args['cmcontinue'] = $this->cmcontinue;
 		}
@@ -102,5 +102,13 @@ class APIRequest {
 		}
 
 		return $next;
+	}
+
+	static function hello($wall) {
+		ini_set('user_agent', $wall);
+	}
+
+	static function log($type, $msg) {
+		printf("[%s] \t %s\n", $type, $msg);
 	}
 }

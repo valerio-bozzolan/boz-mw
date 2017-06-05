@@ -62,22 +62,20 @@ class APIRequest {
 		$args = $args ? $args : $this->args;
 
 		if( $wait ) {
-			logit('INFO', "Waiting");
+			self::log('INFO', "Waiting");
 			sleep(self::WAIT);
 		}
-		logit('INFO', "Fetching");
+		self::log('INFO', "Fetching");
 
 		$query = http_build_query($args);
 		$result = json_decode( file_get_contents("{$this->api}?$query") );
 
-		logit('INFO', "Fetched");
+		self::log('INFO', "Fetched");
 
-		if( isset( $next->error ) ) {
-			if( $next->error->code == 'maxlag' ) {
-				logit(WARN, "Lag! Waiting");
-				sleep(self::WAIT_DOS);
-				return $this->fetch(false, $args);
-			}
+		if( isset( $next->error ) && $next->error->code === 'maxlag' ) {
+			self::log(WARN, "Lag! Waiting");
+			sleep(self::WAIT_DOS);
+			return $this->fetch(false, $args);
 		}
 
 		return $this->last = $result;
@@ -87,7 +85,7 @@ class APIRequest {
 		$args = $this->args;
 
 		if( $this->continue ) {
-			logit('INFO', "Will continue");
+			self::log('INFO', "Will continue");
 			$args['continue']   = $this->continue;
 			$args['cmcontinue'] = $this->cmcontinue;
 		}

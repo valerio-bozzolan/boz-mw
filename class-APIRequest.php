@@ -24,7 +24,6 @@ class APIRequest {
 	private $api;
 	private $args;
 	private $continue;
-	private $cmcontinue;
 
 	private $last = null;
 
@@ -86,15 +85,15 @@ class APIRequest {
 
 		if( $this->continue ) {
 			self::log('INFO', "Will continue");
-			$args['continue']   = $this->continue;
-			$args['cmcontinue'] = $this->cmcontinue;
+			foreach($this->continue as $arg => $value) {
+				$args[ $arg ] = $value;
+			}
 		}
 
 		$next = $this->fetch($wait, $args);
 
 		if( isset( $next->continue ) ) {
-			$this->continue =  $next->continue->continue;
-			$this->cmcontinue = $next->continue->cmcontinue;
+			$this->continue = $next->continue;
 		} else {
 			$this->continue = false;
 		}

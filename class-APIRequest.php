@@ -38,6 +38,9 @@ class APIRequest {
 
 		$this->args['hello'] and
 			self::hello( $this->args['hello'] );
+
+		// Don't send
+		unset( $this->args['hello'] );
 	}
 
 	static function factory($api, $args) {

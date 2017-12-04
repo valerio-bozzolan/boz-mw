@@ -19,32 +19,37 @@ class APIRequest {
 	const WAIT = 2;
 	const WAIT_DOS = 5;
 
-	const VERSION = 0.1;
+	const VERSION = 0.2;
 
 	private $api;
+	private $data;
 	private $args;
 	private $continue;
 
 	private $last = null;
 
-	function __construct($api, $args) {
-		$this->args = array_merge( [
-	                'maxlag'  =>  5,
-			'format'  => 'json',
-			'hello'   => sprintf("boz-mw/%s", self::VERSION)
-		], $args);
+	private $debug = false;
 
+	function __construct($api, $data, $args = [] ) {
 		$this->api = $api;
 
-		$this->args['hello'] and
-			self::hello( $this->args['hello'] );
+		$this->data = array_merge( [
+	                'maxlag'  =>  5,
+			'format'  => 'json'
+		], $data);
 
-		// Don't send
-		unset( $this->args['hello'] );
+		$this->args = array_merge( [
+			'context' => false,
+			'method'  => 'GET'
+		], $args );
+
+		if( $this->args['hello'] ) {
+			self::hello( $this->args['hello'] );
+		}
 	}
 
-	static function factory($api, $args) {
-		return new self($api, $args);
+	static function factory( $api, $args ) {
+		return new self( $api, $args );
 	}
 
 	function lastfetch() {
@@ -60,8 +65,13 @@ class APIRequest {
 		return $this->continue !== false;
 	}
 
-	function fetch($wait = true, $args = null) {
-		$args = $args ? $args : $this->args;
+	function setDebug( $debug ) {
+		$this->debug = $debug;
+		return $this;
+	}
+
+	function fetch( $wait = true, $data = null ) {
+		$data = $data ? $data : $this->data;
 
 		if( $wait ) {
 			self::log('INFO', "Waiting");
@@ -69,46 +79,57 @@ class APIRequest {
 		}
 		self::log('INFO', "Fetching");
 
-		$query = http_build_query($args);
-		$result = json_decode( file_get_contents("{$this->api}?$query") );
+		$query = http_build_query( $data );
+
+		$context = $args['context'];
+		if( false === $context ) {
+			$context = [
+				'http' => [
+					'method' => $args['method']
+				]
+			];
+		}
+		$result = json_decode( file_get_contents("{$this->api}?$query", false, $context) );
+
+		if( $this->debug ) {
+			self::log('DEBUG', "{$this->api}?$query");
+		}
 
 		self::log('INFO', "Fetched");
 
 		if( isset( $next->error ) && $next->error->code === 'maxlag' ) {
 			self::log(WARN, "Lag! Waiting");
 			sleep(self::WAIT_DOS);
-			return $this->fetch(false, $args);
+			return $this->fetch(false, $data);
 		}
 
 		return $this->last = $result;
 	}
 
-	function getNext($wait = true) {
-		$args = $this->args;
+	function getNext( $wait = true ) {
+		$data = $this->data;
 
 		if( $this->continue ) {
 			self::log('INFO', "Will continue");
 			foreach($this->continue as $arg => $value) {
-				$args[ $arg ] = $value;
+				$data[ $arg ] = $value;
 			}
 		}
 
-		$next = $this->fetch($wait, $args);
+		$next = $this->fetch($wait, $data);
 
-		if( isset( $next->continue ) ) {
-			$this->continue = $next->continue;
-		} else {
-			$this->continue = false;
-		}
+		$this->continue = isset( $next->continue )
+			? $next->continue
+			: false;
 
 		return $next;
 	}
 
-	static function hello($wall) {
+	static function hello( $wall ) {
 		ini_set('user_agent', $wall);
 	}
 
-	static function log($type, $msg) {
-		printf("[%s] \t %s\n", $type, $msg);
+	static function log( $type, $msg ) {
+		printf("# [%s] \t %s\n", $type, $msg);
 	}
 }

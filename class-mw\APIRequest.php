@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+# MediaWiki
+namespace mw;
+
 class APIRequest {
 	const WAIT      = 0.2;
 	const WAIT_POST = 5;

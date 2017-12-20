@@ -50,7 +50,8 @@ class APIRequest {
 			'wait'       => self::WAIT,
 			'wait-post'  => self::WAIT_POST,
 			'user-agent' => sprintf( 'Boz-MW APIRequest.php/%s', self::VERSION ),
-			'headers'    => []
+			'headers'    => [],
+			'assoc'      => false
 		], $args );
 	}
 
@@ -125,7 +126,7 @@ class APIRequest {
 
 		$stream_context = stream_context_create( $context );
 		$result = file_get_contents( $url, false, $stream_context );
-		$result = json_decode( $result );
+		$result = json_decode( $result, $args['assoc'] );
 
 		// Here $http_response_header exists magically (PHP merda!)
 		$this->loadHTTPResponseHeaders( $http_response_header );

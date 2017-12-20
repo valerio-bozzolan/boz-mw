@@ -9,15 +9,27 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-spl_autoload_register( function( $name ) {
-	$path = __DIR__ . DIRECTORY_SEPARATOR . "class-$name.php";
-	if( is_file( $path ) ) {
-		require $path;
+# Wikibase
+namespace wb;
+
+/**
+ * A StatementString is a Statement that contains a SnakString.
+ */
+class StatementString extends Statement {
+
+	/**
+	 * @param $property string Property as 'P123'
+	 * @param $filename string File name as 'File:Example.png'
+	 */
+	public function __construct( $property, $filename ) {
+		parent::__construct( $property,
+			new SnakString( $property, $filename )
+		);
 	}
-} );
+}

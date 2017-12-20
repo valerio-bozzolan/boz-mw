@@ -141,7 +141,7 @@ class APIRequest {
 				return $this->fetch( $data , $args );
 			} else {
 				print_r( $result->error );
-				throw new Exception( "API error" );
+				throw new \Exception( "API error" );
 			}
 		}
 

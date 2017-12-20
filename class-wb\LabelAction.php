@@ -9,15 +9,36 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-spl_autoload_register( function( $name ) {
-	$path = __DIR__ . DIRECTORY_SEPARATOR . "class-$name.php";
-	if( is_file( $path ) ) {
-		require $path;
+# Wikibase
+namespace wb;
+
+/**
+ * @see https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
+ */
+class LabelAction extends Label {
+
+	/**
+	 * Add a Label without overwriting if it already exists.
+	 */
+	public function pleasePreserve() {
+		$this->add = '';
+		unset( $this->remove );
+		return $this;
 	}
-} );
+
+	/**
+	 * Remove the label.
+	 */
+	public function pleaseDelete() {
+		$this->remove = '';
+		unset( $this->add );
+		return $this;
+	}
+
+}

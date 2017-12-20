@@ -20,61 +20,91 @@ namespace wb;
 
 class DataModel {
 
-	private $data;
+	private $labels;
+	private $descriptions;
+	private $claims;
 
 	public function __construct() {
-		$this->data = [];
+		$this->labels = [];
+		$this->descriptions = [];
+		$this->claims = new Claims();
 	}
 
-	public function getJSON() {
-		return json_encode( $this->get() );
+	public function getLabels() {
+		return $this->labels;
+	}
+
+	public function getDescriptions() {
+		return $this->descriptions;
+	}
+
+	public function getClaims() {
+		return $this->claims->get();
+	}
+
+	public function addClaim( $claim ) {
+		$this->claims->add( $claim );
+		return $this;
+	}
+
+	public function setClaims( $claims ) {
+		$this->claims->set( $claims );
+		return $this;
+	}
+
+	/**
+	 * Set, delete, preserve if it exists, a label.
+	 */
+	public function setLabel( $language, $value, $action = 'only-if-missing' ) {
+		$label = new LabelAction( $language, $value );
+		switch( $action ) {
+			case 'only-if-missing':
+				$label->pleasePreserve();
+				break;
+			case 'delete':
+				$label->pleaseDelete();
+			case 'overwrite':
+				break;
+			default:
+				throw new Exception();
+		}
+		$this->labels[] = $label;
+		return $this;
+	}
+
+	/**
+	 * Set, delete, preserve if it exists, a description.
+	 */
+	public function setDescription( $language, $value, $action = 'only-if-missing' ) {
+		$description = new DescriptionAction( $language, $value );
+		switch( $action ) {
+			case 'only-if-missing':
+				$description->pleasePreserve();
+				break;
+			case 'delete':
+				$description->pleaseDelete();
+			case 'overwrite':
+				break;
+			default:
+				throw new Exception();
+		}
+		$this->descriptions[] = $description;
+		return $this;
+	}
+
+	public function countClaims() {
+		return $this->claims->count();
 	}
 
 	public function get() {
-		return $this->data;
+		return [
+			'labels'       => $this->getLabels(),
+			'descriptions' => $this->getDescriptions(),
+			'claims'       => $this->getClaims()
+		];
 	}
 
-	/**
-	 * Set Wikidata labels
-	 *
-	 * @param array $langs_label Associative array of language-code => label.
-	 * @param string $action Set to 'add' or 'remove' or NULL.
-	 */
-	public function setLabels( $langs_label = [], $action = null ) {
-		return $this->set( self::labels( $langs_label, $action ) );
-	}
-
-	/**
-	 * Wikidata labels data model
-	 *
-	 * @param array $langs_label Associative array of language-code => label.
-	 * @param string $action Set to 'add' or 'remove' or NULL.
-	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
-	 */
-	static public function labels( $langs_label = [], $action = null ) {
-		if( null !== $action ) {
-			if( 'add' !== $action && 'remove' !== $action ) {
-				throw new Exception('wrong labels action');
-			}
-		}
-		$labels = [];
-		foreach( $labels as $lang => $value ) {
-			$labels[ $lang ] = [
-				'language' => $lang,
-				'value'    => $value
-			];
-			if( $action ) {
-				$labels[ $lang ][ $action ] = '';
-			}
-		}
-		if( $labels ) {
-			$labels = [ 'labels' => $labels ];
-		}
-		return $labels;
-	}
-
-	public function set( $additional_data ) {
-		$this->data = array_merge( $this->data, $additional_data );
-		return $this;
+	public function getJSON( $args = null ) {
+		return json_encode( $this->get(), $args );
 	}
 }

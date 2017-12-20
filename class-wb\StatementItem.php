@@ -9,15 +9,27 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-spl_autoload_register( function( $name ) {
-	$path = __DIR__ . DIRECTORY_SEPARATOR . "class-$name.php";
-	if( is_file( $path ) ) {
-		require $path;
+# Wikibase
+namespace wb;
+
+/**
+ * A StatementItem is a Statement that contains a SnakItem.
+ */
+class StatementItem extends Statement {
+
+	/**
+	 * @param $property Wikidata property as 'P123'
+	 * @param $item     Wikidata item as 'Q1'
+	 */
+	public function __construct( $property, $item ) {
+		parent::__construct( $property,
+			new SnakItem( $property, $item )
+		);
 	}
-} );
+}

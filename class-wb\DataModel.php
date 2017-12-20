@@ -63,6 +63,7 @@ class DataModel {
 				break;
 			case 'delete':
 				$label->pleaseDelete();
+				break;
 			case 'overwrite':
 				break;
 			default:
@@ -83,6 +84,7 @@ class DataModel {
 				break;
 			case 'delete':
 				$description->pleaseDelete();
+				break;
 			case 'overwrite':
 				break;
 			default:

@@ -19,7 +19,7 @@
 namespace wb;
 
 /**
- * A Claim consists of a property and a value (Snak).
+ * A Claim consists of a Snak and Qualifiers.
  *
  * Optionally, it can have qualifiers.
  *
@@ -27,7 +27,6 @@ namespace wb;
  */
 class Claim {
 
-	var $property;
 	var $mainsnak;
 	//var $qualifiers;
 
@@ -35,26 +34,20 @@ class Claim {
 	 * @param $property string Property as 'P123'
 	 * @param $mainsnak Snak   Main snak
 	 */
-	public function __construct( $property, $mainsnak ) {
-		$this->setProperty( $property )
-		     ->setMainsnak( $mainsnak );
-	}
-
-	public function getProperty() {
-		return $this->property;
+	public function __construct( $mainsnak ) {
+		$this->setMainsnak( $mainsnak );
 	}
 
 	public function getMainsnak() {
-		return $this->property;
+		return $this->mainsnak;
+	}
+
+	public function hasQualifiers() {
+		return ! empty( $this->qualifiers );
 	}
 
 	public function getQualifiers() {
-		return $this->property;
-	}
-
-	public function setProperty( $property ) {
-		$this->property = $property;
-		return $this;
+		return $this->qualifiers;
 	}
 
 	public function setMainsnak( Snak $mainsnak ) {

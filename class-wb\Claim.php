@@ -59,4 +59,15 @@ class Claim {
 		$this->qualifiers = $qualifiers;
 		return $this;
 	}
+
+	public static function createFromData( $data ) {
+		if( ! isset( $data['mainsnak'] ) ) {
+			throw new WrongDataException( __CLASS__ );
+		}
+		$claim = new static( Snak::createFromData( $data['mainsnak'] ) );
+		if( isset( $data['qualifiers'] ) ) {
+			$claim->setQualifiers( $qualifiers );
+		}
+		return $claim;
+	}
 }

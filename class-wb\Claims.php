@@ -26,7 +26,9 @@ class Claims {
 	var $claims = [];
 
 	public function __construct( $claims = [] ) {
-		$this->set( $claims );
+		foreach( $claims as $claim ) {
+			$this->add( $claim );
+		}
 	}
 
 	public function add( Claim $claim ) {
@@ -38,17 +40,19 @@ class Claims {
 		return count( $this->claims );
 	}
 
-	public function set( $claims ) {
-		foreach( $claims as $claim ) {
-			$this->add( $claim );
+	public function haveProperty( $property ) {
+		foreach( $this->claims as $claim ) {
+			if( $claim->getMainSnak()->getProperty() === $property ) {
+				return true;
+			}
 		}
-		return $this;
+		return false;
 	}
 
-	public function get() {
+	public function getAll() {
 		$properties = [];
 		foreach( $this->claims as $claim ) {
-			$property = $claim->getProperty();
+			$property = $claim->getMainSnak()->getProperty();
 			if( ! isset( $properties[ $property ] ) ) {
 				$properties[ $property ] = [];
 			}

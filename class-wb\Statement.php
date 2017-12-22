@@ -42,6 +42,14 @@ class Statement extends Claim {
 		return $this->references;
 	}
 
+	public function hasID() {
+		return isset( $this->id );
+	}
+
+	public function getID() {
+		return $this->id;
+	}
+
 	public function setType( $type ) {
 		$this->type = $type;
 		return $this;
@@ -55,5 +63,25 @@ class Statement extends Claim {
 	public function setReferences( $references ) {
 		$this->references = $references;
 		return $this;
+	}
+
+	public function setID( $id ) {
+		$this->id = $id;
+	}
+
+	public static function createFromData( $data ) {
+		if( ! isset( $data['type'], $data['rank'] ) ) {
+			throw new WrongDataException( __CLASS__ );
+		}
+		$statement = parent::createFromData( $data );
+		$statement->setType( $data['type'] );
+		$statement->setRank( $data['rank'] );
+		if( $data['id'] ) {
+			$statement->setID( $data['id'] );
+		}
+		if( $data['references'] ) {
+			$statement->setReferences( $data['references'] );
+		}
+		return $statement;
 	}
 }

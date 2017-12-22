@@ -28,8 +28,6 @@ class StatementItem extends Statement {
 	 * @param $item     Wikidata item as 'Q1'
 	 */
 	public function __construct( $property, $item ) {
-		parent::__construct( $property,
-			new SnakItem( $property, $item )
-		);
+		parent::__construct( new SnakItem( $property, $item ) );
 	}
 }

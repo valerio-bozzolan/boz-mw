@@ -28,8 +28,6 @@ class StatementCommonsMedia extends Statement {
 	 * @param $filename string File name as 'File:Example.png'
 	 */
 	public function __construct( $property, $filename ) {
-		parent::__construct( $property,
-			new SnakCommonsMedia( $property, $filename )
-		);
+		parent::__construct( new SnakCommonsMedia( $property, $filename ) );
 	}
 }

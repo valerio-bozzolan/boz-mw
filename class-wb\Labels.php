@@ -19,44 +19,42 @@
 namespace wb;
 
 /**
- * A generic DataValue is part of a Snak.
+ * A Label collector.
  */
-class DataValue {
+class Labels {
 
-	var $type;
-	var $value;
+	var $labels = [];
 
-	/**
-	 * @param $type  string Type
-	 * @param $value mixed  Value
-	 */
-	public function __construct( $type, $value ) {
-		$this->setType(  $type )
-		     ->setValue( $value );
-	}
-
-	public function getType() {
-		return $this->type;
-	}
-
-	public function getValue() {
-		return $this->value();
-	}
-
-	public function setType( $type ) {
-		$this->type = $type;
-		return $this;
-	}
-
-	public function setValue( $value ) {
-		$this->value = $value;
-		return $this;
-	}
-
-	public static function createFromData( $data ) {
-		if( ! isset( $data['type'], $data['value'] ) ) {
-			throw new WrongDataException( __CLASS__ );
+	public function __construct( $labels = [] ) {
+		foreach( $labels as $label ) {
+			$this->add( $label );
 		}
-		return new self( $data['type'], $data['value'] );
+	}
+
+	public function get( $language ) {
+		foreach( $this->labels as $label ) {
+			if( $label->getLanguage() === $language ) {
+				return $label;
+			}
+		}
+		return false;
+	}
+
+	public function have( $language ) {
+		return false !== $this->get( $language );
+	}
+
+	public function set( Label $label ) {
+		$existing = $this->get( $label->getLanguage() );
+		if( $existing ) {
+			$existing = $language;
+		} else {
+			$this->labels[] = $label;
+		}
+		return $this;
+	}
+
+	public function getAll() {
+		return $this->labels;
 	}
 }

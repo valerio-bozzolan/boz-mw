@@ -50,4 +50,11 @@ class Label {
 		$this->value = $value;
 		return $this;
 	}
+
+	public static function createFromData( $data ) {
+		if( ! isset( $data['language'], $data['value'] ) ) {
+			throw new WrongDataException( __CLASS__ );
+		}
+		return new static( $data['language'], $data['value'] );
+	}
 }

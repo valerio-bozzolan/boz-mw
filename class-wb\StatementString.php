@@ -28,8 +28,6 @@ class StatementString extends Statement {
 	 * @param $filename string File name as 'File:Example.png'
 	 */
 	public function __construct( $property, $filename ) {
-		parent::__construct( $property,
-			new SnakString( $property, $filename )
-		);
+		parent::__construct( new SnakString( $property, $filename ) );
 	}
 }

@@ -18,45 +18,11 @@
 # Wikibase
 namespace wb;
 
-/**
- * A generic DataValue is part of a Snak.
- */
-class DataValue {
-
-	var $type;
-	var $value;
-
-	/**
-	 * @param $type  string Type
-	 * @param $value mixed  Value
-	 */
-	public function __construct( $type, $value ) {
-		$this->setType(  $type )
-		     ->setValue( $value );
-	}
-
-	public function getType() {
-		return $this->type;
-	}
-
-	public function getValue() {
-		return $this->value();
-	}
-
-	public function setType( $type ) {
-		$this->type = $type;
-		return $this;
-	}
-
-	public function setValue( $value ) {
-		$this->value = $value;
-		return $this;
-	}
-
-	public static function createFromData( $data ) {
-		if( ! isset( $data['type'], $data['value'] ) ) {
-			throw new WrongDataException( __CLASS__ );
-		}
-		return new self( $data['type'], $data['value'] );
+class WrongDataException extends \Exception {
+	public function __construct( $subject, $code = 0, Throwable $previous = null ) {
+		parent::__construct( sprintf(
+			'invalid %s data',
+			$subject
+		), $code, $previous );
 	}
 }

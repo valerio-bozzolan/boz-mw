@@ -79,4 +79,32 @@ class Snak {
 		$this->datavalue = $datavalue;
 		return $this;
 	}
+
+	public function hasHash() {
+		return isset( $this->hash );
+	}
+
+	public function getHash() {
+		return $this->hash;
+	}
+
+	public function setHash( $hash ) {
+		$this->hash = $hash;
+	}
+
+	public static function createFromData( $data ) {
+		if( ! isset( $data['snaktype'], $data['property'], $data['datatype'], $data['datavalue'] ) ) {
+			throw new WrongDataException( __CLASS__ );
+		}
+		$snak = new self(
+			$data['snaktype'],
+			$data['property'],
+			$data['datatype'],
+			DataValue::createFromData( $data['datavalue'] )
+		);
+		if( isset( $data['hash'] ) ) {
+			$snak->setHash( $data['hash'] );
+		}
+		return $snak;
+	}
 }

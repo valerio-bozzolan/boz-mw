@@ -25,21 +25,21 @@ class DataModel {
 	private $claims;
 
 	public function __construct() {
-		$this->labels = [];
-		$this->descriptions = [];
-		$this->claims = new Claims();
+		$this->labels       = new Labels();
+		$this->descriptions = new Descriptions();
+		$this->claims       = new Claims();
 	}
 
 	public function getLabels() {
-		return $this->labels;
+		return $this->labels->getAll();
 	}
 
 	public function getDescriptions() {
-		return $this->descriptions;
+		return $this->descriptions->getAll();
 	}
 
 	public function getClaims() {
-		return $this->claims->get();
+		return $this->claims->getAll();
 	}
 
 	public function addClaim( $claim ) {
@@ -52,50 +52,28 @@ class DataModel {
 		return $this;
 	}
 
+	public function hasClaimsInProperty( $property ) {
+		return $this->claims->haveProperty( $property );
+	}
+
+	public function countClaims() {
+		return $this->claims->count();
+	}
+
 	/**
 	 * Set, delete, preserve if it exists, a label.
 	 */
-	public function setLabel( $language, $value, $action = 'only-if-missing' ) {
-		$label = new LabelAction( $language, $value );
-		switch( $action ) {
-			case 'only-if-missing':
-				$label->pleasePreserve();
-				break;
-			case 'delete':
-				$label->pleaseDelete();
-				break;
-			case 'overwrite':
-				break;
-			default:
-				throw new Exception();
-		}
-		$this->labels[] = $label;
+	public function setLabel( $label ) {
+		$this->labels->set( $label );
 		return $this;
 	}
 
 	/**
 	 * Set, delete, preserve if it exists, a description.
 	 */
-	public function setDescription( $language, $value, $action = 'only-if-missing' ) {
-		$description = new DescriptionAction( $language, $value );
-		switch( $action ) {
-			case 'only-if-missing':
-				$description->pleasePreserve();
-				break;
-			case 'delete':
-				$description->pleaseDelete();
-				break;
-			case 'overwrite':
-				break;
-			default:
-				throw new Exception();
-		}
-		$this->descriptions[] = $description;
+	public function setDescription( $description ) {
+		$this->descriptions->set( $description );
 		return $this;
-	}
-
-	public function countClaims() {
-		return $this->claims->count();
 	}
 
 	public function get() {
@@ -108,5 +86,27 @@ class DataModel {
 
 	public function getJSON( $args = null ) {
 		return json_encode( $this->get(), $args );
+	}
+
+	public static function createFromData( $data ) {
+		$dataModel = new self();
+		if( isset( $data['labels'] ) ) {
+			foreach( $data['labels'] as $label ) {
+				$dataModel->setLabel( Label::createFromData( $label ) );
+			}
+		}
+		if( isset( $data['descriptions'] ) ) {
+			foreach( $data['descriptions'] as $description ) {
+				$dataModel->setDescription( Description::createFromData( $description ) );
+			}
+		}
+		if( isset( $data['claims'] ) ) {
+			foreach( $data['claims'] as $claims ) {
+				foreach( $claims as $claim ) {
+					$dataModel->addClaim( Claim::createFromData( $claim ) );
+				}
+			}
+		}
+		return $dataModel;
 	}
 }

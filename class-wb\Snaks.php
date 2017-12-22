@@ -26,7 +26,9 @@ class Snaks {
 	var $snaks = [];
 
 	public function __construct( $snaks = [] ) {
-		$this->set( $snaks );
+		foreach( $snaks as $snak ) {
+			$this->add( $snak );
+		}
 	}
 
 	public function add( Snak $snak ) {
@@ -34,14 +36,7 @@ class Snaks {
 		return $this;
 	}
 
-	public function set( $snaks ) {
-		foreach( $snaks as $snak ) {
-			$this->add( $snak );
-		}
-		return $this;
-	}
-
-	public function get() {
+	public function getAll() {
 		$properties = [];
 		foreach( $this->snaks as $snak ) {
 			$property = $snak->getProperty();

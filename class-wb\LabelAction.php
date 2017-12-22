@@ -23,8 +23,23 @@ namespace wb;
  */
 class LabelAction extends Label {
 
+	const ADD       = 'add';
+	const OVERWRITE = 'overwrite';
+	const REMOVE    = 'remove';
+
+	public function __construct( $language, $value, $action = self::ADD ) {
+		parent::__construct( $language, $value );
+		if( self::ADD === $action ) {
+			$this->pleasePreserve();
+		} elseif( self::REMOVE === $action ) {
+			$this->pleaseRemove();
+		} elseif( self::OVERWRITE !== $action ) {
+			throw new \Exception('unknown action');
+		}
+	}
+
 	/**
-	 * Add a Label without overwriting if it already exists.
+	 * Without overwriting if it already exists.
 	 */
 	public function pleasePreserve() {
 		$this->add = '';
@@ -33,9 +48,9 @@ class LabelAction extends Label {
 	}
 
 	/**
-	 * Remove the label.
+	 * Removing if it already exists.
 	 */
-	public function pleaseDelete() {
+	public function pleaseRemove() {
 		$this->remove = '';
 		unset( $this->add );
 		return $this;

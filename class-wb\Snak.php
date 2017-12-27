@@ -37,11 +37,14 @@ class Snak {
 	 * @param $datatype string
 	 * @param $datavalue mixed
 	 */
-	public function __construct( $snaktype, $property, $datatype, $datavalue ) {
+	public function __construct( $snaktype, $property, $datatype, $datavalue = null ) {
 		$this->setSnakType(  $snaktype )
 		     ->setProperty(  $property )
-		     ->setDataType(  $datatype )
-		     ->setDataValue( $datavalue );
+		     ->setDataType(  $datatype );
+
+		if( null !== $datavalue ) {
+			 $this->setDataValue( $datavalue );
+		}
 	}
 
 	public function getProperty() {
@@ -93,15 +96,17 @@ class Snak {
 	}
 
 	public static function createFromData( $data ) {
-		if( ! isset( $data['snaktype'], $data['property'], $data['datatype'], $data['datavalue'] ) ) {
+		if( ! isset( $data['snaktype'], $data['property'], $data['datatype'] ) ) {
 			throw new WrongDataException( __CLASS__ );
 		}
 		$snak = new self(
 			$data['snaktype'],
 			$data['property'],
-			$data['datatype'],
-			DataValue::createFromData( $data['datavalue'] )
+			$data['datatype']
 		);
+		if( isset( $data['datavalue'] ) ) {
+			$snak->setDataValue( DataValue::createFromData( $data['datavalue'] ) );
+		}
 		if( isset( $data['hash'] ) ) {
 			$snak->setHash( $data['hash'] );
 		}

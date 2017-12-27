@@ -90,17 +90,17 @@ class DataModel {
 
 	public static function createFromData( $data ) {
 		$dataModel = new self();
-		if( isset( $data['labels'] ) ) {
+		if( ! empty( $data['labels'] ) ) {
 			foreach( $data['labels'] as $label ) {
 				$dataModel->setLabel( Label::createFromData( $label ) );
 			}
 		}
-		if( isset( $data['descriptions'] ) ) {
+		if( ! empty( $data['descriptions'] ) ) {
 			foreach( $data['descriptions'] as $description ) {
 				$dataModel->setDescription( Description::createFromData( $description ) );
 			}
 		}
-		if( isset( $data['claims'] ) ) {
+		if( ! empty( $data['claims'] ) ) {
 			foreach( $data['claims'] as $claims ) {
 				foreach( $claims as $claim ) {
 					$dataModel->addClaim( Claim::createFromData( $claim ) );
@@ -108,5 +108,20 @@ class DataModel {
 			}
 		}
 		return $dataModel;
+	}
+
+	public static function createFromObject( $object ) {
+		return self::createFromData( self::object2array( $object ) );
+	}
+
+	private static function object2array( $object ) {
+		if( ! is_object( $object) && ! is_array( $object ) ) {
+			return $object;
+		}
+		$array = [];
+		foreach( $object as $k => $v ) {
+			$array[ $k ] = self::object2array( $v );
+		}
+		return $array;
 	}
 }

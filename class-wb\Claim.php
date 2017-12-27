@@ -66,7 +66,7 @@ class Claim {
 		}
 		$claim = new static( Snak::createFromData( $data['mainsnak'] ) );
 		if( isset( $data['qualifiers'] ) ) {
-			$claim->setQualifiers( $qualifiers );
+			$claim->setQualifiers( $data['qualifiers'] );
 		}
 		return $claim;
 	}

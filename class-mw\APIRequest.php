@@ -19,8 +19,9 @@
 namespace mw;
 
 class APIRequest {
-	const WAIT      = 0.2;
-	const WAIT_POST = 5;
+	static $WAIT      = 0.2;
+	static $WAIT_POST = 5;
+
 	const WAIT_DOS  = 5;
 
 	const VERSION = 0.3;
@@ -41,14 +42,14 @@ class APIRequest {
 		$this->api = $api;
 
 		$this->data = array_replace( [
-	                'maxlag'  =>  5,
+			'maxlag'  =>  5,
 			'format'  => 'json'
 		], $data );
 
 		$this->args = array_replace( [
 			'method'     => 'GET',
-			'wait'       => self::WAIT,
-			'wait-post'  => self::WAIT_POST,
+			'wait'       => self::$WAIT,
+			'wait-post'  => self::$WAIT_POST,
 			'user-agent' => sprintf( 'Boz-MW APIRequest.php/%s', self::VERSION ),
 			'headers'    => [],
 			'assoc'      => false
@@ -131,11 +132,19 @@ class APIRequest {
 		// Here $http_response_header exists magically (PHP merda!)
 		$this->loadHTTPResponseHeaders( $http_response_header );
 
+		if( isset( $this->latestHttpResponseHeaders['HTTP/1.1 500 Internal Server Error'] ) ) {
+			self::log( 'WARN', "500 Internal Server Error!");
+			$args = array_replace( [
+				'wait' => self::WAIT_DOS
+			], $args );
+			return $this->fetch( $data , $args );
+		}
+
 		self::log('INFO', "Fetched");
 
 		if( isset( $result->error ) ) {
 			if( 'maxlag' === $result->error->code ) {
-				self::log( WARN, "Lag!");
+				self::log( 'WARN', "Lag!");
 				$args = array_replace( [
 					'wait' => self::WAIT_DOS
 				], $args );

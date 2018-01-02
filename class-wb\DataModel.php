@@ -56,8 +56,16 @@ class DataModel {
 		return $this->claims->haveProperty( $property );
 	}
 
+	public function getClaimsInProperty( $property ) {
+		return $this->claims->getInProperty( $property );
+	}
+
 	public function countClaims() {
 		return $this->claims->count();
+	}
+
+	public function hasLabelsInLanguage( $language ) {
+		return $this->labels->have( $language );
 	}
 
 	/**
@@ -66,6 +74,10 @@ class DataModel {
 	public function setLabel( $label ) {
 		$this->labels->set( $label );
 		return $this;
+	}
+
+	public function hasDescriptionsInLanguage( $language ) {
+		return $this->descriptions->have( $language );
 	}
 
 	/**

@@ -40,6 +40,16 @@ class Claims {
 		return count( $this->claims );
 	}
 
+	public function getInProperty( $property ) {
+		$claims = [];
+		foreach( $this->claims as $claim ) {
+			if( $claim->getMainSnak()->getProperty() === $property ) {
+				$claims[] = $claim;
+			}
+		}
+		return $claims;
+	}
+
 	public function haveProperty( $property ) {
 		foreach( $this->claims as $claim ) {
 			if( $claim->getMainSnak()->getProperty() === $property ) {

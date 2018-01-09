@@ -20,7 +20,7 @@ namespace mw;
 
 class APIRequest {
 	static $WAIT      = 0.2;
-	static $WAIT_POST = 5;
+	static $WAIT_POST = 0.2;
 
 	const WAIT_DOS  = 5;
 
@@ -40,12 +40,20 @@ class APIRequest {
 
 	public function __construct( $api, $data = [], $args = [] ) {
 		$this->api = $api;
+		$this->setData( $data );
+		$this->setArgs( $args );
+	}
 
+	public function setData( $data ) {
 		$this->data = array_replace( [
 			'maxlag'  =>  5,
 			'format'  => 'json'
 		], $data );
+		$this->continue = null;
+		return $this;
+	}
 
+	public function setArgs( $args ) {
 		$this->args = array_replace( [
 			'method'     => 'GET',
 			'wait'       => self::$WAIT,
@@ -54,6 +62,7 @@ class APIRequest {
 			'headers'    => [],
 			'assoc'      => false
 		], $args );
+		return $this;
 	}
 
 	public static function factory( $api, $args = [] ) {
@@ -166,7 +175,14 @@ class APIRequest {
 		return $this->fetch( $data, $args );
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function getNext() {
+		return $this->fetchNext();
+	}
+
+	public function fetchNext() {
 		$data = $this->data;
 
 		if( $this->continue ) {

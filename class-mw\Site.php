@@ -48,6 +48,11 @@ class Site {
 		return $this->getApi()->post( $data );
 	}
 
+	public function login( $username = null, $password = null ) {
+		$this->getApi()->login( $username, $password );
+		return $this;
+	}
+
 	public function hasNext() {
 		return $this->getApi()->hasNext();
 	}
@@ -86,6 +91,6 @@ class Site {
 	}
 
 	private static function createApi( $url ) {
-		return new APIRequest( $url );
+		return new API( $url );
 	}
 }

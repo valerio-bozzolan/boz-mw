@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,11 @@ class Generic {
 		if( null === $group_name ) {
 			return $group;
 		}
-		return "(?P<$group_name>...)";
+		return "(?P<$group_name>$group)";
+	}
+
+	public function groupName( $group_name ) {
+		return '${' . $name . '}';
 	}
 
 	public static function spaceBurger( $s ) {

@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,13 @@ class Site {
 	 * @var array Array of namespaces
 	 */
 	private $namespaces = [];
+
+	/**
+	 * A sort of internal UID
+	 *
+	 * @var null|string E.g. 'enwiki'
+	 */
+	private $uid;
 
 	/**
 	 * Constructor
@@ -159,12 +166,32 @@ class Site {
 	}
 
 	/**
+	 * Set the UID
+	 *
+	 * @param string E.g. 'enwiki'
+	 * @return self
+	 */
+	public function setUID( $uid ) {
+		$this->uid = $uid;
+		return $this;
+	}
+
+	/**
 	 * Get internal MediaWiki API object
 	 *
 	 * @return API
 	 */
 	public function getApi() {
 		return $this->api;
+	}
+
+	/**
+	 * Get the UID
+	 *
+	 * @return null|string e.g. 'enwiki'
+	 */
+	public function getUID() {
+		return $this->uid;
 	}
 
 	/**

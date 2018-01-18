@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,12 @@ namespace wm;
 class Commons extends \mw\StaticSite {
 
 	/**
-	 * @overload \mw\StaticSite::getApiURL()
+	 * @override \mw\StaticSite::UID
+	 */
+	const UID = 'commonswiki';
+
+	/**
+	 * @override \mw\StaticSite::getApiURL()
 	 */
 	protected static function getApiURL() {
 		return 'https://commons.wikimedia.org/w/api.php';

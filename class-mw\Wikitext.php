@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,10 @@ class Wikitext {
 	 */
 	private $wikitext;
 
+	private $appended = '';
+	private $prepended = '';
+	private $sobstitutions = [];
+
 	public function __construct( $site, $wikitext ) {
 		$this->setWikitext( $wikitext );
 		$this->setSite( $site );
@@ -55,12 +59,14 @@ class Wikitext {
 	}
 
 	public function appendWikitext( $wikitext ) {
-		$this->wikitext = $this->wikitext . $wikitext;
+		$this->appended .= $wikitext;
+		$this->setWikitext( $this->getWikitext() . $wikitext );
 		return $this;
 	}
 
 	public function prependWikitext( $wikitext ) {
-		$this->wikitext = $wikitext . $this->wikitext;
+		$this->prepended .= $wikitext;
+		$this->setWikitext( $wikitext . $this->getWikitext() );
 		return $this;
 	}
 
@@ -69,7 +75,27 @@ class Wikitext {
 	}
 
 	public function pregReplace( $pattern, $replacement, $limit = -1, &$count = 0 ) {
+		if( 1 === $this->pregMatch( $pattern, $matches ) ) {
+			$from = array_shift( $matches );
+			$to   = $replacement;
+			foreach( $matches as $i => $match ) {
+				$i++;
+				$to = str_replace( [
+					"\\$i",
+					'${' . $i . '}'
+				], $match, $to );
+			}
+			$this->sobstitutions[] = [ $from, $to ];
+		}
 		$this->setWikitext( preg_replace( $pattern, $replacement, $this->getWikitext(), $limit, $count ) );
+		return $this;
+	}
+
+	public function strReplace( $a, $b, & $count = 0 ) {
+		$this->setWikitext( str_replace( $a, $b, $this->getWikitext(), $count ) );
+		for( $i = 0; $i < $count; $i++ ) {
+			$this->sobstitutions[] = [ $a, $b ];
+		}
 		return $this;
 	}
 
@@ -88,7 +114,7 @@ class Wikitext {
 			$category_ns_regex = \regex\Generic::spaceBurger( $category_ns_regex );
 			$pattern = sprintf(
 				'/\[\[%s\]\]/',
-				\regex\Generic::spaceBurger( $category_ns_regex . ':' . $category_name_regex . $whatever_sortkey )
+				$category_ns_regex . ':' . $category_name_regex . $whatever_sortkey
 			);
 			if( 1 === $this->pregMatch( $pattern ) ) {
 				return true;
@@ -110,5 +136,17 @@ class Wikitext {
 			$sortkey ? "|$sortkey" : ''
 		) );
 		return true;
+	}
+
+	public function getPrepended() {
+		return $this->prepended;
+	}
+
+	public function getAppended() {
+		return $this->appended;
+	}
+
+	public function getSobstitutions() {
+		return $this->sobstitutions;
 	}
 }

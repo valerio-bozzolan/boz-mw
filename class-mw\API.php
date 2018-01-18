@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -50,6 +50,11 @@ class API extends \network\HTTPRequest {
 	 * @var string
 	 */
 	static $DEFAULT_FORMAT = 'json';
+
+	/**
+	 * Username used for the login.
+	 */
+	private $username;
 
 	/**
 	 * Frequent API response token to continue a result set.
@@ -168,6 +173,9 @@ class API extends \network\HTTPRequest {
 			throw new \Exception("login failed");
 		}
 
+		$this->username = $response->login->lgusername;
+		$this->logged = true;
+
 		return $this;
 	}
 
@@ -184,8 +192,34 @@ class API extends \network\HTTPRequest {
 		$data = array_replace( [
 			'maxlag'  => self::$DEFAULT_MAXLAG,
 			'format'  => self::$DEFAULT_FORMAT
-      ], $data );
+		], $data );
 		return parent::setData( $data );
+	}
+
+	/**
+	 * Filters the data before using it.
+	 *
+	 * Array elements are imploded by a pipe
+	 * NULL values are unset
+	 *
+	 * @override network\HTTPRequest::onDataReady()
+	 * @param $data array GET/POST data
+	 * @return array
+	 */
+	protected function onDataReady( $data ) {
+		foreach( $data as $k => $v ) {
+			if( null === $v ) {
+				unset( $data[ $k ] );
+			} elseif( is_array( $v ) ) {
+				$data[ $k ] = implode( '|', $v );
+			}
+		}
+		if( $this->isLogged() ) {
+			$data = array_replace( [
+				'assertuser' => $this->username
+			], $data );
+		}
+		return $data;
 	}
 
 	/**
@@ -193,6 +227,7 @@ class API extends \network\HTTPRequest {
 	 *
 	 * @param $result mixed Result
 	 * @override \network\HTTPRequest#onFetched()
+	 * @throws \mw\API\Exception
 	 */
 	protected function onFetched( $result ) {
 		if( isset( $result->error ) ) {
@@ -203,10 +238,13 @@ class API extends \network\HTTPRequest {
 					'wait' => self::WAIT_DOS
 				], $args );
 				$result = $this->fetch( $data , $args );
+			} elseif( 'bad-token' === $result->error->code ) {
+				throw new API\BadTokenException( $result->error->info );
 			} else {
-				// Invalid query?
-				print_r( $result->error );
-				throw new \Exception( "API error" );
+				throw new API\Exception(
+					sprintf( "API error: %s", htmlentities( $result->error->info ) ),
+					$result->error->code
+				);
 			}
 		}
 		$this->last = $result;

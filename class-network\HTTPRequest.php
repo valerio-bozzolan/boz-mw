@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -199,6 +199,9 @@ class HTTPRequest {
 		$data = array_replace( $this->data, $data );
 		$args = array_replace( $this->args, $args );
 
+		// Eventually post-process the data before using
+		$data = static::onDataReady( $data );
+
 		// HTTP query using file_get_contents()
 		$url = $this->api;
 		$query = http_build_query( $data );
@@ -227,6 +230,10 @@ class HTTPRequest {
 
 		if( $this->isDebug() ) {
 			self::log('DEBUG', $url );
+			self::log('DEBUG', $args['method'] );
+			if( $args['method'] === 'POST' ) {
+				self::log('DEBUG', $query );
+			}
 		}
 
 		if( $args['wait'] ) {
@@ -259,7 +266,7 @@ class HTTPRequest {
 
 		self::log('INFO', "Fetched");
 
-		return $this->onFetched( $result );
+		return static::onFetched( $result );
 	}
 
 	/**
@@ -415,8 +422,18 @@ class HTTPRequest {
 	 * @param $type string Something like 'warn'
 	 * @param $msg string Log message
 	 */
-	private static function log( $type, $msg ) {
+	protected static function log( $type, $msg ) {
 		printf("# [%s] \t %s\n", $type, $msg);
+	}
+
+	/**
+	 * Can be overrided to post-process the data before its use
+	 *
+	 * @param $data GET/POST data
+	 * @return array GET/POST data post-processed
+	 */
+	protected function onDataReady( $data ) {
+		return $data;
 	}
 
 	/**

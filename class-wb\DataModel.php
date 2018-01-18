@@ -88,16 +88,29 @@ class DataModel {
 		return $this;
 	}
 
-	public function get() {
-		return [
+	public function get( $clear = false ) {
+		$data = [
 			'labels'       => $this->getLabels(),
 			'descriptions' => $this->getDescriptions(),
 			'claims'       => $this->getClaims()
 		];
+		foreach( $data as $k => $v ) {
+			if( 0 === count( $v ) ) {
+				unset( $data[ $k ] );
+			}
+		}
+		if( $clear ) {
+			$data['clear'] = true;
+		}
+		return $data;
 	}
 
 	public function getJSON( $args = null ) {
 		return json_encode( $this->get(), $args );
+	}
+
+	public function getJSONClearing( $args = null ) {
+		return json_encode( $this->get( true ), $args );
 	}
 
 	public static function createFromData( $data ) {

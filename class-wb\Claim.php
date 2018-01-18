@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -31,8 +31,7 @@ class Claim {
 	//var $qualifiers;
 
 	/**
-	 * @param $property string Property as 'P123'
-	 * @param $mainsnak Snak   Main snak
+	 * @param $mainsnak Snak Main snak
 	 */
 	public function __construct( $mainsnak ) {
 		$this->setMainsnak( $mainsnak );

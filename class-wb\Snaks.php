@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,10 @@ class Snaks {
 		foreach( $snaks as $snak ) {
 			$this->add( $snak );
 		}
+	}
+
+	public static function factory( $snaks = [] ) {
+		return new self( $snaks );
 	}
 
 	public function add( Snak $snak ) {

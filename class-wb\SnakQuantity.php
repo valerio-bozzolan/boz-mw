@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,23 +19,20 @@
 namespace wb;
 
 /**
- * A StatementString is a Statement that contains a SnakString.
+ * A Snak for a string.
  */
-class StatementString extends Statement {
+class SnakQuantity extends Snak {
 
 	/**
-	 * @param $property string Property as 'P123'
-	 * @param $filename string File name as 'File:Example.png'
+	 * @param $property string Wikidata property as 'P123'
+	 * @param $value    string
 	 */
-	public function __construct( $property, $filename ) {
-		parent::__construct( new SnakString( $property, $filename ) );
-	}
-
-	/**
-	 * @param $property string Property as 'P123'
-	 * @param $filename string File name as 'File:Example.png'
-	 */
-	public static function factory( $property, $filename ) {
-		return new self( $property, $filename );
+	public function __construct( $property, $amount, $unit, $upper_bound = null, $lower_bound = null ) {
+		return parent::__construct(
+			'value',
+			$property,
+			DataType::QUANTITY,
+			new DataValueQuantity( $amount, $unit, $upper_bound, $lower_bound )
+		);
 	}
 }

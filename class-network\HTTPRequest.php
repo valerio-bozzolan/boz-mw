@@ -182,8 +182,7 @@ class HTTPRequest {
 			'wait'       => self::$WAIT,
 			'wait-post'  => self::$WAIT_POST,
 			'user-agent' => sprintf( 'boz-mw HTTPRequest.php/%s %s', self::VERSION, self::REPO ),
-			'headers'    => [],
-			'assoc'      => false
+			'headers'    => []
 		], $args );
 		return $this;
 	}
@@ -251,7 +250,6 @@ class HTTPRequest {
 
 		$stream_context = stream_context_create( $context );
 		$result = file_get_contents( $url, false, $stream_context );
-		$result = json_decode( $result, $args['assoc'] );
 
 		// Here $http_response_header exists magically (PHP merda!)
 		$this->loadHTTPResponseHeaders( $http_response_header );

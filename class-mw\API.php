@@ -185,7 +185,7 @@ class API extends \network\HTTPRequest {
 	 * As default, it propose a maxlag and a format.
 	 *
 	 * @param $data array GET/POST data
-	 * @overload \network\HTTPRequest#setData()
+	 * @override \network\HTTPRequest#setData()
 	 */
 	public function setData( $data ) {
 		$this->continue = null;
@@ -194,6 +194,20 @@ class API extends \network\HTTPRequest {
 			'format'  => self::$DEFAULT_FORMAT
 		], $data );
 		return parent::setData( $data );
+	}
+
+	/**
+	 * Set internal arguments
+	 *
+	 * @param $args array Internal arguments
+	 * @override \network\HTTPRequest#Args()
+	 */
+	public function setArgs( $args ) {
+		$args = array_replace( [
+			// JSON as associative array
+			'assoc' => false
+		], $args );
+		return parent::setArgs( $args );
 	}
 
 	/**
@@ -230,6 +244,10 @@ class API extends \network\HTTPRequest {
 	 * @throws \mw\API\Exception
 	 */
 	protected function onFetched( $result ) {
+		$args = $this->getArgs();
+
+		$result = json_decode( $result, $args['assoc'] );
+
 		if( isset( $result->error ) ) {
 			// Retry after some time when server lags
 			if( 'maxlag' === $result->error->code ) {

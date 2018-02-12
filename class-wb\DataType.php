@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -25,15 +25,16 @@ namespace wb;
  */
 class DataType {
 
-	const COMMONS_MEDIA    = 'commonsMedia';
 	const STRING           = 'string';
 	const URL              = 'url';
 	const TIME             = 'time';
 	const QUANTITY         = 'quantity';
 	const MONOLINGUAL_TEXT = 'monolingualtext';
+	const GLOBE_COORDINATE = 'globecoordinate';
+	const EXTERNAL_ID      = 'external-id';
+	const COMMONS_MEDIA    = 'commonsMedia';
 	const ITEM             = 'wikibase-item';
 	const ENTITY_ID        = 'wikibase-entityid';
 	const PROPERTY         = 'wikibase-property';
-	const EXTERNAL_ID      = 'external-id';
 
 }

@@ -16,29 +16,29 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 # Wikibase DataValue
-namespace wb\DataValue;
+namespace wb;
 
 /**
  * A DataValue for a globe coordinate.
  */
-class GlobeCoordinate extends DataValue {
+class DataValueGlobeCoordinate extends DataValue {
 
 	/**
 	 * @param $latitude float
 	 * @param $longitude float
+	 * @param $precision float
 	 * @param $altitude float
-	 * @param $precision string
 	 * @param $globe string
 	 */
-	public function __construct( $latitude, $longitude, $altitude = null, $precision = null, $globe = null ) {
+	public function __construct( $latitude, $longitude, $precision, $altitude = null, $globe = null ) {
 		if( null === $globe ) {
 			$globe = 'Q2';
 		}
-		parent::__construct( wb\DataType:GLOBE_COORDINATE , [
+		parent::__construct( DataType::GLOBE_COORDINATE, [
 			'latitude'  => $latitude,
 			'longitude' => $longitude,
-			'altitude'  => $altitude,
 			'precision' => $precision,
+			'altitude'  => $altitude,
 			'globe'     => "http://www.wikidata.org/entity/$globe"
 		] );
 	}

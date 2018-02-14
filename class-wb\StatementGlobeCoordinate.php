@@ -25,17 +25,25 @@ class StatementGlobeCoordinate extends Statement {
 
 	/**
 	 * @param $property Wikidata property as 'P123'
-	 * @param $item     Wikidata item as 'Q1'
+	 * @param $latitude float
+	 * @param $longitude float
+	 * @param $precision float
+	 * @param $altitude float
+	 * @param $globe string
 	 */
-	public function __construct( $property, $latitude, $longitude, $altitude = null, $precision = null, $globe = null ) {
-		parent::__construct( new SnakGlobeCoordinate( $property, $latitude, $longitude, $altitude, $precision, $globe ) );
+	public function __construct( $property, $latitude, $longitude, $precision, $altitude = null, $globe = null ) {
+		parent::__construct( new SnakGlobeCoordinate( $property, $latitude, $longitude, $precision, $altitude, $globe ) );
 	}
 
 	/**
 	 * @param $property Wikidata property as 'P123'
-	 * @param $item     Wikidata item as 'Q1'
+	 * @param $latitude float
+	 * @param $longitude float
+	 * @param $precision float
+	 * @param $altitude float
+	 * @param $globe string
 	 */
-	public static function factory( $property, $item ) {
-		return new self( $property, $item );
+	public static function factory( $property, $latitude, $longitude, $precision, $altitude = null, $globe = null ) {
+		return new self( $property, $latitude, $longitude, $precision, $altitude, $globe );
 	}
 }

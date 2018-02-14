@@ -19,23 +19,37 @@
 namespace wb;
 
 /**
- * A Snak for a Wikibase global coordinate.
- *
- * @see https://www.wikidata.org/wiki/Special:ListDatatypes
+ * A Snak for a string.
  */
-class SnakGlobeCoordinate extends Snak {
+class SnakTime extends Snak {
 
 	/**
-	 * @param $property Wikidata property as 'P123'
-	 * @param $latitude float
-	 * @param $longitude float
-	 * @param $precision float
-	 * @param $altitude float
-	 * @param $globe string
+	 * @param $property string Property as 'P123'
+	 * @param $time string example "+1539-00-00T00:00:00Z"
+	 * @param $precision int
+	 *	0: 1 Gigayear
+	 * 	1: 100 Megayears
+	 * 	2: 10 Megayears
+	 * 	3: Megayear
+	 * 	4: 100 Kiloyears
+	 * 	5: 10 Kiloyears
+	 * 	6: Kiloyear
+	 * 	7: 100 years
+	 * 	8: 10 years
+	 * 	9: years
+	 * 	10: months
+	 * 	11: days
+	 * @param $args array example:
+	 * 	timezone: 0,
+	 * 	before: 0,
+	 * 	after: 0,
+	 * 	precision: 9,
+	 * 	calendarmodel: "Q1985786"
+	 * @see https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON
 	 */
-	public function __construct( $property, $latitude, $longitude, $precision, $altitude = null, $globe = null ) {
-		return parent::__construct( 'value', $property, 'globe-coordinate',
-			new DataValueGlobeCoordinate( $latitude, $longitude, $precision, $altitude, $globe )
+	public function __construct( $property, $time, $precision, $args = [] ) {
+		return parent::__construct( 'time', $property, DataType::QUANTITY,
+			new DataValueTime( $time, $precision, $args )
 		);
 	}
 }

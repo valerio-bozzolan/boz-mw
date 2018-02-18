@@ -48,7 +48,7 @@ class SnakTime extends Snak {
 	 * @see https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON
 	 */
 	public function __construct( $property, $time, $precision, $args = [] ) {
-		return parent::__construct( 'time', $property, DataType::QUANTITY,
+		return parent::__construct( 'value', $property, DataType::QUANTITY,
 			new DataValueTime( $time, $precision, $args )
 		);
 	}

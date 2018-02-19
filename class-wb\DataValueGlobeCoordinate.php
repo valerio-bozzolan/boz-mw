@@ -43,4 +43,14 @@ class DataValueGlobeCoordinate extends DataValue {
 		] );
 	}
 
+	/**
+	 * @return string
+	 */
+	public function __toString() {
+		$value = $this->getValue();
+		return sprintf( '%f %f',
+			$value['latitude'],
+			$value['longitude']
+		);
+	}
 }

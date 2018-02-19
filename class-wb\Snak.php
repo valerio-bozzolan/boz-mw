@@ -112,4 +112,14 @@ class Snak {
 		}
 		return $snak;
 	}
+
+	/**
+	 * @return string
+	 */
+	public function __toString() {
+		return sprintf( '%s = %s',
+			$this->getProperty(),
+			$this->getDataValue()
+		);
+	}
 }

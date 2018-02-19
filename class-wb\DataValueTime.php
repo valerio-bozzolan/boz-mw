@@ -18,6 +18,8 @@
 # Wikibase
 namespace wb;
 
+use DateTime;
+
 /**
  * A DataValue for a time.
  */
@@ -26,6 +28,36 @@ class DataValueTime extends DataValue {
 	const PRECISION_YEARS  = 9;
 	const PRECISION_MONTHS = 10;
 	const PRECISION_DAYS   = 11;
+
+	/**
+	 * Gregorian calendar
+	 *
+	 * @var string
+	 */
+	static $DEFAULT_CALENDAR = 'Q1985727';
+
+	/**
+	 * Human precisions indexed
+	 *
+	 * @var array
+	 */
+	static $HUMAN_PRECISIONS = [
+		'1 Gigayear',
+		'100 Megayears',
+		'10 Megayears',
+		'Megayear',
+		'100 Kiloyears',
+		'10 Kiloyears',
+		'Kiloyear',
+		'100 years',
+		'10 years',
+		'years',
+		'months',
+		'days',
+		'hours',   // unused
+		'minutes', // unused
+		'seconds', // unused
+	];
 
 	/**
 	 * @param $time string example "+1539-00-00T00:00:00Z"
@@ -47,7 +79,7 @@ class DataValueTime extends DataValue {
 	 * 	before: 0,
 	 * 	after: 0,
 	 * 	precision: 9,
-	 * 	calendarmodel: "Q1985786"
+	 * 	calendarmodel: "Q12138"
 	 * @see https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON
 	 */
 	public function __construct( $time, $precision, $args = [] ) {
@@ -55,11 +87,63 @@ class DataValueTime extends DataValue {
 		$args = array_replace( [
 			'time'          => $time,
 			'precision'     => $precision,
-			'calendarmodel' => 'Q1985786',
+			'calendarmodel' => self::$DEFAULT_CALENDAR,
+			'timezone'      => 0, // unused
+			'before'        => 0, // unused
+			'after'         => 0, // unused
 		], $args );
 
-		$args['calendarmodel'] = "http://www.wikidata.org/entity/{$args['calendarmodel']}";
+		$args['calendarmodel'] = 'http://www.wikidata.org/entity/' . $args['calendarmodel'];
 
 		parent::__construct( DataType::TIME, $args );
+	}
+
+	/**
+	 * Return an human rappresentation of the precision
+	 *
+	 * @param $precision int
+	 * @return string
+	 */
+	public static function humanPrecision( $precision ) {
+		return self::$HUMAN_PRECISIONS[ $precision ];
+	}
+
+	/**
+	 * Return an human rappresentation of the time
+	 *
+	 * @param $time string
+	 * @param $precision int
+	 * @return string
+	 */
+	public static function humanTime( $time, $precision ) {
+		$sign = substr( $time, 0, 1 );
+		$rest = substr( $time, 1    );
+		$date = new DateTime( $rest );
+		return $date->format( self::humanTimeFormat( $precision ) );
+	}
+
+	/**
+	 * Return a format for the time
+	 *
+	 * @param $time string
+	 * @return string
+	 */
+	private static function humanTimeFormat( $precision ) {
+		if(                      9 >=  $precision )  return 'Y';
+		if( self::PRECISION_MONTHS === $precision )  return 'Y-m';
+		if( self::PRECISION_DAYS   === $precision )  return 'Y-m-d';
+		                                             return 'Y-m-d H:i:s';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function __toString() {
+		$value = $this->getValue();
+		$precision = $value['precision'];
+		return sprintf( "%s±%s",
+			self::humanTime( $value['time'], $precision ),
+			self::humanPrecision( $precision )
+		);
 	}
 }

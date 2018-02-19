@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -58,5 +58,12 @@ class DataValue {
 			throw new WrongDataException( __CLASS__ );
 		}
 		return new self( $data['type'], $data['value'] );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function __toString() {
+		return $this->getValue();
 	}
 }

@@ -52,4 +52,14 @@ class DataValueQuantity extends DataValue {
 	private static function int2string( $n ) {
 		return $n > 0 ? '+' . $n : '-' . $n;
 	}
+
+	/**
+	 * @return string
+	 */
+	public function __toString() {
+		$value = $this->getValue();
+		return sprintf( '%f',
+			$value['amount']
+		);
+	}
 }

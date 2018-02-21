@@ -197,20 +197,6 @@ class API extends \network\HTTPRequest {
 	}
 
 	/**
-	 * Set internal arguments
-	 *
-	 * @param $args array Internal arguments
-	 * @override \network\HTTPRequest#Args()
-	 */
-	public function setArgs( $args ) {
-		$args = array_replace( [
-			// JSON as associative array
-			'assoc' => false
-		], $args );
-		return parent::setArgs( $args );
-	}
-
-	/**
 	 * Filters the data before using it.
 	 *
 	 * Array elements are imploded by a pipe
@@ -237,15 +223,14 @@ class API extends \network\HTTPRequest {
 	}
 
 	/**
-	 * Check formal API errors
+	 * JSON decode and check formal API errors
 	 *
 	 * @param $result mixed Result
 	 * @override \network\HTTPRequest#onFetched()
 	 * @throws \mw\API\Exception
 	 */
 	protected function onFetched( $result ) {
-		$args = $this->getArgs();
-		$result = json_decode( $result, $args['assoc'] );
+		$result = json_decode( $result );
 		if( isset( $result->error ) ) {
 			$exception = API\Exception::createFromApiError( $result->error );
 			if( $exception instanceof MaxLagException ) {
@@ -253,7 +238,7 @@ class API extends \network\HTTPRequest {
 				self::log( 'WARN', "Lag!" );
 				$args = array_replace( [
 					'wait' => self::WAIT_DOS
-				], $args );
+				], $this->getArgs() );
 				$result = $this->fetch( $data , $args );
 			} else {
 				throw new $exception;

@@ -245,27 +245,20 @@ class API extends \network\HTTPRequest {
 	 */
 	protected function onFetched( $result ) {
 		$args = $this->getArgs();
-
 		$result = json_decode( $result, $args['assoc'] );
-
 		if( isset( $result->error ) ) {
-			// Retry after some time when server lags
-			if( 'maxlag' === $result->error->code ) {
+			$exception = API\Exception::createFromApiError( $result->error );
+			if( $exception instanceof MaxLagException ) {
+				// Retry after some time when server lags
 				self::log( 'WARN', "Lag!" );
 				$args = array_replace( [
 					'wait' => self::WAIT_DOS
 				], $args );
 				$result = $this->fetch( $data , $args );
-			} elseif( 'bad-token' === $result->error->code ) {
-				throw new API\BadTokenException( $result->error->info );
 			} else {
-				throw new API\Exception(
-					sprintf( "API error: %s", htmlentities( $result->error->info ) ),
-					$result->error->code
-				);
+				throw new $exception;
 			}
 		}
-		$this->last = $result;
-		return $result;
+		return $this->last = $result;
 	}
 }

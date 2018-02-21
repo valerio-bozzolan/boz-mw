@@ -15,30 +15,85 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# MediaWiki
+# MediaWiki API
 namespace mw\API;
 
 /**
- * API exception class
+ * Generic API exception class
  */
 class Exception extends \Exception {
 
 	/**
-	 * An error message code e.g. 'missing-csrf-token'
+	 * API error object
 	 *
-	 * @var string
+	 * @var object
 	 */
-	private $messageCode;
+	private $apiError;
 
-	public function __construct( $message, $message_code, $code = 0, Exception $previous = null ) {
-		$this->messageCode = $message_code;
-		parent::__construct( $message, $code, $previous );
+	/**
+	 * Constructor
+	 *
+	 * @param $api_error object The complete error
+	 * @param $code int
+	 * @param $previous object
+	 */
+	public function __construct( $api_error, $code = 0, Exception $previous = null ) {
+		$this->apiError = $api_error;
+		parent::__construct(
+			sprintf(
+				"API error code: '%s' info: '%s'",
+				$this->getApiErrorCode(),
+				$this->getApiErrorInfo()
+			),
+			$code,
+			$previous
+		);
 	}
 
 	/**
+	 * Create a specific exception from a generic API error
+	 *
+	 * @param $api_error object The complete error
+	 * @return self
+	 */
+	public static function createFromApiError( $api_error ) {
+		$exception = new self( $api_error );
+		$code = $exception->getApiErrorInfo();
+		switch( $code ) {
+			case 'bad-token':
+				$exception = new BadTokenException( $api_error );
+				break;
+			case 'maxlag':
+				$exception = new MaxLagException( $api_error );
+				break;
+		}
+		return $exception;
+	}
+
+	/**
+	 * Get the complete error object
+	 *
+	 * @return object
+	 */
+	public function getApiError() {
+		return $this->apiError;
+	}
+
+	/**
+	 * Get the API error code
+	 *
 	 * @return string
 	 */
-	public function getMessageCode() {
-		return $this->messageCode;
+	public function getApiErrorCode() {
+		return $this->getApiError()->code;
+	}
+
+	/**
+	 * Get the API error info
+	 *
+	 * @return string
+	 */
+	public function getApiErrorInfo() {
+		return $this->getApiError()->info;
 	}
 }

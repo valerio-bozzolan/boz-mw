@@ -19,6 +19,6 @@
 namespace mw\API;
 
 /**
- * Specific API exception class for the 'bad-token' exception
+ * Specific API exception class for the 'maxlag' exception
  */
-class BadTokenException extends Exception {}
+class MaxLagException extends Exception {}

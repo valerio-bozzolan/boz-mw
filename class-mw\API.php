@@ -241,7 +241,7 @@ class API extends \network\HTTPRequest {
 				], $this->getArgs() );
 				$result = $this->fetch( $data , $args );
 			} else {
-				throw new $exception;
+				throw $exception;
 			}
 		}
 		return $this->last = $result;

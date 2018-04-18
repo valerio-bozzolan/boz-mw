@@ -73,6 +73,37 @@ class Site {
 	}
 
 	/**
+	 * Require some tokens
+	 *
+	 * @return self
+	 */
+	public function requireTokens( $tokens ) {
+		$this->getApi()->requireTokens( $tokens );
+		return $this;
+	}
+
+	/**
+	 * Get the value of a token
+	 *
+	 * @param $token string Token name
+	 * @return string Token value
+	 */
+	public function getToken( $token ) {
+		return $this->getApi()->getToken( $token );
+	}
+
+	/**
+	 * Invalidate a token
+	 *
+	 * @param $token string Token name
+	 * @return self
+	 */
+	public function invalidateToken( $token ) {
+		$this->getApi()->invalidateToken( $token );
+		return $this;
+	}
+
+	/**
 	 * Make a login
 	 *
 	 * @see API#login()

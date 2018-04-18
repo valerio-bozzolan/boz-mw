@@ -24,6 +24,13 @@ namespace mw;
 class API extends \network\HTTPRequest {
 
 	/**
+	 * MediaWiki tokens handler
+	 *
+	 * @var mw\Tokens
+	 */
+	private $tokens;
+
+	/**
 	 * Default MediaWiki login username
 	 *
 	 * @var string
@@ -76,6 +83,16 @@ class API extends \network\HTTPRequest {
 	private $last = null;
 
 	/**
+	 * Constructor
+	 *
+	 * @param $api string API endpoint
+	 */
+	public function __construct( $api ) {
+		parent::__construct( $api, [], [] );
+		$this->tokens = new Tokens( $this );
+	}
+
+	/**
 	 * Effectuate an HTTP POST request but only after a login.
 	 *
 	 * @param $data array GET/POST data
@@ -125,6 +142,37 @@ class API extends \network\HTTPRequest {
 	}
 
 	/**
+	 * Require some tokens
+	 *
+	 * @return self
+	 */
+	public function requireTokens( $tokens ) {
+		$this->tokens->require( $tokens );
+		return $this;
+	}
+
+	/**
+	 * Get the value of a token
+	 *
+	 * @param $token string Token name
+	 * @return string Token value
+	 */
+	public function getToken( $token ) {
+		return $this->tokens->get( $token );
+	}
+
+	/**
+	 * Invalidate a token
+	 *
+	 * @param $token string Token name
+	 * @return self
+	 */
+	public function invalidateToken( $token ) {
+		$this->tokens->invalidate( $token );
+		return $this;
+	}
+
+	/**
 	 * Check if it's already logged in.
 	 *
 	 * @return bool
@@ -155,19 +203,12 @@ class API extends \network\HTTPRequest {
 			) );
 		}
 
-		// Fetch the login token
-		$logintoken = $this->fetch( [
-			'action' => 'query',
-			'meta'   => 'tokens',
-			'type'   => 'login'
-		] )->query->tokens->logintoken;
-
 		// Login
 		$response = parent::post( [
 			'action'     => 'login',
 			'lgname'     => $username,
 			'lgpassword' => $password,
-			'lgtoken'    => $logintoken
+			'lgtoken'    => $this->getToken( Tokens::LOGIN ),
 		] );
 		if( ! isset( $response->login->result ) || $response->login->result !== 'Success' ) {
 			throw new \Exception("login failed");

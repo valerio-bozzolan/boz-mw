@@ -61,7 +61,7 @@ class StaticSite extends \generic\Singleton {
 	 *
 	 * @param $site mw\Site
 	 */
-	protected static function onCreate( & $site ) {
+	protected static function onCreate( $site ) {
 		// Please override
 	}
 

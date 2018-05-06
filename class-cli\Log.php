@@ -19,7 +19,7 @@
 namespace cli;
 
 /**
- * Show log messages
+ * Show log messages (when in CLI)
  */
 class Log {
 
@@ -87,7 +87,11 @@ class Log {
 	 * @param $message string
 	 */
 	public static function log( $type, $message ) {
-		printf( "# [%s] \t %s\n", $type, $message );
+		if( isset( $_SERVER['argv'] ) ) {
+			printf( "# [%s] \t %s\n", $type, $message );
+		} else {
+			error_log( "$type $message" );
+		}
 	}
 
 }

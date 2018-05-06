@@ -64,13 +64,6 @@ class API extends \network\HTTPRequest {
 	private $username;
 
 	/**
-	 * Frequent API response token to continue a result set.
-	 *
-	 * @var mixed
-	 */
-	private $continue = null;
-
-	/**
 	 * Flag to avoid duplicate logins
 	 */
 	private $logged = false;
@@ -88,8 +81,18 @@ class API extends \network\HTTPRequest {
 	 * @param $api string API endpoint
 	 */
 	public function __construct( $api ) {
-		parent::__construct( $api, [], [] );
+		parent::__construct( $api, [] );
 		$this->tokens = new Tokens( $this );
+	}
+
+	/**
+	 * Create an API query with continuation handler
+	 *
+ 	 * @param $data array Data
+	 * @return mw\APIQuery
+	 */
+	public function createQuery( $data ) {
+		return new APIQuery( $this, $data );
 	}
 
 	/**
@@ -108,37 +111,16 @@ class API extends \network\HTTPRequest {
 	}
 
 	/**
-	 * Check if there are other requests to do to fetch the whole result set.
+	 * Fetch results
 	 *
-	 * @return bool
-	 */
-	public function hasNext() {
-		// Note that as default continue is NULL
-		return false !== $this->continue;
-	}
-
-	/**
-	 * Fetch the next result set.
-	 *
+	 * @param $data array GET/POST data
 	 * @return mixed
 	 */
-	public function fetchNext() {
-		$data = $this->getData();
-
-		if( $this->continue ) {
-			self::log('INFO', "Will continue");
-			foreach( $this->continue as $arg => $value ) {
-				$data[ $arg ] = $value;
-			}
+	public function fetch( $data = [], $args = [] ) {
+		if( [] === $data ) {
+			throw \InvalidArgumentException( 'empty data' );
 		}
-
-		$next = $this->fetch( $data );
-
-		$this->continue = isset( $next->continue )
-			? $next->continue
-			: false;
-
-		return $next;
+		return parent::fetch( $data, $args );
 	}
 
 	/**
@@ -209,6 +191,8 @@ class API extends \network\HTTPRequest {
 			'lgname'     => $username,
 			'lgpassword' => $password,
 			'lgtoken'    => $this->getToken( Tokens::LOGIN ),
+		], [
+			'sensitive' => true
 		] );
 		if( ! isset( $response->login->result ) || $response->login->result !== 'Success' ) {
 			throw new \Exception("login failed");
@@ -218,23 +202,6 @@ class API extends \network\HTTPRequest {
 		$this->logged = true;
 
 		return $this;
-	}
-
-	/**
-	 * Set GET/POST data.
-	 *
-	 * As default, it propose a maxlag and a format.
-	 *
-	 * @param $data array GET/POST data
-	 * @override \network\HTTPRequest#setData()
-	 */
-	public function setData( $data ) {
-		$this->continue = null;
-		$data = array_replace( [
-			'maxlag'  => self::$DEFAULT_MAXLAG,
-			'format'  => self::$DEFAULT_FORMAT
-		], $data );
-		return parent::setData( $data );
 	}
 
 	/**
@@ -248,6 +215,13 @@ class API extends \network\HTTPRequest {
 	 * @return array
 	 */
 	protected function onDataReady( $data ) {
+
+		// Some default values
+		$data = array_replace( [
+			'maxlag'  => self::$DEFAULT_MAXLAG,
+			'format'  => self::$DEFAULT_FORMAT,
+		], $data );
+
 		foreach( $data as $k => $v ) {
 			if( null === $v ) {
 				unset( $data[ $k ] );
@@ -272,11 +246,14 @@ class API extends \network\HTTPRequest {
 	 */
 	protected function onFetched( $result ) {
 		$result = json_decode( $result );
+		if( isset( $result->warnings ) ) {
+			Log::warn( $result->warnings->main->{'*'} );
+		}
 		if( isset( $result->error ) ) {
 			$exception = API\Exception::createFromApiError( $result->error );
 			if( $exception instanceof MaxLagException ) {
 				// Retry after some time when server lags
-				self::log( 'WARN', "Lag!" );
+				Log::warn( "Lag!" );
 				$args = array_replace( [
 					'wait' => self::WAIT_DOS
 				], $this->getArgs() );

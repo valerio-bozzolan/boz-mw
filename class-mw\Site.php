@@ -47,7 +47,17 @@ class Site {
 	 * @param $url string MediaWiki API URL
 	 */
 	public function __construct( $url ) {
-		$this->api = self::createApi( $url );
+		$this->api = new API( $url );
+	}
+
+	/**
+	 * Create an API query with continuation handler
+	 *
+	 * @param $data array GET/POST data arguments
+	 * @return mw\APIQuery
+	 */
+	public function createQuery( $data ) {
+		return $this->getApi()->createQuery( $data );
 	}
 
 	/**
@@ -113,38 +123,6 @@ class Site {
 	 */
 	public function login( $username = null, $password = null ) {
 		$this->getApi()->login( $username, $password );
-		return $this;
-	}
-
-	/**
-	 * Check if we can continue fetching the next result set
-	 *
-	 * @see API#hasNext()
-	 * @return bool
-	 */
-	public function hasNext() {
-		return $this->getApi()->hasNext();
-	}
-
-	/**
-	 * Fetch the next result set
-	 *
-	 * @see API#fetchNext()
-	 * @return mixed Response
-	 */
-	public function fetchNext() {
-		return $this->getApi()->fetchNext();
-	}
-
-	/**
-	 * Set the default API data
-	 *
-	 * @see API#setData()
-	 * @data array HTTP GET/POST data
-	 * @return self
-	 */
-	public function setApiData( $data ) {
-		$this->getApi()->setData( $data );
 		return $this;
 	}
 
@@ -232,15 +210,5 @@ class Site {
 	 */
 	public function createWikitext( $wikitext ) {
 		return new Wikitext( $this, $wikitext );
-	}
-
-	/**
-	 * Create a MediaWiki API object from an API URL
-	 *
-	 * @param $url string API URL
-	 * @return API
-	 */
-	private static function createApi( $url ) {
-		return new API( $url );
 	}
 }

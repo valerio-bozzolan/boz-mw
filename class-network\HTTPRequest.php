@@ -15,8 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# MediaWiki
+# Network
 namespace network;
+
+use cli\Log;
 
 /**
  * HTTP request handler for GET and POST requests.
@@ -94,22 +96,13 @@ class HTTPRequest {
 	private $cookies = [];
 
 	/**
-	 * Flag for debug mode
-	 *
-	 * @var bool
-	 */
-	private $debug = false;
-
-	/**
 	 * Constructor.
 	 *
 	 * @param $api string API endpoint
-	 * @param $data array GET/POST data
 	 * @param $args array Internal arguments
 	 */
-	public function __construct( $api, $data = [], $args = [] ) {
+	public function __construct( $api, $args = [] ) {
 		$this->api = $api;
-		$this->setData( $data );
 		$this->setArgs( $args );
 	}
 
@@ -118,17 +111,8 @@ class HTTPRequest {
 	 *
 	 * @return network\HTTPRequest
 	 */
-	public static function factory( $api, $data = [], $args = [] ) {
-		return new self( $api, $data, $args );
-	}
-
-	/**
-	 * Get current HTTP GET/POST data.
-	 *
-	 * @return array
-	 */
-	public function getData() {
-		return $this->data;
+	public static function factory( $api, $args = [] ) {
+		return new self( $api, $args );
 	}
 
 	/**
@@ -141,37 +125,14 @@ class HTTPRequest {
 	}
 
 	/**
-	 * Check if debug mode is enabled
-	 *
-	 * @return bool
-	 */
-	public function isDebug() {
-		return $this->debug;
-	}
-
-	/**
-	 * Set HTTP GET/POST data for same future requests.
-	 *
-	 * @param $data array GET/POST data
-	 * @return self
-	 */
-	public function setData( $data ) {
-		$this->data = $data;
-		return $this;
-	}
-
-	/**
-	 * Toggle debug mode
-	 *
-	 * @return self
-	 */
-	public function setDebug( $debug ) {
-		$this->debug = $debug;
-		return $this;
-	}
-
-	/**
 	 * Set internal arguments
+	 *
+	 * method: GET, POST etc.
+	 * user-agent: HTTP user agent
+	 * sensitive: flag to indicate if the data is sensitive and should not be printed as usual in the log
+	 * wait: microseconds to wait after every GET request
+	 * wait-post: microseconds to wait after every POST request
+	 * headers: HTTP headers
 	 *
 	 * @param $args array Internal arguments
 	 * @return self
@@ -179,10 +140,11 @@ class HTTPRequest {
 	public function setArgs( $args ) {
 		$this->args = array_replace( [
 			'method'     => 'GET',
+			'user-agent' => sprintf( 'boz-mw HTTPRequest.php/%s %s', self::VERSION, self::REPO ),
+			'sensitive'  => false,
 			'wait'       => self::$WAIT,
 			'wait-post'  => self::$WAIT_POST,
-			'user-agent' => sprintf( 'boz-mw HTTPRequest.php/%s %s', self::VERSION, self::REPO ),
-			'headers'    => []
+			'headers'    => [],
 		], $args );
 		return $this;
 	}
@@ -195,7 +157,7 @@ class HTTPRequest {
 	 * @return mixed Response
 	 */
 	public function fetch( $data = [], $args = [] ) {
-		$data = array_replace( $this->data, $data );
+
 		$args = array_replace( $this->args, $args );
 
 		// Eventually post-process the data before using
@@ -215,6 +177,7 @@ class HTTPRequest {
 		if( $this->haveCookies() ) {
 			$args['headers'][] = $this->getCookieHeader();
 		}
+
 		if( $query ) {
 			if( 'POST' === $args['method'] ) {
 				$args['headers'][] = self::header('Content-Type', 'application/x-www-form-urlencoded' );
@@ -223,30 +186,24 @@ class HTTPRequest {
 				$url .= "?$query";
 			}
 		}
+
+		if( 'GET' === $args['method'] ) {
+			Log::info( "GET $url" );
+		} else {
+			Log::sensitive( "{$args['method']} $url $query", "{$args['method']} $url" );
+		}
+
 		if( $args['headers'] ) {
 			$context['http']['header'] = self::implodeHTTPHeaders( $args['headers'] );
 		}
 
-		if( $this->isDebug() ) {
-			self::log('DEBUG', $url );
-			self::log('DEBUG', $args['method'] );
-			if( $args['method'] === 'POST' ) {
-				self::log('DEBUG', $query );
-			}
-		}
-
 		if( $args['wait'] ) {
-			self::log('INFO', sprintf(
-				"Waiting %.2f s...",
+			Log::info( sprintf(
+				"Waiting %.2f s.",
 				$args['wait']
 			) );
 			usleep( $args['wait'] * 1000000 );
 		}
-
-		self::log('INFO', sprintf(
-			"%s request",
-			$args['method']
-		) );
 
 		$stream_context = stream_context_create( $context );
 		$result = file_get_contents( $url, false, $stream_context );
@@ -255,26 +212,31 @@ class HTTPRequest {
 		$this->loadHTTPResponseHeaders( $http_response_header );
 
 		if( isset( $this->latestHttpResponseHeaders['HTTP/1.1 500 Internal Server Error'] ) ) {
-			self::log( 'WARN', "500 Internal Server Error!");
+			Log::warn( "500 Internal Server Error!" );
 			$args = array_replace( [
 				'wait' => self::WAIT_DOS
 			], $args );
 			return $this->fetch( $data , $args );
 		}
 
-		self::log('INFO', "Fetched");
+		Log::info( "Fetched" );
 
 		return static::onFetched( $result );
 	}
 
 	/**
 	 * Effectuate an HTTP POST.
+	 *
+	 * @param $data array POST data
+	 * @param $args Internal arguments
+	 * @return mixed Response
 	 */
 	public function post( $data = [], $args = [] ) {
-		$args = array_replace( [
-			'method' => 'POST',
-			'wait'   => $this->args['wait-post']
-		], $args );
+		$args = array_replace(
+			[ 'wait' => $this->args['wait-post'] ],
+			$args,
+			[ 'method' => 'POST' ]
+		);
 		return $this->fetch( $data, $args );
 	}
 
@@ -412,16 +374,6 @@ class HTTPRequest {
 	 */
 	private static function headerRaw( $name, $value ) {
 		return sprintf( '%s: %s', $name, $value );
-	}
-
-	/**
-	 * Print a tedious message to the output.
-	 *
-	 * @param $type string Something like 'warn'
-	 * @param $msg string Log message
-	 */
-	protected static function log( $type, $msg ) {
-		printf("# [%s] \t %s\n", $type, $msg);
 	}
 
 	/**

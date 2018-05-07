@@ -28,7 +28,7 @@ class Input {
 	 * @return string e.g. 'y'
 	 */
 	public static function yesNoQuestion( $question, $default = 'y' ) {
-		return self::singleCharQuestion( $question, 'yn', $default );
+		return self::askSingleChar( $question, 'yn', $default );
 	}
 
 	/**
@@ -38,14 +38,25 @@ class Input {
 	 * @param $choices string e.g. 'yn'
 	 * @param $default string e.g. 'y'
 	 */
-	public static function singleCharQuestion( $question, $choices, $default ) {
+	public static function askSingleChar( $question, $choices, $default ) {
 		$choices = str_split( $choices );
 		foreach( $choices as &$choice ) {
 			if( $choice === $default ) {
 				$choice = strtoupper( $choice );
 			}
 		}
-		echo "$question [" . implode( '/', $choices ) . "]\n";
+		return self::askInput( "$question [" . implode( '/', $choices ) . "]", $default );
+	}
+
+	/**
+	 * Ask for user input
+	 *
+	 * @param $question string e.g. 'Please insert something'
+	 * @param $default string e.g. 'something'
+	 * @return string e.g. 'something'
+	 */
+	public static function askInput( $question, $default = '' ) {
+		echo "$question\n";
 		return self::read( $default );
 	}
 

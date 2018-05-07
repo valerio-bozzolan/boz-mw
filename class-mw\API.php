@@ -60,20 +60,10 @@ class API extends \network\HTTPRequest {
 
 	/**
 	 * Username used for the login.
+	 *
+	 * @var string
 	 */
 	private $username;
-
-	/**
-	 * Flag to avoid duplicate logins
-	 */
-	private $logged = false;
-
-	/**
-	 * Last API response
-	 *
-	 * @var mixed
-	 */
-	private $last = null;
 
 	/**
 	 * Constructor
@@ -160,7 +150,7 @@ class API extends \network\HTTPRequest {
 	 * @return bool
 	 */
 	public function isLogged() {
-		return $this->logged;
+		return isset( $this->username );
 	}
 
 	/**
@@ -172,6 +162,9 @@ class API extends \network\HTTPRequest {
 
 		// Can use a default set of credentials
 		if( ! $username && ! $password ) {
+			if( $this->isLogged() ) {
+				return $this;
+			}
 			$username = self::$DEFAULT_USERNAME;
 			$password = self::$DEFAULT_PASSWORD;
 		}
@@ -195,11 +188,11 @@ class API extends \network\HTTPRequest {
 			'sensitive' => true
 		] );
 		if( ! isset( $response->login->result ) || $response->login->result !== 'Success' ) {
+			print_r( $response );
 			throw new \Exception("login failed");
 		}
 
 		$this->username = $response->login->lgusername;
-		$this->logged = true;
 
 		return $this;
 	}
@@ -262,6 +255,6 @@ class API extends \network\HTTPRequest {
 				throw $exception;
 			}
 		}
-		return $this->last = $result;
+		return $result;
 	}
 }

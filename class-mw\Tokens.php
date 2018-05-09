@@ -110,7 +110,7 @@ class Tokens {
 	 * @return string Token value
 	 */
 	public function get( $token ) {
-		return $this->require( [ $token ] )->tokensCache[ $token ];
+		return $this->preload( [ $token ] )->tokensCache[ $token ];
 	}
 
 	/**
@@ -124,14 +124,14 @@ class Tokens {
 	}
 
 	/**
-	 * Require multiple tokens
+	 * Preload multiple tokens
 	 *
 	 * This will fetch only the uncached
 	 *
 	 * @param $tokens array Token names
 	 * @return self
 	 */
-	public function require( $tokens ) {
+	public function preload( $tokens ) {
 		$missings = [];
 		foreach( $tokens as $token ) {
 			if( ! $this->exists( $token ) ) {

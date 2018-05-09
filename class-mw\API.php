@@ -114,12 +114,12 @@ class API extends \network\HTTPRequest {
 	}
 
 	/**
-	 * Require some tokens
+	 * Preload some tokens
 	 *
 	 * @return self
 	 */
-	public function requireTokens( $tokens ) {
-		$this->tokens->require( $tokens );
+	public function preloadTokens( $tokens ) {
+		$this->tokens->preload( $tokens );
 		return $this;
 	}
 

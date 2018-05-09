@@ -83,12 +83,12 @@ class Site {
 	}
 
 	/**
-	 * Require some tokens
+	 * Preload some tokens
 	 *
 	 * @return self
 	 */
-	public function requireTokens( $tokens ) {
-		$this->getApi()->requireTokens( $tokens );
+	public function preloadTokens( $tokens ) {
+		$this->getApi()->preloadTokens( $tokens );
 		return $this;
 	}
 

@@ -54,7 +54,9 @@ class Log {
 	 * @param $message string
 	 */
 	public static function info( $message ) {
-		self::log( 'DEBUG', $message );
+		if( self::$DEBUG ) {
+			self::log( 'DEBUG', $message );
+		}
 	}
 
 	/**
@@ -73,10 +75,12 @@ class Log {
 	 * @param $message_unsensitive Message secure to be shown
 	 */
 	public static function sensitive( $message_sensitive, $message_unsensitive ) {
-		if( self::$SENSITIVE ) {
-			self::log( '!DEBUG!', $message_sensitive );
-		} elseif( $message_unsensitive ) {
-			self::log( '!DEBUG!', "$message_unsensitive [SENSITIVE DATA HIDDEN]" );
+		if( self::$DEBUG ) {
+			if( self::$SENSITIVE ) {
+				self::log( '!DEBUG!', $message_sensitive );
+			} elseif( $message_unsensitive ) {
+				self::log( '!DEBUG!', "$message_unsensitive [SENSITIVE DATA HIDDEN]" );
+			}
 		}
 	}
 

@@ -114,7 +114,8 @@ class Log {
 	 */
 	public static function log( $type, $message ) {
 		if( isset( $_SERVER['argv'] ) ) {
-			printf( "# [%s] \t %s\n", $type, $message );
+			$date = date( 'Y-m-d H:i:s' );
+			printf( "[%s][%s] %s\n", $date, $type, $message );
 		} else {
 			error_log( "$type $message" );
 		}

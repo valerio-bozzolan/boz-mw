@@ -188,7 +188,7 @@ class HTTPRequest {
 		}
 
 		if( 'GET' === $args['method'] ) {
-			Log::info( "GET $url" );
+			Log::debug( "GET $url" );
 		} else {
 			Log::sensitive( "{$args['method']} $url $query", "{$args['method']} $url" );
 		}
@@ -198,7 +198,7 @@ class HTTPRequest {
 		}
 
 		if( $args['wait'] ) {
-			Log::info( sprintf(
+			Log::debug( sprintf(
 				"Waiting %.2f s.",
 				$args['wait']
 			) );
@@ -219,7 +219,7 @@ class HTTPRequest {
 			return $this->fetch( $data , $args );
 		}
 
-		Log::info( "Fetched" );
+		Log::debug( "Fetched" );
 
 		return static::onFetched( $result );
 	}

@@ -24,9 +24,11 @@ namespace cli;
 class Log {
 
 	/**
-	 * Verbose sensitive information messages flag
+	 * Normal information messages flag
+	 *
+	 * @var bool
 	 */
-	public static $SENSITIVE = false;
+	public static $INFO = true;
 
 	/**
 	 * Verbose information messages flag
@@ -34,6 +36,13 @@ class Log {
 	 * @var bool
 	 */
 	public static $DEBUG = false;
+
+	/**
+	 * Verbose sensitive information messages flag
+	 *
+	 * @var bool
+	 */
+	public static $SENSITIVE = false;
 
 	/**
 	 * Show a warning
@@ -54,6 +63,19 @@ class Log {
 	 * @param $message string
 	 */
 	public static function info( $message ) {
+		if( self::$INFO ) {
+			self::log( 'INFO', $message );
+		}
+	}
+
+	/**
+	 * Show a debug information
+	 *
+	 * Use it to show actions under the hood
+	 *
+	 * @param $message string
+	 */
+	public static function debug( $message ) {
 		if( self::$DEBUG ) {
 			self::log( 'DEBUG', $message );
 		}

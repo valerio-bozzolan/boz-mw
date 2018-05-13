@@ -74,7 +74,7 @@ class APIQuery {
 	public function fetchNext() {
 		$data = $this->data;
 		if( $this->continue ) {
-			Log::info( "Continuing" );
+			Log::debug( "query continue" );
 			foreach( $this->continue as $arg => $value ) {
 				$data[ $arg ] = $value;
 			}

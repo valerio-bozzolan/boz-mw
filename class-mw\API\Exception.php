@@ -58,7 +58,7 @@ class Exception extends \Exception {
 	 */
 	public static function createFromApiError( $api_error ) {
 		$exception = new self( $api_error );
-		$code = $exception->getApiErrorInfo();
+		$code = $exception->getApiErrorCode();
 		switch( $code ) {
 			case 'bad-token':
 				$exception = new BadTokenException( $api_error );

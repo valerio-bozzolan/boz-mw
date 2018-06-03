@@ -221,7 +221,7 @@ class HTTPRequest {
 
 		Log::debug( "Fetched" );
 
-		return static::onFetched( $result );
+		return static::onFetched( $result, $data );
 	}
 
 	/**
@@ -392,9 +392,10 @@ class HTTPRequest {
 	 * This is called every time something is fetched.
 	 *
 	 * @param $result mixed Result
+	 * @param $request_data mixed GET/POST data
 	 * @return mixed Result
 	 */
-	protected function onFetched( $result ) {
+	protected function onFetched( $result, $request_data ) {
 		return $result;
 	}
 }

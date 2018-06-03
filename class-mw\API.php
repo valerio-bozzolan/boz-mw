@@ -236,23 +236,23 @@ class API extends \network\HTTPRequest {
 	 * JSON decode and check formal API errors
 	 *
 	 * @param $result mixed Result
+	 * @param $request_data array GET/POST request data
 	 * @override \network\HTTPRequest#onFetched()
 	 * @throws \mw\API\Exception
 	 */
-	protected function onFetched( $result ) {
+	protected function onFetched( $result, $request_data ) {
 		$result = json_decode( $result );
 		if( isset( $result->warnings ) ) {
 			Log::warn( $result->warnings->main->{'*'} );
 		}
 		if( isset( $result->error ) ) {
 			$exception = API\Exception::createFromApiError( $result->error );
-			if( $exception instanceof MaxLagException ) {
+			if( $exception instanceof API\MaxLagException ) {
 				// Retry after some time when server lags
 				Log::warn( "Lag!" );
-				$args = array_replace( [
+				$result = $this->fetch( $request_data, [
 					'wait' => self::WAIT_DOS
-				], $this->getArgs() );
-				$result = $this->fetch( $data , $args );
+				] );
 			} else {
 				throw $exception;
 			}

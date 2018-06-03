@@ -208,6 +208,12 @@ class HTTPRequest {
 		$stream_context = stream_context_create( $context );
 		$response = file_get_contents( $url, false, $stream_context );
 
+		if( ! isset( $http_response_header ) ) {
+			throw new Exception( 'undefined http_response_header variable: wrong request?' );
+		}
+
+		var_dump( $http_response_header );exit;
+
 		// Here $http_response_header exists magically (PHP merda!)
 		$this->loadHTTPResponseHeaders( $http_response_header );
 
@@ -341,6 +347,7 @@ class HTTPRequest {
 	private static function parseHTTPResponseHeaders( $http_response_headers ) {
 		$headers = [];
 		foreach( $http_response_headers as $header ) {
+			// Check if it's an header like 'Foo: bar'
 			$header_parts = explode(':', $header, 2);
 			if( 2 === count( $header_parts ) ) {
 				list( $name, $value ) = $header_parts;
@@ -348,6 +355,8 @@ class HTTPRequest {
 					$headers[ $name ] = [];
 				}
 				$headers[ $name ][] = ltrim( $value );
+			} else {
+				$headers[ $header ] = true;
 			}
 		}
 		return $headers;

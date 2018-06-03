@@ -18,6 +18,8 @@
 # MediaWiki
 namespace mw;
 
+use cli\Log;
+
 /**
  * Make HTTP request to a MediaWiki API
  */

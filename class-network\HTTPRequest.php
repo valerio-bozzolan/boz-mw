@@ -206,7 +206,7 @@ class HTTPRequest {
 		}
 
 		$stream_context = stream_context_create( $context );
-		$result = file_get_contents( $url, false, $stream_context );
+		$response = file_get_contents( $url, false, $stream_context );
 
 		// Here $http_response_header exists magically (PHP merda!)
 		$this->loadHTTPResponseHeaders( $http_response_header );
@@ -221,7 +221,7 @@ class HTTPRequest {
 
 		Log::debug( "Fetched" );
 
-		return static::onFetched( $result, $data );
+		return static::onFetched( $response, $data );
 	}
 
 	/**
@@ -391,11 +391,11 @@ class HTTPRequest {
 	 *
 	 * This is called every time something is fetched.
 	 *
-	 * @param $result mixed Result
+	 * @param $response mixed Response
 	 * @param $request_data mixed GET/POST data
-	 * @return mixed Result
+	 * @return mixed Response
 	 */
-	protected function onFetched( $result, $request_data ) {
-		return $result;
+	protected function onFetched( $response, $request_data ) {
+		return $response;
 	}
 }

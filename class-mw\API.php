@@ -54,7 +54,7 @@ class API extends \network\HTTPRequest {
 	static $DEFAULT_MAXLAG = 5;
 
 	/**
-	 * Default MediaWiki API result format
+	 * Default MediaWiki API response format
 	 *
 	 * @var string
 	 */
@@ -103,7 +103,7 @@ class API extends \network\HTTPRequest {
 	}
 
 	/**
-	 * Fetch results
+	 * Fetch response
 	 *
 	 * @param $data array GET/POST data
 	 * @return mixed
@@ -235,28 +235,28 @@ class API extends \network\HTTPRequest {
 	/**
 	 * JSON decode and check formal API errors
 	 *
-	 * @param $result mixed Result
+	 * @param $response mixed Response
 	 * @param $request_data array GET/POST request data
 	 * @override \network\HTTPRequest#onFetched()
 	 * @throws \mw\API\Exception
 	 */
-	protected function onFetched( $result, $request_data ) {
-		$result = json_decode( $result );
-		if( isset( $result->warnings ) ) {
-			Log::warn( $result->warnings->main->{'*'} );
+	protected function onFetched( $response, $request_data ) {
+		$response = json_decode( $response );
+		if( isset( $response->warnings ) ) {
+			Log::warn( $response->warnings->main->{'*'} );
 		}
-		if( isset( $result->error ) ) {
-			$exception = API\Exception::createFromApiError( $result->error );
+		if( isset( $response->error ) ) {
+			$exception = API\Exception::createFromApiError( $response->error );
 			if( $exception instanceof API\MaxLagException ) {
 				// Retry after some time when server lags
 				Log::warn( "Lag!" );
-				$result = $this->fetch( $request_data, [
+				$response = $this->fetch( $request_data, [
 					'wait' => self::WAIT_DOS
 				] );
 			} else {
 				throw $exception;
 			}
 		}
-		return $result;
+		return $response;
 	}
 }

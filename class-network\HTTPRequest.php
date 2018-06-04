@@ -19,6 +19,7 @@
 namespace network;
 
 use cli\Log;
+use InvalidArgumentException;
 
 /**
  * HTTP request handler for GET and POST requests.
@@ -87,6 +88,13 @@ class HTTPRequest {
 	 * @var array
 	 */
 	private $latestHttpResponseHeaders = [];
+
+	/**
+	 * Latest HTTP error status code
+	 *
+	 * @var Status
+	 */
+	private $latestHttpResponseStatus;
 
 	/**
 	 * HTTP cookies
@@ -208,24 +216,30 @@ class HTTPRequest {
 		$stream_context = stream_context_create( $context );
 		$response = file_get_contents( $url, false, $stream_context );
 
+		// Here $http_response_header exists magically (PHP merda!)
 		if( ! isset( $http_response_header ) ) {
 			throw new Exception( 'undefined http_response_header variable: wrong request?' );
 		}
-
-		var_dump( $http_response_header );exit;
-
-		// Here $http_response_header exists magically (PHP merda!)
 		$this->loadHTTPResponseHeaders( $http_response_header );
 
-		if( isset( $this->latestHttpResponseHeaders['HTTP/1.1 500 Internal Server Error'] ) ) {
-			Log::warn( "500 Internal Server Error!" );
-			$args = array_replace( [
-				'wait' => self::WAIT_DOS
-			], $args );
-			return $this->fetch( $data , $args );
+		// Check the HTTP status
+		$status = $this->getLatestHTTPResponseStatus();
+		if( ! $status->isOK() ) {
+			if( $status->isClientError() ) {
+				Log::warn( sprintf(
+					"waiting because of HTTP status %s: %s",
+					$status->getCode(),
+					$status->getMessage()
+				) );
+				$args = array_replace( [
+					'wait' => self::WAIT_DOS
+				], $args );
+				return $this->fetch(	$data, $args );
+			}
+			throw new NotOKException( $status );
 		}
 
-		Log::debug( "Fetched" );
+		Log::debug( $status->getHeader() );
 
 		return static::onFetched( $response, $data );
 	}
@@ -253,6 +267,15 @@ class HTTPRequest {
 	 */
 	public function getLatestHTTPResponseHeaders() {
 		return $this->latestHttpResponseHeaders;
+	}
+
+	/**
+	 * Get latest HTTP status
+	 *
+	 * @return Status
+	 */
+	private function getLatestHTTPResponseStatus() {
+		return $this->latestHttpResponseStatus;
 	}
 
 	/**
@@ -320,7 +343,9 @@ class HTTPRequest {
 	 * Load HTTP response headers, filling cookies.
 	 */
 	private function loadHTTPResponseHeaders( $http_response_headers ) {
-		$this->latestHttpResponseHeaders = self::parseHTTPResponseHeaders( $http_response_headers );
+		list( $this->latestHttpResponseHeaders, $this->latestHttpResponseStatus )
+			= self::parseHTTPResponseHeaders( $http_response_headers );
+
 		if( isset( $this->latestHttpResponseHeaders['Set-Cookie'] ) ) {
 			foreach( $this->latestHttpResponseHeaders['Set-Cookie'] as $cookie ) {
 				$this->setRawCookie( $cookie );
@@ -328,6 +353,12 @@ class HTTPRequest {
 		}
 	}
 
+	/**
+	 * Implode HTTP headers
+	 *
+	 * @param $headers array
+	 * @return string
+	 */
 	private function implodeHTTPHeaders( $headers ) {
 		if( ! $headers ) {
 			return null;
@@ -340,11 +371,13 @@ class HTTPRequest {
 	}
 
 	/**
-	 * Group HTTP headers by keys.
+	 * Group HTTP headers by keys and get the HTTP Status.
 	 *
-	 * @return array
+	 * @param $http_response_headers array
+	 * @return array The first element contains an associative array of header name and value(s). The second one contains the Status.
 	 */
 	private static function parseHTTPResponseHeaders( $http_response_headers ) {
+		$status = null;
 		$headers = [];
 		foreach( $http_response_headers as $header ) {
 			// Check if it's an header like 'Foo: bar'
@@ -356,10 +389,19 @@ class HTTPRequest {
 				}
 				$headers[ $name ][] = ltrim( $value );
 			} else {
-				$headers[ $header ] = true;
+				try {
+					$status = Status::createFromHeader( $header );
+				} catch( InvalidArgumentException $e ) {
+					$headers[ $header ] = true;
+				}
 			}
 		}
-		return $headers;
+
+		if( null === $status ) {
+			throw new \Exception( 'HTTP response without an HTTP status code' );
+		}
+
+		return [ $headers, $status ];
 	}
 
 	/**

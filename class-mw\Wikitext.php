@@ -18,62 +18,142 @@
 # MediaWiki
 namespace mw;
 
+/**
+ * A MediaWiki wikitext
+ */
 class Wikitext {
 
 	/**
 	 * MediaWiki site
+	 *
+	 * @var mw\Site
 	 */
 	private $site;
 
 	/**
-	 * Plain text wikitext
+	 * Complete plain text wikitext
+	 *
 	 * @var string
 	 */
 	private $wikitext;
 
+	/**
+	 * String appended to the wikitext
+	 *
+	 * @var string
+	 */
 	private $appended = '';
+
+	/**
+	 * String prepended to the wikitext
+	 *
+	 * @var string
+	 */
 	private $prepended = '';
+
+	/**
+	 * Strings sobstituted from the wikitext
+	 *
+	 * @var string
+	 */
 	private $sobstitutions = [];
 
+	/**
+	 * Constructor
+	 *
+	 * @param $site mw\Site MediaWiki site
+	 * @param $wikitext string Wikitext
+	 */
 	public function __construct( $site, $wikitext ) {
 		$this->setWikitext( $wikitext );
 		$this->setSite( $site );
 	}
 
+	/**
+	 * Get the MediaWiki site
+	 *
+	 * @return mw\Site
+	 */
 	public function getSite() {
 		return $this->site;
 	}
 
+	/**
+	 * Get the complete wikitext
+	 *
+	 * @return string
+	 */
 	public function getWikitext() {
 		return $this->wikitext;
 	}
 
+	/**
+	 * Set the MediaWiki site
+	 *
+	 * @return self
+	 */
 	public function setSite( $site ) {
 		$this->site = $site;
 		return $this;
 	}
 
+	/**
+	 * Set the wikitext
+	 *
+	 * @param $wikitext string
+	 * @return self
+	 */
 	public function setWikitext( $wikitext ) {
 		$this->wikitext = $wikitext;
 		return $this;
 	}
 
+	/**
+	 * Append some wikitext
+	 *
+	 * @param $wikitext string
+	 * @return self
+	 */
 	public function appendWikitext( $wikitext ) {
 		$this->appended .= $wikitext;
 		$this->setWikitext( $this->getWikitext() . $wikitext );
 		return $this;
 	}
 
+	/**
+	 * Prepend some wikitext
+	 *
+	 * @param $wikitext string
+	 * @return self
+	 */
 	public function prependWikitext( $wikitext ) {
 		$this->prepended .= $wikitext;
 		$this->setWikitext( $wikitext . $this->getWikitext() );
 		return $this;
 	}
 
+	/**
+	 * Run a preg_match() on the wikitext
+	 *
+	 * @param $pattern string Pattern
+	 * @param $matches array Matches
+	 * @param $flags int
+	 * @param $offset int
+	 * @see preg_match()
+	 */
 	public function pregMatch( $pattern, & $matches = [], $flags = 0, $offset = 0 ) {
 		return preg_match( $pattern, $this->getWikitext(), $matches, $flags, $offset );
 	}
 
+	/**
+	 * Run a preg_replace() on the wikitext
+	 *
+	 * @param $pattern string Pattern
+	 * @param $replacement mixed
+	 * @param $limit int
+	 * @param $count int
+	 * @see preg_replace()
+	 */
 	public function pregReplace( $pattern, $replacement, $limit = -1, &$count = 0 ) {
 		if( 1 === $this->pregMatch( $pattern, $matches ) ) {
 			$from = array_shift( $matches );
@@ -99,6 +179,12 @@ class Wikitext {
 		return $this;
 	}
 
+	/**
+	 * It has a Category? (it checks only the wikitext)
+	 *
+	 * @param $category_name string Category without namespace prefix
+	 * @return bool
+	 */
 	public function hasCategory( $category_name ) {
 		$category_name_regex = Title::factory( $category_name )->getRegexFirstCaseInsensitive();
 		$category_name_regex = \regex\Generic::spaceBurger( $category_name_regex );
@@ -124,6 +210,13 @@ class Wikitext {
 		return false;
 	}
 
+	/**
+	 * Add a Category
+	 *
+	 * @param $category_name string Category name without category prefix
+	 * @param $sortkey string
+	 * @return string
+	 */
 	public function addCategory( $category_name, $sortkey = null ) {
 		if( $this->hasCategory( $category_name ) ) {
 			return false;
@@ -138,14 +231,29 @@ class Wikitext {
 		return true;
 	}
 
+	/**
+	 * Get the prepended wikitext
+	 *
+	 * @return string
+	 */
 	public function getPrepended() {
 		return $this->prepended;
 	}
 
+	/**
+	 * Get the appended wikitext
+	 *
+	 * @return string
+	 */
 	public function getAppended() {
 		return $this->appended;
 	}
 
+	/**
+	 * Get the sobstituted wikitext
+	 *
+	 * @return array
+	 */
 	public function getSobstitutions() {
 		return $this->sobstitutions;
 	}

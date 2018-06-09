@@ -24,13 +24,12 @@ Here some usage examples:
 	print_r( $response );
 
 	echo "Simple Italian Wikipedia API query with continuation support:\n";
-	$categories = \wm\WikipediaIt::getInstance()->createQuery( [
+	$members = \wm\WikipediaIt::getInstance()->createQuery( [
 		'action' => 'query',
-		'prop'   => 'categories',
-		'titles' => 'Gallus gallus domesticus'
+		'list'   => 'categorymembers',
+		'cmtitle' => 'Categoria:Software con licenza GNU GPL',
 	] );
-	while( $categories->hasNext() ) {
-		$response = $categories->fetchNext();
+	foreach( $members->getGenerator() as $response ) {
 		print_r( $response );
 	}
 

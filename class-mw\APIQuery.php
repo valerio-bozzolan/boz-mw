@@ -83,6 +83,19 @@ class APIQuery {
 	}
 
 	/**
+	 * Create an API result generator
+	 *
+	 * It handles the API query continuation transparently.
+	 *
+	 * @return Generator
+	 */
+	public function getGenerator() {
+		while( $this->hasNext() ) {
+			yield $this->fetchNext();
+		}
+	}
+
+	/**
 	 * Fetch results
 	 *
 	 * @param $data array GET/POST data

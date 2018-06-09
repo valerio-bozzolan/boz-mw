@@ -221,6 +221,12 @@ class API extends \network\HTTPRequest {
 			if( null === $v ) {
 				unset( $data[ $k ] );
 			} elseif( is_array( $v ) ) {
+				// remove duplicates (API netiquette)
+				$v = array_unique( $v );
+
+				// index alphabetically (API netiquette)
+				sort( $v, SORT_STRING );
+
 				$data[ $k ] = implode( '|', $v );
 			}
 		}

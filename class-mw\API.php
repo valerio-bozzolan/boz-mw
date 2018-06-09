@@ -249,7 +249,9 @@ class API extends \network\HTTPRequest {
 	protected function onFetched( $response, $request_data ) {
 		$response = json_decode( $response );
 		if( isset( $response->warnings ) ) {
-			Log::warn( $response->warnings->main->{'*'} );
+			foreach( $response->warnings as $subject => $warning ) {
+				Log::warn( sprintf( '%s: %s', $subject, $warning->{'*'} ) );
+			}
 		}
 		if( isset( $response->error ) ) {
 			$exception = API\Exception::createFromApiError( $response->error );

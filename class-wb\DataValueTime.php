@@ -129,7 +129,7 @@ class DataValueTime extends DataValue {
 	 * @return string
 	 */
 	private static function humanTimeFormat( $precision ) {
-		if(                      9 >=  $precision )  return 'Y';
+		if( self::PRECISION_YEARS  >=  $precision )  return 'Y';
 		if( self::PRECISION_MONTHS === $precision )  return 'Y-m';
 		if( self::PRECISION_DAYS   === $precision )  return 'Y-m-d';
 		                                             return 'Y-m-d H:i:s';

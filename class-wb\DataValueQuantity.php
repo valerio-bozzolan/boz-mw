@@ -31,7 +31,7 @@ class DataValueQuantity extends DataValue {
 	 */
 	public function __construct( $amount, $wikidata_unit_id, $upper_bound = null, $lower_bound = null ) {
 		$value = [
-			'amount' => self::int2string( $amount ),
+			'amount' => self::sign( $amount ),
 			'unit'   => "http://www.wikidata.org/entity/$wikidata_unit_id"
 		];
 		if( null !== $upper_bound ) {
@@ -49,7 +49,7 @@ class DataValueQuantity extends DataValue {
 	 * @param $n mixed
 	 * @return string
 	 */
-	private static function int2string( $n ) {
+	private static function sign( $n ) {
 		return $n > 0 ? '+' . $n : '-' . $n;
 	}
 
@@ -58,8 +58,6 @@ class DataValueQuantity extends DataValue {
 	 */
 	public function __toString() {
 		$value = $this->getValue();
-		return sprintf( '%f',
-			$value['amount']
-		);
+		return $value[ 'amount' ];
 	}
 }

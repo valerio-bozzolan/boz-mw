@@ -146,6 +146,20 @@ class Wikitext {
 	}
 
 	/**
+	 * Run a preg_match_all() on the wikitext
+	 *
+	 * @param $pattern string Pattern
+	 * @param $matches array Matches
+	 * @param $flags int
+	 * @param $offset int
+	 * @see preg_match_all()
+	 * @return int|false
+	 */
+	public function pregMatchAll( $pattern, & $matches = [], $flags = 0, $offset = 0 ) {
+		return preg_match_all( $pattern, $this->getWikitext(), $matches, $flags, $offset );
+	}
+
+	/**
 	 * Run a preg_replace() on the wikitext
 	 *
 	 * @param $pattern string Pattern

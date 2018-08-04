@@ -116,11 +116,10 @@ class DataModel {
 	/**
 	 * Check if a label of a certain language exists
 	 *
-	 * @TODO rename to hasLabelInLanguage()
 	 * @param $language string
 	 * @return bool
 	 */
-	public function hasLabelsInLanguage( $language ) {
+	public function hasLabelInLanguage( $language ) {
 		return $this->labels->have( $language );
 	}
 
@@ -135,11 +134,10 @@ class DataModel {
 	/**
 	 * Check if a label of a certain language exists
 	 *
-	 * @TODO rename to hasDescriptionInLanguage()
 	 * @param $language string
 	 * @return bool
 	 */
-	public function hasDescriptionsInLanguage( $language ) {
+	public function hasDescriptionInLanguage( $language ) {
 		return $this->descriptions->have( $language );
 	}
 

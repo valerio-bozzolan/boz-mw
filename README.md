@@ -6,6 +6,7 @@ This is another MediaWiki API handler in PHP.
 
 Here some usage examples:
 
+	<?php
 	// autoload classes
 	require 'autoload.php';
 

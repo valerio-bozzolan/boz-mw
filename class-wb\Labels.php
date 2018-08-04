@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,18 +19,32 @@
 namespace wb;
 
 /**
- * A Label collector.
+ * Label collector
  */
 class Labels {
 
-	var $labels = [];
+	/**
+	 * @var array
+	 */
+	private $labels = [];
 
+	/**
+	 * Constructor
+	 *
+	 * @param $labels array
+	 */
 	public function __construct( $labels = [] ) {
 		foreach( $labels as $label ) {
 			$this->add( $label );
 		}
 	}
 
+	/**
+	 * Get a certain language
+	 *
+	 * @param $language string
+	 * @return Label
+	 */
 	public function get( $language ) {
 		foreach( $this->labels as $label ) {
 			if( $label->getLanguage() === $language ) {
@@ -40,10 +54,22 @@ class Labels {
 		return false;
 	}
 
+	/**
+	 * Does it have a certain label?
+	 *
+	 * @param $language string
+	 * @return bool
+	 */
 	public function have( $language ) {
 		return false !== $this->get( $language );
 	}
 
+	/**
+	 * Set/add a certain label
+	 *
+	 * @param $label Label
+	 * @return self
+	 */
 	public function set( Label $label ) {
 		$existing = $this->get( $label->getLanguage() );
 		if( $existing ) {
@@ -54,6 +80,11 @@ class Labels {
 		return $this;
 	}
 
+	/**
+	 * Get all the labels
+	 *
+	 * @return array
+	 */
 	public function getAll() {
 		return $this->labels;
 	}

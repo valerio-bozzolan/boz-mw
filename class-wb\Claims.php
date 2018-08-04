@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,27 +19,55 @@
 namespace wb;
 
 /**
- * A Claim collector.
+ * Claim collector
  */
 class Claims {
 
-	var $claims = [];
+	/**
+	 * All the claims
+	 *
+	 * @TODO: check if it can be declared as private without breaking casts :^)
+	 * @var array
+	 */
+	public $claims = [];
 
+	/**
+	 * Constructor
+	 *
+	 * @param $claims array
+	 */
 	public function __construct( $claims = [] ) {
 		foreach( $claims as $claim ) {
 			$this->add( $claim );
 		}
 	}
 
+	/**
+	 * Add a claim
+	 *
+	 * @param $claim $Claim
+	 * @return self
+	 */
 	public function add( Claim $claim ) {
 		$this->claims[] = $claim;
 		return $this;
 	}
 
+	/**
+	 * Count all
+	 *
+	 * @return int
+	 */
 	public function count() {
 		return count( $this->claims );
 	}
 
+	/**
+	 * Get all the claims in a certain property
+	 *
+	 * @param $property string
+	 * @return array
+	 */
 	public function getInProperty( $property ) {
 		$claims = [];
 		foreach( $this->claims as $claim ) {
@@ -50,6 +78,12 @@ class Claims {
 		return $claims;
 	}
 
+	/**
+	 * Check if there are claims in a certain property
+	 *
+	 * @param $property string
+	 * @return bool
+	 */
 	public function haveProperty( $property ) {
 		foreach( $this->claims as $claim ) {
 			if( $claim->getMainSnak()->getProperty() === $property ) {
@@ -59,6 +93,11 @@ class Claims {
 		return false;
 	}
 
+	/**
+	 * Get all the claims indexed by their property
+	 *
+	 * @return array
+	 */
 	public function getAll() {
 		$properties = [];
 		foreach( $this->claims as $claim ) {

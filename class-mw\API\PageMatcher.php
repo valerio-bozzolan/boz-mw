@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# MediaWiki
+# MediaWiki API
 namespace mw\API;
 
 /**
@@ -57,17 +57,30 @@ class PageMatcher {
 	 * 			{ from: , to: },
 	 * 			...
 	 * 		],
-	 *			pages: [
+	 *			query: pages: [
 	 * 			id: { id: , title: , ... },
 	 * 			id: { id: , title: , ... },
 	 * 			...
 	 * 		]
 	 * 	}
 	 * @param $my_pages array My custom page objects
+	 * @param $page_containers string|array Page container e.g. 'query'
 	 * @see https://it.wikipedia.org/w/api.php?action=query&prop=info&titles=Ghhh|%20Main%20page
 	 */
-	public function __construct( $response_query, $my_pages ) {
+	public function __construct( $response_query, $my_pages, $page_containers = 'query' ) {
 		$this->responseQuery = $response_query;
+		if( $page_containers ) {
+			if( ! is_array( $page_containers ) ) {
+				$page_containers = [ $page_containers ];
+			}
+			foreach( $page_containers as $page_container ) {
+				if( isset( $this->responseQuery->{ $page_container } ) ) {
+					$this->responseQuery = $this->responseQuery->{ $page_container };
+				} else {
+					throw new Exception( "missing property $page_container in the response" );
+				}
+			}
+		}
 		$this->myPages = $my_pages;
 	}
 
@@ -192,7 +205,7 @@ class PageMatcher {
 	}
 
 	/**
-	 * Walk the response pages, matching them and your own objects (by the page id)
+	 * Walk the response pages, matching them and your own objects (from the page title)
 	 *
 	 * @param $my_pages array Array of your custom page objects. Each object rappresents a requested page.
 	 * @param $my_page_id_callback callback Callback that must returns a page id from your custom object.

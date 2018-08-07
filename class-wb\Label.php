@@ -57,4 +57,13 @@ class Label {
 		}
 		return new static( $data['language'], $data['value'] );
 	}
+
+	/**
+	 * String rappresentation
+	 *
+	 * @return string
+	 */
+	public function __toString() {
+		return sprintf( '%s: %s', $this->getLanguage(), $this->getValue() );
+	}
 }

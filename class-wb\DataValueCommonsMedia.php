@@ -20,6 +20,8 @@ namespace wb;
 
 /**
  * A DataValue for a Wikimedia Commons file.
+ *
+ * There is no special datavalue for a Wikimedia Commons file :^)
  */
 class DataValueCommonsMedia extends DataValueString {
 

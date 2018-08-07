@@ -196,6 +196,72 @@ class DataModel {
 	}
 
 	/**
+	 * Print the changes in order to confirm them
+	 */
+	public function printChanges() {
+		$labels = $this->getLabels();
+		if( $labels ) {
+			\cli\Log::info( "Languages:" );
+			foreach( $labels as $label ) {
+				\cli\Log::info( "\t" . $label );
+			}
+		}
+
+		$descriptions = $this->getDescriptions();
+		if( $descriptions ) {
+			mw\Log::info( "descriptions: ");
+			foreach( $descriptions as $description ) {
+				\cli\Log::info( "\t" . $description );
+			}
+		}
+
+		$properties = $this->getClaims();
+		if( $properties ) {
+			\cli\Log::info( "claims:" );
+			foreach( $properties as $property => $claims ) {
+				\cli\Log::info( "\t$property:" );
+				foreach( $claims as $claim ) {
+					if( $snak = $claim->getMainsnak() ) {
+						\cli\Log::info( "\t\t" . $snak->getDataValue() );
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Generate an edit summary for the data contained in here
+	 *
+	 * @return string
+	 */
+	public function getEditSummary() {
+		$changes = [];
+
+		$labels = $this->getLabels();
+		if( $labels ) {
+			$changes[] = $labels->__toString();
+		}
+
+		$descriptions = $this->getDescriptions();
+		if( $descriptions ) {
+			$changes[] = $descriptions->__toString();
+		}
+
+		$properties = $this->getClaims();
+		if( $properties ) {
+			foreach( $properties as $property => $claims ) {
+				foreach( $claims as $claim ) {
+					if( $snak = $claim->getMainsnak() ) {
+						$changes[] = '+' . $snak;
+					}
+				}
+			}
+		}
+
+		return implode( '; ', $changes );
+	}
+
+	/**
 	 * Static constructor from an array
 	 *
 	 * @param $data array

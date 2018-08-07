@@ -117,7 +117,7 @@ class Snak {
 	 * @return string
 	 */
 	public function __toString() {
-		return sprintf( '%s = %s',
+		return sprintf( '[[P:%s]]: %s',
 			$this->getProperty(),
 			$this->getDataValue()
 		);

@@ -88,4 +88,28 @@ class Labels {
 	public function getAll() {
 		return $this->labels;
 	}
+
+	/**
+	 * Get all the languages imploded
+	 *
+	 * @param $glue string
+	 * @return string
+	 */
+	protected function getImplodedLanguages( $glue = ',' ) {
+		$all = $this->getAll();
+		$codes = [];
+		foreach( $all as $label ) {
+			$codes[] = $label->getLanguage();
+		}
+		return implode( $glue, $codes );
+	}
+
+	/**
+	 * String rappresentation
+	 *
+	 * @return string
+	 */
+	public function __toString() {
+		return sprintf( 'label: %s', $this->getImplodedLanguages() );
+	}
 }

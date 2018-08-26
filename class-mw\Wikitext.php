@@ -170,13 +170,13 @@ class Wikitext {
 	 */
 	public function pregReplace( $pattern, $replacement, $limit = -1, &$count = 0 ) {
 		if( 1 === $this->pregMatch( $pattern, $matches ) ) {
-			$from = array_shift( $matches );
+			$from = $matches[ 0 ];
 			$to   = $replacement;
 			foreach( $matches as $i => $match ) {
-				$i++;
 				$to = str_replace( [
-					"\\$i",
-					'${' . $i . '}'
+					'\\' . $i,      // \\1
+					'$'  . $i,      // $1
+					'${' . $i . '}' // ${1}
 				], $match, $to );
 			}
 			$this->sobstitutions[] = [ $from, $to ];

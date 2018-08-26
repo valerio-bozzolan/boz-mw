@@ -15,7 +15,7 @@ To transform in *farfallese* a whole wiki:
     u ufu
 ```
 
-To replace a template parameter, e.g. from `|commerciale = Sì` to `|lucro = Sì`:
+To replace a simple template parameter in top of the page, e.g. from `{{Sito web|commerciale = Sì}}` to `{{Sito web|lucro = Sì}}`:
 
 ```bash
 ./replace.php \

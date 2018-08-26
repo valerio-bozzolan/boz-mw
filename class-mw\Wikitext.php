@@ -279,4 +279,31 @@ class Wikitext {
 	public function getSobstitutions() {
 		return $this->sobstitutions;
 	}
+
+	/**
+	 * Count the sobstitutions in the wikitext
+	 *
+	 * @return int
+	 */
+	public function countSobstitutions() {
+		return count( $this->getSobstitutions() );
+	}
+
+	/**
+	 * Get the sobstituted wikitext
+	 *
+	 * @return array [ [ 'a' => 'b' ], [ 'b' => 'c' ] ]
+	 */
+	public function getUniqueSobstitutions() {
+		$sobstitutions = [];
+		$seen = [];
+		foreach( $this->getSobstitutions() as $sobstitution ) {
+			list( $a, $b ) = $sobstitution;
+			if( ! isset( $seen[ $a ][ $b ] ) ) {
+				$sobstitutions[] = $sobstitution;
+				@$seen[ $a ][ $b ] = true;
+			}
+		}
+		return $sobstitutions;
+	}
 }

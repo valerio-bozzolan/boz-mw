@@ -8,7 +8,7 @@ Here some usage examples:
 
 	<?php
 	// autoload classes
-	require 'autoload.php';
+	require 'boz-mw/autoload.php';
 
 	// enable verbose messages
 	\cli\Log::$DEBUG = true;

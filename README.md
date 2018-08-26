@@ -2,7 +2,11 @@
 
 This is another MediaWiki API handler in PHP.
 
-## Showcase
+## Tools
+
+See [the tools](./tools/README.md).
+
+## API showcase
 
 Here some usage examples:
 

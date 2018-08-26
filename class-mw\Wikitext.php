@@ -54,7 +54,7 @@ class Wikitext {
 	/**
 	 * Strings sobstituted from the wikitext
 	 *
-	 * @var string
+	 * @var array [ [ 'a' => 'b' ], [ 'b' => 'c' ] ]
 	 */
 	private $sobstitutions = [];
 
@@ -163,9 +163,9 @@ class Wikitext {
 	 * Run a preg_replace() on the wikitext
 	 *
 	 * @param $pattern string Pattern
-	 * @param $replacement mixed
-	 * @param $limit int
-	 * @param $count int
+	 * @param $replacement mixed Replacement where you can use group placeholders such as $0, $1 or ${0}, ${1}, ecc.
+	 * @param $limit int Sobstitution limit
+	 * @param $count int Sobstitution count
 	 * @see preg_replace()
 	 */
 	public function pregReplace( $pattern, $replacement, $limit = -1, &$count = 0 ) {
@@ -185,6 +185,14 @@ class Wikitext {
 		return $this;
 	}
 
+	/**
+	 * Search and replace all the occurrences of a string from the wikitext
+	 *
+	 * @param $a mixed Search
+	 * @param $b mixed Replace
+	 * @param $count int Sobstitution count
+	 * @return self
+	 */
 	public function strReplace( $a, $b, & $count = 0 ) {
 		$this->setWikitext( str_replace( $a, $b, $this->getWikitext(), $count ) );
 		for( $i = 0; $i < $count; $i++ ) {
@@ -266,7 +274,7 @@ class Wikitext {
 	/**
 	 * Get the sobstituted wikitext
 	 *
-	 * @return array
+	 * @return array [ [ 'a' => 'b' ], [ 'b' => 'c' ] ]
 	 */
 	public function getSobstitutions() {
 		return $this->sobstitutions;

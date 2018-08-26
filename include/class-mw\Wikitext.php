@@ -310,4 +310,21 @@ class Wikitext {
 		}
 		return $sobstitutions;
 	}
+
+	/**
+	 * Get a boring array of human sobstitution messages
+	 *
+	 * @return array
+	 */
+	public function getHumanUniqueSobstitutions() {
+		$things = [];
+		foreach( $this->getUniqueSobstitutions() as $abn ) {
+			list( $a, $b, $n ) = $abn;
+			$many = 1 === $n
+				? "1 time"
+				: sprintf( "$n times", $n );
+			$things[] = sprintf( "%s → %s (%s)", $a, $b, $many );
+		}
+		return $things;
+	}
 }

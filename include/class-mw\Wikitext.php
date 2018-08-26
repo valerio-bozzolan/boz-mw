@@ -54,7 +54,7 @@ class Wikitext {
 	/**
 	 * Strings sobstituted from the wikitext
 	 *
-	 * @var array [ [ 'a' => 'b' ], [ 'b' => 'c' ] ]
+	 * @var array [ [ 'a', 'b' ], [ 'b', 'c' ] ]
 	 */
 	private $sobstitutions = [];
 
@@ -274,7 +274,7 @@ class Wikitext {
 	/**
 	 * Get the sobstituted wikitext
 	 *
-	 * @return array [ [ 'a' => 'b' ], [ 'b' => 'c' ] ]
+	 * @return array [ [ 'a', 'b' ], [ 'b', 'c' ] ]
 	 */
 	public function getSobstitutions() {
 		return $this->sobstitutions;
@@ -290,18 +290,22 @@ class Wikitext {
 	}
 
 	/**
-	 * Get the sobstituted wikitext
+	 * Get the sobstituted wikitext without repetitions
 	 *
-	 * @return array [ [ 'a' => 'b' ], [ 'b' => 'c' ] ]
+	 * It also count the repetitions
+	 *
+	 * @return array [ [ 'a', 'b', 1 ], [ 'b', 'c', 2 ] ]
 	 */
 	public function getUniqueSobstitutions() {
-		$sobstitutions = [];
 		$seen = [];
 		foreach( $this->getSobstitutions() as $sobstitution ) {
 			list( $a, $b ) = $sobstitution;
-			if( ! isset( $seen[ $a ][ $b ] ) ) {
-				$sobstitutions[] = $sobstitution;
-				@$seen[ $a ][ $b ] = true;
+			@$seen[ $a ][ $b ]++;
+		}
+		$sobstitutions = [];
+		foreach( $seen as $a => $_ ) {
+			foreach( $_ as $b => $n ) {
+				$sobstitutions[] = [ $a, $b, $n ];
 			}
 		}
 		return $sobstitutions;

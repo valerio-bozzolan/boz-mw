@@ -48,4 +48,38 @@ class Wikidata extends \mw\StaticSite {
 		return $response_obj->results->bindings;
 	}
 
+	/**
+	 * Fetch a single Wikidata entity
+	 *
+	 * @param $entity_id string Entity Q-ID
+	 * @param $data array Additional data such as [ 'props' => '..' ]
+	 * @return wb\DataModel
+	 */
+	public function fetchSingleEntity( $entity_id, $data = [] ) {
+		$data = array_replace( [
+			'action' => 'wbgetentities',
+			'ids'    => $entity_id,
+		], $data );
+
+		$entity = $this->fetch( $data );
+		if( ! isset( $entity->entities->{ $entity_id } ) ) {
+			throw new Exception( "$wikidata_item does not exist" );
+		}
+		return wb\DataModel::createFromObject( $entity->entities->{ $entity_id } );
+	}
+
+	/**
+	 * Edit a Wikidata entity
+	 *
+	 * @param $data array API data request
+	 * @return mixed
+	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
+	 */
+	public function editEntity( $data = [] ) {
+		return $this->post( [
+			'action' => 'wbeditentity',
+			'token'  => $this->getToken( mw\Tokens::CSRF ),
+		] );
+	}
+
 }

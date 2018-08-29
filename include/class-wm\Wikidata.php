@@ -32,4 +32,20 @@ class Wikidata extends \mw\StaticSite {
 		return 'https://www.wikidata.org/w/api.php';
 	}
 
+	/**
+	 * Execute a SPARQL query
+	 *
+	 * @param $query string SPARQL query
+	 * @return array
+	 */
+	public static function querySPARQL( $query ) {
+		$request = new \network\HTTPRequest( 'https://query.wikidata.org/sparql' );
+		$response = $request->fetch( [
+			'format' => 'json',
+			'query'  => $query
+		] );
+		$response_obj = json_decode( $response );
+		return $response_obj->results->bindings;
+	}
+
 }

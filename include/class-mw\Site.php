@@ -83,6 +83,20 @@ class Site {
 	}
 
 	/**
+	 * Do an API edit request
+	 *
+	 * @param $data array API request data
+	 * @return mixed
+	 * @see https://www.mediawiki.org/wiki/API:Edit
+	 */
+	public function edit( $data ) {
+		return $this->getApi()->post( array_replace( $data, [
+			'action' => 'edit',
+			'token'  => $this->getToken( mw\Tokens::CSRF )
+		] ) );
+	}
+
+	/**
 	 * Preload some tokens
 	 *
 	 * @return self

@@ -66,6 +66,9 @@ class Exception extends \Exception {
 			case 'maxlag':
 				$exception = new MaxLagException( $api_error );
 				break;
+			case 'articleexists':
+				$exception = new ArticleExistsException( $api_error );
+				break;
 		}
 		return $exception;
 	}

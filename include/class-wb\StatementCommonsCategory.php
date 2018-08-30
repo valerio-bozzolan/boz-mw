@@ -19,17 +19,15 @@
 namespace wb;
 
 /**
- * A DataValue for a Wikimedia Commons category.
- *
- * There is no special datavalue for a Wikimedia Commons file :^)
+ * A StatementCommonCategory is a Statement that contains a SnakCommonCategory.
  */
-class DataValueCommonsCategory extends DataValueCommonsMedia {
+class StatementCommonsCategory extends Statement {
 
 	/**
-	 * @return string
+	 * @param $property string Property as 'P123'
+	 * @param $filename string File category as 'Category:Example.png'
 	 */
-	public function __toString() {
-		return "[[c:Category:{$this->getValue()}]]";
+	public function __construct( $property, $filename ) {
+		parent::__construct( new SnakCommonsCategory( $property, $filename ) );
 	}
-
 }

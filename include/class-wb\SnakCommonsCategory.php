@@ -19,17 +19,20 @@
 namespace wb;
 
 /**
- * A DataValue for a Wikimedia Commons category.
- *
- * There is no special datavalue for a Wikimedia Commons file :^)
+ * A Snak for a Commons category
  */
-class DataValueCommonsCategory extends DataValueCommonsMedia {
+class SnakCommonsCategory extends Snak {
 
 	/**
-	 * @return string
+	 * @param $property string Property as 'P123'
+	 * @param $categoryname string Category name as 'Example.png'
 	 */
-	public function __toString() {
-		return "[[c:Category:{$this->getValue()}]]";
+	public function __construct( $property, $categoryname ) {
+		parent::__construct(
+			'value',
+			$property,
+			DataType::COMMONS_MEDIA,
+			new DataValueCommonsCategory( $categoryname )
+		);
 	}
-
 }

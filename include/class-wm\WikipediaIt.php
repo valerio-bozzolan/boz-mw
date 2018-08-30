@@ -20,19 +20,17 @@ namespace wm;
 class WikipediaIt extends \mw\StaticSite {
 
 	/**
-	 * @override \mw\StaticSite::UID
+	 * @override
 	 */
 	const UID = 'itwiki';
 
 	/**
-	 * @override \mw\StaticSite::getApiURL()
+	 * @override
 	 */
-	protected static function getApiURL() {
-		return 'https://it.wikipedia.org/w/api.php';
-	}
+	const API_URL = 'https://it.wikipedia.org/w/api.php';
 
 	/**
-	 * @override \mw\StaticSite::onCreate( $site )
+	 * @override
 	 */
 	protected static function onCreate( $site ) {
 		$site->setNamespaces( [

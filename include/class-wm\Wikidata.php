@@ -21,16 +21,14 @@ namespace wm;
 class Wikidata extends \mw\StaticSite {
 
 	/**
-	 * @override \mw\StaticSite::UID
+	 * @override
 	 */
 	const UID = 'wikidatawiki';
 
 	/**
-	 * @override \mw\StaticSite::getApiURL()
+	 * @override
 	 */
-	protected static function getApiURL() {
-		return 'https://www.wikidata.org/w/api.php';
-	}
+	const API_URL = 'https://www.wikidata.org/w/api.php';
 
 	/**
 	 * Execute a SPARQL query
@@ -65,7 +63,7 @@ class Wikidata extends \mw\StaticSite {
 		if( ! isset( $entity->entities->{ $entity_id } ) ) {
 			throw new Exception( "$wikidata_item does not exist" );
 		}
-		return wb\DataModel::createFromObject( $entity->entities->{ $entity_id } );
+		return \wb\DataModel::createFromObject( $entity->entities->{ $entity_id } );
 	}
 
 	/**
@@ -76,10 +74,10 @@ class Wikidata extends \mw\StaticSite {
 	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
 	 */
 	public function editEntity( $data = [] ) {
-		return $this->post( [
+		return $this->post( array_replace( [
 			'action' => 'wbeditentity',
-			'token'  => $this->getToken( mw\Tokens::CSRF ),
-		] );
+			'token'  => $this->getToken( \mw\Tokens::CSRF ),
+		], $data ) );
 	}
 
 }

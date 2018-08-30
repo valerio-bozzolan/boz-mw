@@ -18,22 +18,22 @@
 # MediaWiki
 namespace mw;
 
-class StaticSite extends \generic\Singleton {
+// traits can't be autoloadded
+require 'class-generic\Singleton.php';
+
+/**
+ * A site that can be instantiated once using getInstance()
+ */
+class StaticSite extends Site {
+
+	use \generic\Singleton;
 
 	/**
-	 * Sort of unique identifier
-	 *
-	 * @var string
-	 */
-	const UID = 'none';
-
-	/**
-	 * @override \generic\Singleton::create()
+	 * @override
 	 */
 	protected static function create() {
-		$site = new Site( static::getApiURL() );
+		$site = static::createFromAPIURL( static::getApiURL() );
 
-		// Set the UID
 		$site->setUID( static::UID );
 
 		// Set default namespaces
@@ -53,7 +53,7 @@ class StaticSite extends \generic\Singleton {
 	 * @return string
 	 */
 	protected static function getApiURL() {
-		throw new \Exception('must overload');
+		return static::API_URL;
 	}
 
 	/**

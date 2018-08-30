@@ -21,15 +21,13 @@ namespace wm;
 class Commons extends \mw\StaticSite {
 
 	/**
-	 * @override \mw\StaticSite::UID
+	 * @override
 	 */
 	const UID = 'commonswiki';
 
 	/**
-	 * @override \mw\StaticSite::getApiURL()
+	 * @override
 	 */
-	protected static function getApiURL() {
-		return 'https://commons.wikimedia.org/w/api.php';
-	}
+	const API_URL = 'https://commons.wikimedia.org/w/api.php';
 
 }

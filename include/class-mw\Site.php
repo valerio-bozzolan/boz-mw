@@ -92,7 +92,7 @@ class Site {
 	public function edit( $data ) {
 		return $this->getApi()->post( array_replace( $data, [
 			'action' => 'edit',
-			'token'  => $this->getToken( mw\Tokens::CSRF )
+			'token'  => $this->getToken( \mw\Tokens::CSRF )
 		] ) );
 	}
 
@@ -224,5 +224,15 @@ class Site {
 	 */
 	public function createWikitext( $wikitext ) {
 		return new Wikitext( $this, $wikitext );
+	}
+
+	/**
+	 * Create from an API URL
+	 *
+	 * @param $url string MediaWiki API URL
+	 * @return self
+	 */
+	public static function createFromAPIURL( $url ) {
+		return new static( $url );
 	}
 }

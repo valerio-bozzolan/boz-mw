@@ -41,9 +41,6 @@ class StaticSite extends Site {
 			$site->setNamespace( new Ns( $ns_id, $ns ) );
 		}
 
-		// Callback
-		static::onCreate( $site );
-
 		return $site;
 	}
 

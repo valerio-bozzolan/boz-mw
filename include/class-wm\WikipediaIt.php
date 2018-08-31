@@ -32,8 +32,9 @@ class WikipediaIt extends \mw\StaticSite {
 	/**
 	 * @override
 	 */
-	protected static function onCreate( $site ) {
-		$site->setNamespaces( [
+	protected static function create() {
+		parent::create();
+		$this->setNamespaces( [
 			new \mw\Ns( 1,   'Discussione' ),
 			new \mw\Ns( 2,   'Utente' ),
 			new \mw\Ns( 3,   'Discussioni utente' ),

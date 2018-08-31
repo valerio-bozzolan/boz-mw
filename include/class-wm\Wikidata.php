@@ -18,6 +18,11 @@
 # Wikimedia
 namespace wm;
 
+/**
+ * Wikidata singleton instance
+ *
+ * @see https://www.wikidata.org/
+ */
 class Wikidata extends \mw\StaticSite {
 
 	/**

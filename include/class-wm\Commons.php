@@ -18,6 +18,11 @@
 # Wikimedia
 namespace wm;
 
+/**
+ * Commons singleton class
+ *
+ * @see https://commons.wikimedia.org/
+ */
 class Commons extends \mw\StaticSite {
 
 	/**

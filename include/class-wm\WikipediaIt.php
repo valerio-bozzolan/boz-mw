@@ -14,9 +14,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 # Wikimedia
 namespace wm;
 
+/**
+ * Italian Wikipedia singleton class
+ *
+ * @see https://it.wikipedia.org/
+ */
 class WikipediaIt extends \mw\StaticSite {
 
 	/**
@@ -57,4 +63,5 @@ class WikipediaIt extends \mw\StaticSite {
 			new \mw\Ns( 829, 'Discussioni modulo' )
 		] );
 	}
+
 }

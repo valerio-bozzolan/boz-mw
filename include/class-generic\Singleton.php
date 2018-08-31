@@ -42,14 +42,17 @@ trait Singleton {
 	 * @return self
 	 */
 	protected static function create() {
-		throw new \Exception( 'must override' );
+		return new static();
 	}
 
 	/**
 	 * Throw an usage error
 	 */
-	public static function throwWrongUsage() {
-		throw new \Exception( 'wrong usage' );
+	protected static function throwSingletonUsage() {
+		throw new \Exception( sprintf(
+			'wrong singleton usage, you must call %s::getInstance()',
+			static::class
+		) );
 	}
 
 }

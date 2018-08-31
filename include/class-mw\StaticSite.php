@@ -53,13 +53,4 @@ class StaticSite extends Site {
 		return static::API_URL;
 	}
 
-	/**
-	 * To be overloaded.
-	 *
-	 * @param $site mw\Site
-	 */
-	protected static function onCreate( $site ) {
-		// Please override
-	}
-
 }

@@ -18,13 +18,15 @@
 # MediaWiki
 namespace mw;
 
-// traits can't be autoloadded
-require 'class-generic\Singleton.php';
+// traits can't be autoloaded, so...
+require_once 'class-generic\Singleton.php';
 
 /**
- * A site that can be instantiated once using getInstance()
+ * The behaviours for a static site
+ *
+ * They are declared in a trait on order to be recycled it e.g. in mw\StaticWikibaseSite
  */
-class StaticSite extends Site {
+trait StaticSiteTrait {
 
 	use \generic\Singleton;
 
@@ -52,5 +54,14 @@ class StaticSite extends Site {
 	protected static function getApiURL() {
 		return static::API_URL;
 	}
+
+}
+
+/**
+ * A static site is a site that must be used statically
+ */
+class StaticSite extends Site {
+
+	use StaticSiteTrait;
 
 }

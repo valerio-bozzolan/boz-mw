@@ -61,6 +61,13 @@ class API extends \network\HTTPRequest {
 	static $DEFAULT_FORMAT = 'json';
 
 	/**
+	 * Inspect POST flag
+	 *
+	 * @var bool
+	 */
+	public static $INSPECT_BEFORE_POST = false;
+
+	/**
 	 * Username used for the login.
 	 *
 	 * @var string
@@ -98,6 +105,10 @@ class API extends \network\HTTPRequest {
 	public function post( $data = [], $args = [] ) {
 		if( ! $this->isLogged() ) {
 			$this->login();
+		}
+		if( static::$INSPECT_BEFORE_POST ) {
+			print_r( $data );
+			\cli\Input::askInput( "Press ENTER to submit" );
 		}
 		return parent::post( $data, $args );
 	}

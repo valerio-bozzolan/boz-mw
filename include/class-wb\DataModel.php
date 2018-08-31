@@ -18,10 +18,26 @@
 # Wikibase
 namespace wb;
 
+use \mw\WikibaseSite;
+
 /**
  * Wikibase data container
  */
 class DataModel {
+
+	/**
+	 * Dependency injection of a Wikibase site
+	 *
+	 * @var WikibaseSite|null
+	 */
+	private $site;
+
+	/**
+	 * Dependency injection of the entity Q-ID this data refers to
+	 *
+	 * @var string|null
+	 */
+	private $entityID;
 
 	/**
 	 * @var Labels
@@ -40,11 +56,46 @@ class DataModel {
 
 	/**
 	 * Constructor
+	 *
+	 * @param $site WikibaseSite
 	 */
-	public function __construct() {
+	public function __construct( $site = null ) {
+		$this->site         = $site;
 		$this->labels       = new Labels();
 		$this->descriptions = new Descriptions();
 		$this->claims       = new Claims();
+	}
+
+	/**
+	 * Get the Wikibase site if available
+	 *
+	 * @return WikibaseSite
+	 */
+	public function getWikibaseSite() {
+		if( ! isset( $this->site ) ) {
+			throw new \Exception( 'can't access to undefined Wikibase site' );
+		}
+		return $this->site;
+	}
+
+	/**
+	 * Set the entity Q-ID
+	 *
+	 * @param $entity_ID string Q-ID
+	 * @return self
+	 */
+	public function setEntityID( $entity_ID ) {
+		$this->entityID = $entity_ID;
+		return $this;
+	}
+
+	/**
+	 * Get the entity Q-ID
+	 *
+	 * @return string|null
+	 */
+	public function getEntityID() {
+		return $this->entityID;
 	}
 
 	/**
@@ -262,13 +313,33 @@ class DataModel {
 	}
 
 	/**
+	 * Edit a Wikibase entity using the wbgetentities API
+	 *
+	 * It works only if the Wikibase site is specified
+	 * You can not specify the 'id' if you specified the entity ID
+	 *
+	 * @param $data array API data request
+	 * @return mixed
+	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
+	 */
+	public function editEntity( $data = [] ) {
+		$data = array_replace( [
+			'id'      => $this->getEntityID(),
+			'summary' => $this->getEditSummary(),
+			'data'    => $this->getJSON(),
+		], $data );
+		return $this->getWikibaseSite()->editEntity( $data );
+	}
+
+	/**
 	 * Static constructor from an array
 	 *
 	 * @param $data array
+	 * @param $site WikibaseSite
 	 * @return self
 	 */
-	public static function createFromData( $data ) {
-		$dataModel = new self();
+	public static function createFromData( $data, $site ) {
+		$dataModel = new self( $site );
 		if( ! empty( $data[ 'labels' ] ) ) {
 			foreach( $data[ 'labels' ] as $label ) {
 				$dataModel->setLabel( Label::createFromData( $label ) );

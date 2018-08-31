@@ -24,7 +24,7 @@ namespace mw;
 class WikibaseSite extends Site {
 
 	/**
-	 * Fetch a single Wikidata entity
+	 * Fetch a single Wikidata entity using the wbgetentities API
 	 *
 	 * @param $entity_id string Entity Q-ID
 	 * @param $data array Additional data such as [ 'props' => '..' ]
@@ -40,11 +40,11 @@ class WikibaseSite extends Site {
 		if( ! isset( $entity->entities->{ $entity_id } ) ) {
 			throw new Exception( "$wikidata_item does not exist" );
 		}
-		return \wb\DataModel::createFromObject( $entity->entities->{ $entity_id } );
+		return \wb\DataModel::createFromObject( $entity->entities->{ $entity_id }, $this );
 	}
 
 	/**
-	 * Edit a Wikidata entity
+	 * Edit a Wikidata entity using the wbeditentity API
 	 *
 	 * @param $data array API data request
 	 * @return mixed

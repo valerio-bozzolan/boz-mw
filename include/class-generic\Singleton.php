@@ -18,8 +18,16 @@
 # generic stuff
 namespace generic;
 
+/**
+ * A singleton gives a getInstance() method
+ */
 trait Singleton {
 
+	/**
+	 * Get an instance of this class
+	 *
+	 * @return self
+	 */
 	public static function getInstance() {
 		static $instance;
 		if( ! $instance ) {
@@ -28,11 +36,20 @@ trait Singleton {
 		return $instance;
 	}
 
+	/**
+	 * Function to be overrided to create an instance of this class
+	 *
+	 * @return self
+	 */
 	protected static function create() {
-		throw new \Exception('must override');
+		throw new \Exception( 'must override' );
 	}
 
+	/**
+	 * Throw an usage error
+	 */
 	public static function throwWrongUsage() {
-		throw new \Exception('wrong usage');
+		throw new \Exception( 'wrong usage' );
 	}
+
 }

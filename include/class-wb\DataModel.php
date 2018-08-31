@@ -73,7 +73,7 @@ class DataModel {
 	 */
 	public function getWikibaseSite() {
 		if( ! isset( $this->site ) ) {
-			throw new \Exception( 'can't access to undefined Wikibase site' );
+			throw new \Exception( 'can\'t access to undefined Wikibase site' );
 		}
 		return $this->site;
 	}
@@ -338,7 +338,7 @@ class DataModel {
 	 * @param $site WikibaseSite
 	 * @return self
 	 */
-	public static function createFromData( $data, $site ) {
+	public static function createFromData( $data, $site = null ) {
 		$dataModel = new self( $site );
 		if( ! empty( $data[ 'labels' ] ) ) {
 			foreach( $data[ 'labels' ] as $label ) {

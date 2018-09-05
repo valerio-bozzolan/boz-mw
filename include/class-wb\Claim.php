@@ -29,36 +29,70 @@ class Claim {
 
 	var $mainsnak;
 	//var $qualifiers;
+	//var $hash;
 
 	/**
+	 * Constructor
+	 *
 	 * @param $mainsnak Snak Main snak
 	 */
 	public function __construct( $mainsnak ) {
 		$this->setMainsnak( $mainsnak );
 	}
 
+	/**
+	 * Get the mainsnak
+	 *
+	 * @return Snak|null
+	 */
 	public function getMainsnak() {
 		return $this->mainsnak;
 	}
 
+	/**
+	 * Get the mainsnak
+	 *
+	 * @return Snak|null
+	 */
 	public function hasQualifiers() {
 		return ! empty( $this->qualifiers );
 	}
 
+	/**
+	 * Get the qualifiers
+	 */
 	public function getQualifiers() {
 		return $this->qualifiers;
 	}
 
+	/**
+	 * Set the mainsnak
+	 *
+	 * @param $mainsnak object
+	 * @return self
+	 */
 	public function setMainsnak( Snak $mainsnak ) {
 		$this->mainsnak = $mainsnak;
 		return $this;
 	}
 
+	/**
+	 * Set the qualifiers
+	 *
+	 * @param $qualifiers
+	 * @return self
+	 */
 	public function setQualifiers( $qualifiers ) {
 		$this->qualifiers = $qualifiers;
 		return $this;
 	}
 
+	/**
+	 * Create a claim from raw data
+	 *
+	 * @param $data array
+	 * @return self
+	 */
 	public static function createFromData( $data ) {
 		if( ! isset( $data['mainsnak'] ) ) {
 			throw new WrongDataException( __CLASS__ );

@@ -155,12 +155,12 @@ class Claim {
 	 * @return self
 	 */
 	public static function createFromData( $data ) {
-		if( ! isset( $data['mainsnak'] ) ) {
+		if( ! isset( $data[ 'mainsnak' ] ) ) {
 			throw new WrongDataException( __CLASS__ );
 		}
-		$claim = new static( Snak::createFromData( $data['mainsnak'] ) );
-		if( isset( $data['qualifiers'] ) ) {
-			$claim->setQualifiers( $data['qualifiers'] );
+		$claim = new static( Snak::createFromData( $data[ 'mainsnak' ] ) );
+		if( isset( $data[ 'qualifiers' ] ) ) {
+			$claim->setQualifiers( $data[ 'qualifiers' ] );
 		}
 		return $claim;
 	}

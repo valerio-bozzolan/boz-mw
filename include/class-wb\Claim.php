@@ -28,6 +28,7 @@ namespace wb;
 class Claim {
 
 	var $mainsnak;
+	//var $id;
 	//var $qualifiers;
 
 	/**
@@ -84,6 +85,18 @@ class Claim {
 	public function setQualifiers( $qualifiers ) {
 		$this->qualifiers = $qualifiers;
 		return $this;
+	}
+
+	/**
+	 * Get the claim ID
+	 *
+	 * @return string
+	 */
+	public function getID() {
+		if( empty( $this->id ) ) {
+			throw new \Exception( 'missing id' );
+		}
+		return $this->id;
 	}
 
 	/**

@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -47,54 +47,117 @@ class Snak {
 		}
 	}
 
+	/**
+	 * Get the property
+	 *
+	 * @return string
+	 */
 	public function getProperty() {
 		return $this->property;
 	}
 
+	/**
+	 * Get the snak type
+	 */
 	public function getSnakType() {
 		return $this->snaktype;
 	}
 
+	/**
+	 * Get the data type
+	 */
 	public function getDataType() {
 		return $this->datatype;
 	}
 
+	/**
+	 * Get the data value
+	 *
+	 * @return DataValue
+	 */
 	public function getDataValue() {
 		return $this->datavalue;
 	}
 
+	/**
+	 * Set the snak type
+	 *
+	 * @param $snaktype
+	 * @param self
+	 */
 	public function setSnakType( $snaktype ) {
 		$this->snaktype = $snaktype;
 		return $this;
 	}
 
+	/**
+	 * Set the property
+	 *
+	 * @param $property string
+	 * @param self
+	 */
 	public function setProperty( $property ) {
 		$this->property = $property;
 		return $this;
 	}
 
+	/**
+	 * Set the data type
+	 *
+	 * @param $datatype
+	 * @param self
+	 */
 	public function setDataType( $datatype ) {
 		$this->datatype = $datatype;
 		return $this;
 	}
 
+	/**
+	 * Set the data value
+	 *
+	 * @param $datavalue DataValue
+	 * @param self
+	 */
 	public function setDataValue( DataValue $datavalue ) {
 		$this->datavalue = $datavalue;
 		return $this;
 	}
 
+	/**
+	 * Check if the snak has an hash
+	 *
+	 * @return bool
+	 */
 	public function hasHash() {
 		return isset( $this->hash );
 	}
 
+	/**
+	 * Get the hash
+	 *
+	 * @return string|null
+	 */
 	public function getHash() {
 		return $this->hash;
 	}
 
+	/**
+	 * Set the hash
+	 *
+	 * @param $hash string
+	 * @return self
+	 */
 	public function setHash( $hash ) {
 		$this->hash = $hash;
+		return $this;
 	}
 
+	/**
+	 * Create a snak from raw data
+	 *
+	 * @param $data array
+	 * @return self
+	 */
 	public static function createFromData( $data ) {
 		if( ! isset( $data['snaktype'], $data['property'], $data['datatype'] ) ) {
 			throw new WrongDataException( __CLASS__ );

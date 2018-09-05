@@ -111,6 +111,17 @@ class Claim {
 	}
 
 	/**
+	 * Mark this claim as to be removed
+	 *
+	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
+	 * @return self
+	 */
+	public function markForRemoval() {
+		$this->removed = 1;
+		return $this;
+	}
+
+	/**
 	 * Create a claim from raw data
 	 *
 	 * @param $data array

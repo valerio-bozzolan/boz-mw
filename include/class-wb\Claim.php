@@ -111,6 +111,15 @@ class Claim {
 	}
 
 	/**
+	 * Check if this claim is marked for removal
+	 *
+	 * @return array
+	 */
+	public function isMarkedForRemoval() {
+		return isset( $this->removed ) && $this->removed;
+	}
+
+	/**
 	 * Mark this claim as to be removed
 	 *
 	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
@@ -119,6 +128,17 @@ class Claim {
 	public function markForRemoval() {
 		$this->removed = 1;
 		return $this;
+	}
+
+	/**
+	 * Clone this claim and obtain a claim marked for removal
+	 *
+	 * @return self
+	 */
+	public function cloneForRemoval() {
+		return ( new self() )
+			->setID( $this->getID() )
+			->markForRemoval();
 	}
 
 	/**

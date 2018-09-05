@@ -162,6 +162,9 @@ class Claim {
 		if( isset( $data[ 'qualifiers' ] ) ) {
 			$claim->setQualifiers( $data[ 'qualifiers' ] );
 		}
+		if( isset( $data[ 'id' ] ) ) {
+			$claim->setID( $data[ 'id' ] );
+		}
 		return $claim;
 	}
 }

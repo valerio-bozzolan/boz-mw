@@ -88,6 +88,15 @@ class Claim {
 	}
 
 	/**
+	 * Get the hash of this claim
+	 *
+	 * @return string|null
+	 */
+	public function getHash() {
+		return $this->hash;
+	}
+
+	/**
 	 * Create a claim from raw data
 	 *
 	 * @param $data array

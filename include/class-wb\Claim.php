@@ -29,7 +29,6 @@ class Claim {
 
 	var $mainsnak;
 	//var $qualifiers;
-	//var $hash;
 
 	/**
 	 * Constructor
@@ -85,15 +84,6 @@ class Claim {
 	public function setQualifiers( $qualifiers ) {
 		$this->qualifiers = $qualifiers;
 		return $this;
-	}
-
-	/**
-	 * Get the hash of this claim
-	 *
-	 * @return string|null
-	 */
-	public function getHash() {
-		return $this->hash;
 	}
 
 	/**

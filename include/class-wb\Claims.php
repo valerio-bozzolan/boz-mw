@@ -86,7 +86,8 @@ class Claims {
 	 */
 	public function haveProperty( $property ) {
 		foreach( $this->claims as $claim ) {
-			if( $claim->getMainSnak()->getProperty() === $property ) {
+			$snak = $claim->getMainsnak();
+			if( $snak && $snak->getProperty() === $property ) {
 				return true;
 			}
 		}
@@ -94,14 +95,27 @@ class Claims {
 	}
 
 	/**
-	 * Get all the claims indexed by their property
+	 * Get all the claims
 	 *
 	 * @return array
 	 */
 	public function getAll() {
+		return $this->claims;
+	}
+
+	/**
+	 * Get all the claims indexed by their property
+	 *
+	 * n.b. The claims without a property will be indexed by 'asd'
+	 *
+	 * @return array
+	 */
+	public function getAllGrouped() {
 		$properties = [];
-		foreach( $this->claims as $claim ) {
-			$property = $claim->getMainSnak()->getProperty();
+		foreach( $this->getAll() as $claim ) {
+			$snak = $claim->getMainsnak();
+			// https://phabricator.wikimedia.org/T203572
+			$property = $snak ? $snak->getProperty() : 'ASD-ASD-ASD';
 			if( ! isset( $properties[ $property ] ) ) {
 				$properties[ $property ] = [];
 			}

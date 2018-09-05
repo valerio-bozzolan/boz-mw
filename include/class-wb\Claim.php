@@ -44,7 +44,10 @@ class Claim {
 	 * @param $mainsnak Snak|null Main snak
 	 */
 	public function __construct( $mainsnak = null ) {
-		$this->setMainsnak( $mainsnak );
+		// avoid to set a NULL value in order to do not send { 'mainsnak': null } to the API
+		if( $mainsnak ) {
+			$this->setMainsnak( $mainsnak );
+		}
 	}
 
 	/**
@@ -123,17 +126,17 @@ class Claim {
 	 * @return array
 	 */
 	public function isMarkedForRemoval() {
-		return isset( $this->removed ) && $this->removed;
+		return isset( $this->remove ) && $this->remove;
 	}
 
 	/**
-	 * Mark this claim as to be removed
+	 * Mark this claim as to be remove
 	 *
 	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 	 * @return self
 	 */
 	public function markForRemoval() {
-		$this->removed = 1;
+		$this->remove = 1;
 		return $this;
 	}
 

@@ -126,6 +126,17 @@ class DataModel {
 	}
 
 	/**
+	 * Get all the claims grouped by property
+	 *
+	 * n.b. The claims without a property will be indexed by 'asd'
+	 *
+	 * @return array
+	 */
+	public function getClaimsGrouped() {
+		return $this->claims->getAllGrouped();
+	}
+
+	/**
 	 * Add a claim
 	 *
 	 * @param $claim Claim
@@ -213,7 +224,7 @@ class DataModel {
 		$data = [
 			'labels'       => $this->getLabels(),
 			'descriptions' => $this->getDescriptions(),
-			'claims'       => $this->getClaims()
+			'claims'       => $this->getClaimsGrouped()
 		];
 		foreach( $data as $k => $v ) {
 			if( 0 === count( $v ) ) {
@@ -298,14 +309,14 @@ class DataModel {
 			$changes[] = $descriptions->__toString();
 		}
 
-		$properties = $this->getClaims();
-		if( $properties ) {
-			foreach( $properties as $property => $claims ) {
-				foreach( $claims as $claim ) {
-					if( $snak = $claim->getMainsnak() ) {
-						$changes[] = '+' . $snak;
-					}
-				}
+		foreach( $this->getClaims() as $claim ) {
+			$snak = $claim->getMainsnak();
+			if( $snak ) {
+				$changes[] = '+' . $snak;
+			} elseif( $claim->isMarkedForRemoval() ) {
+				$changes[] = '-whole claim ' . $claim->getID();
+			} else {
+				throw new \Exception( "unexpected undefined main snak, that it's allowed only in claims marked for deletion" );
 			}
 		}
 

@@ -27,16 +27,23 @@ namespace wb;
  */
 class Claim {
 
+	/**
+	 * Snak
+	 *
+	 * @var Snak|null
+	 */
 	var $mainsnak;
+
 	//var $id;
+
 	//var $qualifiers;
 
 	/**
 	 * Constructor
 	 *
-	 * @param $mainsnak Snak Main snak
+	 * @param $mainsnak Snak|null Main snak
 	 */
-	public function __construct( $mainsnak ) {
+	public function __construct( $mainsnak = null ) {
 		$this->setMainsnak( $mainsnak );
 	}
 
@@ -68,10 +75,10 @@ class Claim {
 	/**
 	 * Set the mainsnak
 	 *
-	 * @param $mainsnak object
+	 * @param $mainsnak Snak|null
 	 * @return self
 	 */
-	public function setMainsnak( Snak $mainsnak ) {
+	public function setMainsnak( $mainsnak ) {
 		$this->mainsnak = $mainsnak;
 		return $this;
 	}

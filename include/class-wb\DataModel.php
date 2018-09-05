@@ -58,16 +58,20 @@ class DataModel {
 	 * Constructor
 	 *
 	 * @param $site WikibaseSite
+	 * @param $entity_id string
 	 */
-	public function __construct( $site = null ) {
+	public function __construct( $site = null, $entity_id = null ) {
 		$this->site         = $site;
 		$this->labels       = new Labels();
 		$this->descriptions = new Descriptions();
 		$this->claims       = new Claims();
+		if( $entity_id ) {
+			$this->setEntityID( $entity_id );
+		}
 	}
 
 	/**
-	 * Get the Wikibase site if available
+	 * Get the Wikibase site
 	 *
 	 * @return WikibaseSite
 	 */
@@ -81,21 +85,33 @@ class DataModel {
 	/**
 	 * Set the entity Q-ID
 	 *
-	 * @param $entity_ID string Q-ID
+	 * @param $entity_id string Q-ID
 	 * @return self
 	 */
-	public function setEntityID( $entity_ID ) {
-		$this->entityID = $entity_ID;
+	public function setEntityID( $entity_id ) {
+		$this->entityID = $entity_id;
 		return $this;
+	}
+
+	/**
+	 * Check if it has the entity Q-ID
+	 *
+	 * @return bool
+	 */
+	public function hasEntityID() {
+		return isset( $this->entityID );
 	}
 
 	/**
 	 * Get the entity Q-ID
 	 *
-	 * @return string|null
+	 * @return string
 	 */
 	public function getEntityID() {
-		return $this->entityID;
+		if( isset( $this->entityID ) ) {
+			return $this->entityID;
+		}
+		throw new \Exception( 'undefined entity ID' );
 	}
 
 	/**
@@ -261,9 +277,12 @@ class DataModel {
 	 * Print the changes in order to confirm them
 	 */
 	public function printChanges() {
+		if( $this->hasEntityID() ) {
+			\cli\Log::info( "-- changes for {$this->getEntityID()} --" );
+		}
 		$labels = $this->getLabels();
 		if( $labels ) {
-			\cli\Log::info( "Languages:" );
+			\cli\Log::info( "labels:" );
 			foreach( $labels as $label ) {
 				\cli\Log::info( "\t" . $label );
 			}
@@ -277,14 +296,21 @@ class DataModel {
 			}
 		}
 
-		$properties = $this->getClaims();
+		$properties = $this->getClaimsGrouped();
 		if( $properties ) {
 			\cli\Log::info( "claims:" );
 			foreach( $properties as $property => $claims ) {
-				\cli\Log::info( "\t$property:" );
+				if( $property === Claim::DUMMY_PROPERTY ) {
+					\cli\Log::info( "\twithout property:" );
+				} else {
+					\cli\Log::info( "\t$property:" );
+				}
 				foreach( $claims as $claim ) {
-					if( $snak = $claim->getMainsnak() ) {
+					$snak = $claim->getMainsnak();
+					if( $snak ) {
 						\cli\Log::info( "\t\t" . $snak->getDataValue() );
+					} else {
+						\cli\Log::info( "\t\t" . $claim );
 					}
 				}
 			}
@@ -314,13 +340,26 @@ class DataModel {
 			if( $snak ) {
 				$changes[] = '+' . $snak;
 			} elseif( $claim->isMarkedForRemoval() ) {
-				$changes[] = '-whole claim ' . $claim->getID();
+				$changes[] = '-claim id=' . $claim->getID();
 			} else {
 				throw new \Exception( "unexpected undefined main snak, that it's allowed only in claims marked for deletion" );
 			}
 		}
 
 		return implode( '; ', $changes );
+	}
+
+	/**
+	 * Obtain an empty clone of this data container
+	 *
+	 * @return self
+	 */
+	public function cloneEmpty() {
+		$cloned = new self( $this->getWikibaseSite() );
+		if( $this->hasEntityID() ) {
+			$cloned->setEntityID( $this->getEntityID() );
+		}
+		return $cloned;
 	}
 
 	/**
@@ -335,7 +374,7 @@ class DataModel {
 	 */
 	public function editEntity( $data = [] ) {
 		$data = array_replace( [
-			'id'      => $this->getEntityID(),
+			'id'      => $this->hasEntityID() ? $this->getEntityID() : null,
 			'summary' => $this->getEditSummary(),
 			'data'    => $this->getJSON(),
 		], $data );
@@ -347,10 +386,11 @@ class DataModel {
 	 *
 	 * @param $data array
 	 * @param $site WikibaseSite
+	 * @param $entity_id string
 	 * @return self
 	 */
-	public static function createFromData( $data, $site = null ) {
-		$dataModel = new self( $site );
+	public static function createFromData( $data, $site = null, $entity_id = null ) {
+		$dataModel = new self( $site, $entity_id );
 		if( ! empty( $data[ 'labels' ] ) ) {
 			foreach( $data[ 'labels' ] as $label ) {
 				$dataModel->setLabel( Label::createFromData( $label ) );
@@ -375,10 +415,12 @@ class DataModel {
 	 * Static constructor from an object
 	 *
 	 * @param $object object
+	 * @param $site WikibaseSite
+	 * @param $entity_id string
 	 * @return self
 	 */
-	public static function createFromObject( $object ) {
-		return self::createFromData( self::object2array( $object ) );
+	public static function createFromObject( $object, $site = null, $entity_id = null ) {
+		return self::createFromData( self::object2array( $object ), $site, $entity_id );
 	}
 
 	/**

@@ -40,17 +40,33 @@ class WikibaseSite extends Site {
 		if( ! isset( $entity->entities->{ $entity_id } ) ) {
 			throw new Exception( "$wikidata_item does not exist" );
 		}
-		return \wb\DataModel::createFromObject( $entity->entities->{ $entity_id }, $this );
+		return \wb\DataModel::createFromObject( $entity->entities->{ $entity_id }, $this, $entity_id );
 	}
 
 	/**
 	 * Edit a Wikidata entity using the wbeditentity API
 	 *
-	 * @param $data array API data request
+	 * @param $data array API data request (with some extensions)
+	 * 	Allowed extensions:
+	 * 		summary.pre  Add something before the summary
+	 * 		summary.post Add something after  the summary
 	 * @return mixed
 	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
 	 */
 	public function editEntity( $data = [] ) {
+
+		// extends the API arguments adding a 'summary.pre' argument
+		if( isset( $data[ 'summary.pre' ] ) ) {
+			$data[ 'summary' ] = $data[ 'summary.pre' ] . $data[ 'summary' ];
+			unset( $data[ 'summary.pre' ] );
+		}
+
+		// extends the API arguments adding a 'summary.post' argument
+		if( isset( $data[ 'summary.post' ] ) ) {
+			$data[ 'summary' ] .= $data[ 'summary.post' ];
+			unset( $data[ 'summary.post' ] );
+		}
+
 		return $this->post( array_replace( [
 			'action' => 'wbeditentity',
 			'token'  => $this->getToken( \mw\Tokens::CSRF ),

@@ -32,7 +32,7 @@ class Claim {
 	 *
 	 * @var Snak|null
 	 */
-	var $mainsnak;
+	//var $mainsnak;
 
 	//var $id;
 
@@ -53,7 +53,7 @@ class Claim {
 	 * @return Snak|null
 	 */
 	public function getMainsnak() {
-		return $this->mainsnak;
+		return isset( $this->mainsnak ) ? $this->mainsnak : null;
 	}
 
 	/**

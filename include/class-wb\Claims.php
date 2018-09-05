@@ -106,16 +106,14 @@ class Claims {
 	/**
 	 * Get all the claims indexed by their property
 	 *
-	 * n.b. The claims without a property will be indexed by 'asd'
+	 * Note that you can obtain also a dummy property
 	 *
 	 * @return array
 	 */
 	public function getAllGrouped() {
 		$properties = [];
 		foreach( $this->getAll() as $claim ) {
-			$snak = $claim->getMainsnak();
-			// https://phabricator.wikimedia.org/T203572
-			$property = $snak ? $snak->getProperty() : 'ASD-ASD-ASD';
+			$property = $claim->getPropertyAlsoDummy();
 			if( ! isset( $properties[ $property ] ) ) {
 				$properties[ $property ] = [];
 			}

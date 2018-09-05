@@ -28,6 +28,15 @@ namespace wb;
 class Claim {
 
 	/**
+	 * When a claim has not a main snak, we assume that it has this dummy property.
+	 *
+	 * It's very useful to send claims to be deleted. It works. asd
+	 *
+	 * @see https://phabricator.wikimedia.org/T203572
+	 */
+	const DUMMY_PROPERTY = 'ASD-ASD-ASD';
+
+	/**
 	 * Snak
 	 *
 	 * @var Snak|null
@@ -66,6 +75,16 @@ class Claim {
 	 */
 	public function hasQualifiers() {
 		return ! empty( $this->qualifiers );
+	}
+
+	/**
+	 * Get a property. Also a dummy one. asd
+	 *
+	 * @return string
+	 */
+	public function getPropertyAlsoDummy() {
+		$snak = $this->getMainsnak();
+		return $snak ? $snak->getProperty() : self::DUMMY_PROPERTY;
 	}
 
 	/**
@@ -169,5 +188,20 @@ class Claim {
 			$claim->setID( $data[ 'id' ] );
 		}
 		return $claim;
+	}
+
+	/**
+	 * @override
+	 */
+	public function __toString() {
+		$snak = $this->getMainsnak();
+		if( $snak ) {
+			return $snak->getDataValue();
+		}
+		$id = $this->getID();
+		if( $id && $this->isMarkedForRemoval() ) {
+			return "remove claim id = $id";
+		}
+		throw new \Exception( 'empty claim' );
 	}
 }

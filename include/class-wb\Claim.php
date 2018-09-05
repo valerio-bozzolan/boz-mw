@@ -88,6 +88,17 @@ class Claim {
 	}
 
 	/**
+	 * Set the claim ID
+	 *
+	 * @param $id string
+	 * @return string
+	 */
+	public function setID( $id ) {
+		$this->id = $id;
+		return $this;
+	}
+
+	/**
 	 * Get the claim ID
 	 *
 	 * @return string

@@ -57,4 +57,13 @@ class WikibaseSite extends Site {
 		], $data ) );
 	}
 
+	/**
+	 * Create an empty data model related to this site
+	 *
+	 * @return DataModel
+	 */
+	public function createDataModel() {
+		return new \wb\DataModel( $this );
+	}
+
 }

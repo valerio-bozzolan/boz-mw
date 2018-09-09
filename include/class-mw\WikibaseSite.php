@@ -76,10 +76,11 @@ class WikibaseSite extends Site {
 	/**
 	 * Create an empty data model related to this site
 	 *
+	 * @param $entity_id string Entity Q-ID
 	 * @return DataModel
 	 */
-	public function createDataModel() {
-		return new \wb\DataModel( $this );
+	public function createDataModel( $entity_id = null ) {
+		return new \wb\DataModel( $this, $entity_id );
 	}
 
 }

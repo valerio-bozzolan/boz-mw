@@ -58,7 +58,7 @@ class DataModel {
 	 * Constructor
 	 *
 	 * @param $site WikibaseSite
-	 * @param $entity_id string
+	 * @param $entity_id string Entity Q-ID
 	 */
 	public function __construct( $site = null, $entity_id = null ) {
 		$this->site         = $site;

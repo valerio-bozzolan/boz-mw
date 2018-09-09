@@ -327,12 +327,12 @@ class DataModel {
 
 		$labels = $this->getLabels();
 		if( $labels ) {
-			$changes[] = $labels->__toString();
+			$changes[] = $this->labels->__toString();
 		}
 
 		$descriptions = $this->getDescriptions();
 		if( $descriptions ) {
-			$changes[] = $descriptions->__toString();
+			$changes[] = $this->descriptions->__toString();
 		}
 
 		foreach( $this->getClaims() as $claim ) {

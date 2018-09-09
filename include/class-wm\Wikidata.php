@@ -51,4 +51,22 @@ class Wikidata extends \mw\StaticWikibaseSite {
 		return $response_obj->results->bindings;
 	}
 
+	/**
+	 * Retrieve the label (in English) of a property (from the cache)
+	 *
+	 * @param $property string Property title e.g. P123
+	 * @return string|false Label in English or false
+	 */
+	public static function propertyLabel( $property ) {
+		static $cache;
+		$path = __DIR__ . '/../cache/Wikidata/properties.json';
+		if( ! $cache && file_exists( $path ) ) {
+			$cache = json_decode( file_get_contents( $path ) );
+		}
+		if( isset( $cache->{ $property } ) ) {
+			return $cache->{ $property };
+		}
+		return false;
+	}
+
 }

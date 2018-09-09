@@ -102,6 +102,13 @@ class Snak {
 	}
 
 	/**
+	 * Get an human property label, if available in cache
+	 */
+	public function getPropertyLabel() {
+		return self::propertyLabel( $this->getProperty() );
+	}
+
+	/**
 	 * Set the data type
 	 *
 	 * @param $datatype
@@ -153,6 +160,30 @@ class Snak {
 	}
 
 	/**
+	 * Get a wikilink to this property
+	 *
+	 * @return string
+	 */
+	protected function getPropertyWLink() {
+		$prop  = $this->getProperty();
+		$label = $this->getPropertyLabel();
+		if( ! $label ) {
+			$label = $prop;
+		}
+		return sprintf( '[[P:%s|%s]]', $prop, $label );
+	}
+
+	/**
+	 * Try to read the property label from the cache
+	 *
+	 * @TODO: ask also the site
+	 * @return string|false
+	 */
+	public static function propertyLabel( $property ) {
+		return \wm\Wikidata::propertyLabel( $property );
+	}
+
+	/**
 	 * Create a snak from raw data
 	 *
 	 * @param $data array
@@ -180,8 +211,8 @@ class Snak {
 	 * @return string
 	 */
 	public function __toString() {
-		return sprintf( '[[P:%s]]: %s',
-			$this->getProperty(),
+		return sprintf( '%s: %s',
+			$this->getPropertyWLink(),
 			$this->getDataValue()
 		);
 	}

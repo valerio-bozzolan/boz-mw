@@ -275,6 +275,8 @@ class DataModel {
 
 	/**
 	 * Print the changes in order to confirm them
+	 *
+	 * @return self
 	 */
 	public function printChanges() {
 		if( $this->hasEntityID() ) {
@@ -315,6 +317,7 @@ class DataModel {
 				}
 			}
 		}
+		return $this;
 	}
 
 	/**

@@ -234,7 +234,7 @@ class HTTPRequest {
 				$args = array_replace( [
 					'wait' => self::WAIT_DOS
 				], $args );
-				return $this->fetch(	$data, $args );
+				return $this->fetch( $data, $args );
 			}
 			throw new NotOKException( $status );
 		}

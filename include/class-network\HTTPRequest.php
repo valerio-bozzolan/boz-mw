@@ -313,7 +313,7 @@ class HTTPRequest {
 		foreach( $this->getCookies() as $name => $value ) {
 			$cookies[] = urlencode( $name ) . '=' . urlencode( $value );
 		}
-		return self::headerRaw(
+		return self::header(
 			'Cookie',
 			implode( '; ', $cookies )
 		);
@@ -405,26 +405,35 @@ class HTTPRequest {
 	}
 
 	/**
-	 *	Make an HTTP header raw string from a name => value pair.
-	 *
-	 * The value will be URL-encoded.
+	 * Get an HTTP header string from a name => value pair.
 	 *
 	 * @param $name string HTTP header name
 	 * @param $value string HTTP header value
 	 * @return string HTTP header
 	 */
 	private static function header( $name, $value ) {
-		return self::headerRaw( $name, urlencode( $value ) );
+		return self::headerRaw( sprintf(
+			'%s: %s',
+			$name,
+			$value
+		) );
 	}
 
 	/**
-	 * Make an HTTP header raw string from a name => value pair.
+	 * This function simply returns a single header
 	 *
-	 * The value is not URL-encoded.
+	 * As you know an header does not contains a line feed or a carriage return.
 	 *
+	 * @param $name string HTTP header
+	 * @return string HTTP header
 	 */
-	private static function headerRaw( $name, $value ) {
-		return sprintf( '%s: %s', $name, $value );
+	private static function headerRaw( $header ) {
+		if( false !== strpos( $header, "\n" ) || false !== strpos( $header, "\r" ) ) {
+			Log::warn( "wtf header with line feed or carriage return (header injection?)" );
+			Log::debug( $header );
+			return str_replace( [ "\n", "\r" ], '', $header );
+		}
+		return $header;
 	}
 
 	/**

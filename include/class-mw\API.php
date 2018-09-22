@@ -259,6 +259,9 @@ class API extends \network\HTTPRequest {
 	 */
 	protected function onFetched( $response, $request_data ) {
 		$response = json_decode( $response );
+		if( null === $response ) {
+			throw new \Exception( 'response not JSON-encoded: ' . $response );
+		}
 		if( isset( $response->warnings ) ) {
 			foreach( $response->warnings as $subject => $warning ) {
 				Log::warn( sprintf( '%s: %s', $subject, $warning->{'*'} ) );

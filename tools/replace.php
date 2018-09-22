@@ -201,14 +201,14 @@ foreach( $results->getGenerator() as $response ) {
 		// show the page title
 		Log::info( "Page [[{$page->title}]]" );
 
-		// without wikitext
-		if( ! isset( $page->revisions[ 0 ]->slots->main->{ '*' } ) ) {
-			Log::warn( 'wtf no wikitext? skip' );
-			continue;
+		// populate the slot with backward compatibility to MediaWiki <= 1.32
+		$main_slot = $page->revisions[ 0 ];
+		if( isset( $main_slot->slots->main ) ) {
+			$main_slot = $main_slot->slots->main;
 		}
 
 		// Wikitext object
-		$wikitext = $wiki->createWikitext( $page->revisions[ 0 ]->slots->main->{ '*' } );
+		$wikitext = $wiki->createWikitext( $main_slot->{ '*' } );
 
 		// apply search and replacements
 		$n = count( $main_args );

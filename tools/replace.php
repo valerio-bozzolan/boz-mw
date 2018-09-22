@@ -28,6 +28,7 @@ use \cli\Log;
 use \cli\Input;
 use \cli\Opts;
 use \cli\Param;
+use \web\MediaWikis;
 
 // whitelisted API parameter => description
 $API_PARAMS = [
@@ -47,8 +48,16 @@ $API_PARAMS = [
 	'gcmnamespace' => null,
 ];
 
+// all the available wiki UIDs
+$mediawiki_uids = [];
+foreach( MediaWikis::all() as $site ) {
+	$mediawiki_uids[] = $site::UID;
+}
+$mediawiki_uids = implode( ', ', $mediawiki_uids );
+
 // register all CLI parameters
 $opts = new Opts( [
+	new Param( 'wiki',          null, Param::REQUIRED_VALUE, "Specify the UID of the wiki you want to edit from: $mediawiki_uids" ),
 	new Param( 'plain',         null, Param::NO_VALUE,       'Use plain text instead of regexes (default)' ),
 	new Param( 'regex',         null, Param::NO_VALUE,       'Use regexes instead of plain text' ),
 	new Param( 'summary',       'm',  Param::REQUIRED_VALUE, 'Specify an edit summary' ),
@@ -81,6 +90,12 @@ if( $LIMIT ) {
 
 // show the help?
 $help = $opts->getArg( 'help' );
+
+// the wiki is mandatory
+if( ! $help && ! $opts->getArg( 'wiki' ) ) {
+	echo "Please specify a wiki\n";
+	$help = true;
+}
 
 // the generator is mandatory
 if( ! $help && ! $opts->getArg( 'generator' ) ) {
@@ -167,11 +182,10 @@ foreach( $API_PARAMS as $param => $description ) {
 	}
 }
 
-// TODO: wiki chooser
-$WIKI = \wm\WikipediaIt::class;
+// find the desired wiki
+$wiki = MediaWikis::findFromUID( $opts->getArg( 'wiki' ) );
 
-// wiki login
-$wiki = $WIKI::getInstance()->login();
+$wiki->login();
 
 // do the API query with continuation support
 $results = $wiki->createQuery( $args );

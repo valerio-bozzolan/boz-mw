@@ -57,26 +57,20 @@ class Exception extends \Exception {
 	 * @return self
 	 */
 	public static function createFromApiError( $api_error ) {
-		$exception = new self( $api_error );
+		$known_exceptions = [
+			BadTokenException     ::class,
+			MaxLagException       ::class,
+			ArticleExistsException::class,
+			MissingTitleException ::class,
+			ProtectedPageException::class,
+		];
 		$code = $exception->getApiErrorCode();
-		switch( $code ) {
-			case 'bad-token':
-				$exception = new BadTokenException( $api_error );
-				break;
-			case 'maxlag':
-				$exception = new MaxLagException( $api_error );
-				break;
-			case 'articleexists':
-				$exception = new ArticleExistsException( $api_error );
-				break;
-			case 'missingtitle':
-				$exception = new MissingTitleException( $api_error );
-				break;
-			case 'protectedpage':
-				$exception = new ProtectedPageException( $api_error );
-				break;
+		foreach( $known_exceptions as $exception ) {
+			if( $exception::API_ERROR_CODE === $code ) {
+				return new $exception( $api_error );
+			}
 		}
-		return $exception;
+		return new self( $api_error );
 	}
 
 	/**

@@ -19,6 +19,10 @@
 namespace mw\API;
 
 /**
- * Specific API exception class for the 'articleexists' exception
+ * Specific API exception class for the 'articleexists' error code
  */
-class ArticleExistsException extends Exception {}
+class ArticleExistsException extends Exception {
+
+	const API_ERROR_CODE = 'articleexists';
+
+}

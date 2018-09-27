@@ -21,4 +21,8 @@ namespace mw\API;
 /**
  * Specific API exception class for the 'protectedpage' error code
  */
-class ProtectedPageException extends Exception {}
+class ProtectedPageException extends Exception {
+
+	const API_ERROR_CODE = 'protectedpage';
+
+}

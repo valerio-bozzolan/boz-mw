@@ -19,6 +19,10 @@
 namespace mw\API;
 
 /**
- * Specific API exception class for the 'bad-token' exception
+ * Specific API exception class for the 'bad-token' error code
  */
-class BadTokenException extends Exception {}
+class BadTokenException extends Exception {
+
+	const API_ERROR_CODE = 'bad-token';
+
+}

@@ -19,6 +19,10 @@
 namespace mw\API;
 
 /**
- * Specific API exception class for the 'maxlag' exception
+ * Specific API exception class for the 'maxlag' error code
  */
-class MaxLagException extends Exception {}
+class MaxLagException extends Exception {
+
+	const API_ERROR_CODE = 'maxlag';
+
+}

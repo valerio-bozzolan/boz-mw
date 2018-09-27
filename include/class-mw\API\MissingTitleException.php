@@ -19,6 +19,10 @@
 namespace mw\API;
 
 /**
- * Specific API exception class for the 'missingtitle' exception
+ * Specific API exception class for the 'missingtitle' error code
  */
-class MissingTitleException extends Exception {}
+class MissingTitleException extends Exception {
+
+	const API_ERROR_CODE = 'missingtitle';
+
+}

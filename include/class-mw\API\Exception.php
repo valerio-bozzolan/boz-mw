@@ -69,6 +69,12 @@ class Exception extends \Exception {
 			case 'articleexists':
 				$exception = new ArticleExistsException( $api_error );
 				break;
+			case 'missingtitle':
+				$exception = new MissingTitleException( $api_error );
+				break;
+			case 'protectedpage':
+				$exception = new ProtectedPageException( $api_error );
+				break;
 		}
 		return $exception;
 	}

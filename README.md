@@ -19,8 +19,8 @@ require 'boz-mw/autoload.php';
 \cli\Log::$DEBUG = true;
 
 echo "Simple Italian Wikipedia API query:\n";
-$WIT = \wm\WikipediaIt::getInstance();
-$response = $WIT->fetch( [
+$w = \wm\WikipediaIt::getInstance();
+$response = $w->fetch( [
 	'action' => 'query',
 	'prop'   => 'info',
 	'titles' => [
@@ -39,17 +39,15 @@ foreach( $members->getGenerator() as $response ) {
 	print_r( $response );
 }
 
-echo "Simple POST request (every POST do an implicit login):\n";
+echo "Simple POST request:\n";
 \mw\API::$DEFAULT_USERNAME = 'My username';
 \mw\API::$DEFAULT_PASSWORD = 'My bot password';
-$wit = \wm\WikipediaIt::getInstance();
-$response = $WIT->post( [
-	'action'  => 'edit',
+$w = \wm\WikipediaIt::getInstance()->login();
+$response = $w->edit( [
 	'title'   => 'Special:Nothing',
 	'text'    => 'My wikitext',
 	'summary' => 'My edit summary',
-	'token'   => $wit->getToken( 'csrf' ),
-   ] );
+] );
 print_r( $response );
 ```
 

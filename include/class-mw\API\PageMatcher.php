@@ -208,22 +208,25 @@ class PageMatcher {
 	 * Walk the response pages, matching them and your own objects (from the page title)
 	 *
 	 * @param $my_pages array Array of your custom page objects. Each object rappresents a requested page.
-	 * @param $my_page_id_callback callback Callback that must returns a page id from your custom object.
+	 * @param $my_page_id_callback callback Callback that must returns a page title from your custom object.
 	 * 	The 1° is your object.
-	 * 	It must return a page id.
+	 * 	It must return a page title.
 	 * @param $callback callback Callback that will be called for each of your matched pages.
 	 * 	The 1° argument is your object.
-	 * 	The 2° argument is the page object.
+	 *    If unspecified it means that your object it's the title itself
 	 */
-	public function matchByTitle( $matched_callback, $my_page_title_callback ) {
+	public function matchByTitle( $matched_callback, $my_page_title_callback = null ) {
 		$this->matchByCustomJoin(
 			$matched_callback,
 
 			// callback that returns the page title from my custom page object... normalized!
-			function ( $my_page ) use ( $my_page_title_callback ) {
+			function ( $my_page ) use ( $matched_callback, $my_page_title_callback ) {
 
 				// callback that returns the page title from my custom page object...
-				$title = $my_page_title_callback( $my_page );
+				$title =
+					$my_page_title_callback
+					? $my_page_title_callback( $my_page )
+					: $my_page; // or it's just the string title itself?
 
 				// normalized!
 				return $this->getNormalizedTitle( $title );

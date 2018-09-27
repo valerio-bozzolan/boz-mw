@@ -250,13 +250,11 @@ foreach( $results->getGenerator() as $response ) {
 				if( $proceed ) {
 
 					// save
-					$wiki->post( [
-						'action'        => 'edit',
+					$wiki->edit( [
 						'pageid'        => $page->pageid,
 						'basetimestamp' => $page->revisions[ 0 ]->timestamp,
 						'text'          => $wikitext->getWikitext(),
 						'section'       => $ONLY_FIRST_SECTION ? 0 : null,
-						'token'         => $wiki->getToken( \mw\Tokens::CSRF ),
 						'summary'       => $summary,
 						'minor'         => ! $opts->getArg( 'not-minor' ),
 						'bot'           => ! $opts->getArg( 'not-bot'   ),

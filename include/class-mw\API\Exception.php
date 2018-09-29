@@ -64,13 +64,15 @@ class Exception extends \Exception {
 			MissingTitleException ::class,
 			ProtectedPageException::class,
 		];
+		$exception = new self( $api_error );
 		$code = $exception->getApiErrorCode();
-		foreach( $known_exceptions as $exception ) {
-			if( $exception::API_ERROR_CODE === $code ) {
-				return new $exception( $api_error );
+		foreach( $known_exceptions as $known_exception_name ) {
+			if( $known_exception_name::API_ERROR_CODE === $code ) {
+				$exception = new $known_exception_name( $api_error );
+				break;
 			}
 		}
-		return new self( $api_error );
+		return $exception;
 	}
 
 	/**

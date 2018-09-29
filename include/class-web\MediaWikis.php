@@ -33,6 +33,7 @@ abstract class MediaWikis {
 			\wm\WikipediaIt      ::class,
 			\wm\Wikidata         ::class,
 			\wm\Commons          ::class,
+			\wm\MetaWiki         ::class,
 			\web\LandscapeforWiki::class,
 		];
 	}

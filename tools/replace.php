@@ -48,14 +48,14 @@ class APIParamSub extends APIParam        {}
 // register all CLI parameters
 $opts = new Opts( [
 	new ParamValuedLong( 'wiki',          "Available wikis: $mediawiki_uids" ),
-	new APIParam(        'titles',        'Title of pages to work on' ),
-	new APIParam(        'pageids',       'Page IDs to work on' ),
 	new APIParam(        'generator',     'Choose between: linkshere, categorymembers, transcludedin' ),
 	new APIParamSub(     'glhnamespace',  'only in linkshere:       Namespace number' ),
 	new APIParamSub(     'gtinamespace',  'only in transcludedin:   Namespace number' ),
 	new APIParamSub(     'gcmtitle',      'only in categorymembers: Category name prefixed' ),
 	new APIParamSub(     'gcmpageid',     'only in categorymembers: Category page ID' ),
 	new APIParamSub(     'gcmnamespace',  'only in categorymembers: Namespace number' ),
+	new APIParam(        'titles',        'Title of pages to work on' ),
+	new APIParam(        'pageids',       'Page IDs to work on' ),
 	new ParamFlagLong(   'plain',         'Use plain text instead of regexes (default)' ),
 	new ParamFlagLong(   'regex',         'Use regexes instead of plain text' ),
 	new ParamValued(     'summary', 'm',  'Specify an edit summary' ),
@@ -92,7 +92,7 @@ if( ! $help && ! $opts->getArg( 'wiki' ) ) {
 // pick the wiki
 $wiki = MediaWikis::findFromUID( $opts->getArg( 'wiki' ) );
 if( ! $help && ! $wiki ) {
-	$help = "Please specify a valid wiki UID";
+	$help = "Please specify a valid wiki UID from: $mediawiki_uids";
 }
 
 // the generator is mandatory
@@ -123,8 +123,7 @@ if( ! $help && $opts->getArg( 'regex' ) && $opts->getArg( 'plain' ) ) {
 
 // show the help
 if( $help ) {
-	echo "Usage: {$argv[ 0 ]} --generator=VALUE [OPTIONS] SEARCH... REPLACE...\n";
-	echo "You can use this script to search and replace things\n";
+	echo "Usage:\n {$argv[ 0 ]} [OPTIONS] SEARCH... REPLACE...\n";
 	echo "Allowed OPTIONS:\n";
 	foreach( $opts->getParams() as $param ) {
 		$commands = [];
@@ -149,6 +148,7 @@ if( $help ) {
 		}
 		echo "\n";
 	}
+	echo "Example:\n {$argv[ 0 ]} --wiki=itwiki --generator=allpages 'a' 'afa'\n";
 	if( is_string( $help ) ) {
 		echo "\nError: $help\n";
 	}

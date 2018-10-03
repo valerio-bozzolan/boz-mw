@@ -1,4 +1,4 @@
-# Boz-MW
+# boz-mw
 
 This is another MediaWiki API handler in PHP.
 

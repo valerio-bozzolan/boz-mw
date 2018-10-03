@@ -41,20 +41,21 @@ foreach( MediaWikis::all() as $site ) {
 }
 $mediawiki_uids = implode( ', ', $mediawiki_uids );
 
-// this class is useful only to distinguish this type of params :^)
-class APIParam extends ParamValuedLong {}
+// these classes are useful only to distinguish this type of params :^)
+class APIParam    extends ParamValuedLong {}
+class APIParamSub extends APIParam        {}
 
 // register all CLI parameters
 $opts = new Opts( [
-	new ParamFlagLong(   'wiki',          "Specify the UID of the wiki you want to edit from: $mediawiki_uids" ),
-	new APIParam(        'generator',     'Choose between: linkshere, categorymembers, transcludedin, etc.' ),
+	new ParamValuedLong( 'wiki',          "Available wikis: $mediawiki_uids" ),
 	new APIParam(        'titles',        'Title of pages to work on' ),
 	new APIParam(        'pageids',       'Page IDs to work on' ),
-	new APIParam(        'glhnamespace',  'For linkshere: Namespace number' ),
-	new APIParam(        'gtinamespace',  'For transcludedin: Namespace number' ),
-	new APIParam(        'gcmtitle',      'For categorymembers: Category name prefixed' ),
-	new APIParam(        'gcmpageid',     'For categorymembers: Category page ID' ),
-	new APIParam(        'gcmnamespace',  'For categorymembers: Namespace number' ),
+	new APIParam(        'generator',     'Choose between: linkshere, categorymembers, transcludedin' ),
+	new APIParamSub(     'glhnamespace',  'only in linkshere:       Namespace number' ),
+	new APIParamSub(     'gtinamespace',  'only in transcludedin:   Namespace number' ),
+	new APIParamSub(     'gcmtitle',      'only in categorymembers: Category name prefixed' ),
+	new APIParamSub(     'gcmpageid',     'only in categorymembers: Category page ID' ),
+	new APIParamSub(     'gcmnamespace',  'only in categorymembers: Namespace number' ),
 	new ParamFlagLong(   'plain',         'Use plain text instead of regexes (default)' ),
 	new ParamFlagLong(   'regex',         'Use regexes instead of plain text' ),
 	new ParamValued(     'summary', 'm',  'Specify an edit summary' ),
@@ -133,14 +134,18 @@ if( $help ) {
 		if( $param->hasShortName() ) {
 			$commands[] = '-' . $param->getShortName();
 		}
-		echo "\t" . implode( '|', $commands );
-		if( $commands && ! $param->isFlag() ) {
-			echo $param->isValueOptional()
+		$command = implode( '|', $commands );
+		if( $command && ! $param->isFlag() ) {
+			$command .= $param->isValueOptional()
 				? '=[VALUE]'
 				: '=VALUE';
 		}
+		if( $param instanceof APIParamSub ) {
+			echo ' ';
+		}
+		printf( ' % -20s ', $command );
 		if( $param->hasDescription() ) {
-			echo " \t " . $param->getDescription();
+			echo ' ' . $param->getDescription();
 		}
 		echo "\n";
 	}

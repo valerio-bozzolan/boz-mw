@@ -28,13 +28,18 @@ use \cli\Log;
 use \cli\Input;
 use \cli\Opts;
 use \cli\Param;
+use \cli\ParamFlag;
+use \cli\ParamFlagLong;
+use \cli\ParamValued;
+use \cli\ParamValuedLong;
 use \web\MediaWikis;
 
 // whitelisted API parameter => description
 $API_PARAMS = [
+	'generator'    => 'Choose between: linkshere, categorymembers, transcludedin, etc.',
+
 	'titles'       => 'A list of titles to work on.',
 	'pageids'      => 'A list of page IDs to work on.',
-	'generator'    => 'Choose between: linkshere, categorymembers, transcludedin, etc.',
 
 	// linkshere generator
 	'glhnamespace' => null,
@@ -57,23 +62,23 @@ $mediawiki_uids = implode( ', ', $mediawiki_uids );
 
 // register all CLI parameters
 $opts = new Opts( [
-	new Param( 'wiki',          null, Param::REQUIRED_VALUE, "Specify the UID of the wiki you want to edit from: $mediawiki_uids" ),
-	new Param( 'plain',         null, Param::NO_VALUE,       'Use plain text instead of regexes (default)' ),
-	new Param( 'regex',         null, Param::NO_VALUE,       'Use regexes instead of plain text' ),
-	new Param( 'summary',       'm',  Param::REQUIRED_VALUE, 'Specify an edit summary' ),
-	new Param( 'simulate',      null, Param::NO_VALUE,       'Show changes without saving' ),
-	new Param( 'always',        null, Param::NO_VALUE,       'Always run without asking y/n' ),
-	new Param( 'limit',         null, Param::REQUIRED_VALUE, 'Maximum number of replacements for each SEARCH' ),
-	new Param( 'not-minor',     null, Param::NO_VALUE,       'Do not mark this change as minor' ),
-	new Param( 'not-bot',       null, Param::NO_VALUE,       'Do not mark this change as edited by a bot' ),
-	new Param( 'first-section', null, Param::NO_VALUE,       'Edit only the first section' ),
-	new Param( 'show',          null, Param::NO_VALUE,       'Show the wikitext before saving' ),
-	new Param( 'help',          'h',  Param::NO_VALUE,       'Show this help and quit' ),
+	new ParamFlagLong(   'wiki',          "Specify the UID of the wiki you want to edit from: $mediawiki_uids" ),
+	new ParamFlagLong(   'simulate',      'Show changes without saving' ),
+	new ParamFlagLong(   'always',        'Always run without asking y/n' ),
+	new ParamFlagLong(   'plain',         'Use plain text instead of regexes (default)' ),
+	new ParamFlagLong(   'regex',         'Use regexes instead of plain text' ),
+	new ParamValued(     'summary', 'm',  'Specify an edit summary' ),
+	new ParamValuedLong( 'limit',         'Maximum number of replacements for each SEARCH' ),
+	new ParamFlagLong(   'not-minor',     'Do not mark this change as minor' ),
+	new ParamFlagLong(   'not-bot',       'Do not mark this change as edited by a bot' ),
+	new ParamFlagLong(   'first-section', 'Edit only the first section' ),
+	new ParamFlagLong(   'show',          'Show the wikitext before saving' ),
+	new ParamFlag(       'help',    'h',  'Show this help and quit' ),
 ] );
 
 // register also all CLI API parameters
 foreach( $API_PARAMS as $param => $description ) {
-	$opts->add( new Param( $param, null, Param::REQUIRED_VALUE, $description ) );
+	$opts->add( new ParamValuedLong( $param, $description ) );
 };
 
 // unnamed arguments

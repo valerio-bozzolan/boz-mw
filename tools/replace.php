@@ -62,7 +62,7 @@ $opts = new Opts( [
 	new ParamValuedLong( 'limit',         'Maximum number of replacements for each SEARCH' ),
 	new ParamFlagLong(   'not-minor',     'Do not mark this change as minor' ),
 	new ParamFlagLong(   'not-bot',       'Do not mark this change as edited by a bot' ),
-	new ParamFlagLong(   'first-section', 'Edit only the first section' ),
+	new ParamValueLong(  'rvsection',     'Number of section to be edited' ),
 	new ParamFlagLong(   'always',        'Always run without asking y/n' ),
 	new ParamFlagLong(   'simulate',      'Show changes without saving' ),
 	new ParamFlagLong(   'show',          'Show the wikitext before saving' ),
@@ -155,9 +155,6 @@ if( $help ) {
 	exit( $opts->getArg( 'help' ) ? 0 : 1 );
 }
 
-// edit only the first section?
-$ONLY_FIRST_SECTION = $opts->getArg( 'first-section' );
-
 // API arguments
 $args = [
 	'action'    => 'query',
@@ -168,11 +165,6 @@ $args = [
 		'timestamp',
 	]
 ];
-
-// restrict to section
-if( $ONLY_FIRST_SECTION ) {
-	$args[ 'rvsection' ] = 0;
-}
 
 // apply API arguments from CLI API parameters
 foreach( $opts->getParams() as $param ) {
@@ -251,7 +243,7 @@ foreach( $results->getGenerator() as $response ) {
 						'pageid'        => $page->pageid,
 						'basetimestamp' => $page->revisions[ 0 ]->timestamp,
 						'text'          => $wikitext->getWikitext(),
-						'section'       => $ONLY_FIRST_SECTION ? 0 : null,
+						'section'       => $opt->getArg( 'rvsection' ),
 						'summary'       => $summary,
 						'minor'         => ! $opts->getArg( 'not-minor' ),
 						'bot'           => ! $opts->getArg( 'not-bot'   ),

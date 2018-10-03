@@ -52,7 +52,6 @@ abstract class MediaWikis {
 	/**
 	 * Get a specific MediaWiki instance from its UID
 	 *
-	 *
 	 * @param $uid string
 	 * @return mw\StaticSite|false
 	 */
@@ -62,7 +61,7 @@ abstract class MediaWikis {
 				return $one;
 			}
 		}
-		throw new \InvalidArgumentException( "unregistered wiki $uid" );
+		return false;
 	}
 
 }

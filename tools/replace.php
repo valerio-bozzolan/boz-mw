@@ -82,48 +82,48 @@ if( $LIMIT ) {
 }
 
 // show the help?
-$help = $opts->getArg( 'help' );
+$help = (bool) $opts->getArg( 'help' );
 
 // the wiki is mandatory
 if( ! $help && ! $opts->getArg( 'wiki' ) ) {
-	echo "Please specify a wiki\n";
-	$help = true;
+	$help = "Please specify a --wiki=VALUE";
+}
+
+// pick the wiki
+$wiki = MediaWikis::findFromUID( $opts->getArg( 'wiki' ) );
+if( ! $help && ! $wiki ) {
+	$help = "Please specify a valid wiki UID";
 }
 
 // the generator is mandatory
 if( ! $help && ! $opts->getArg( 'generator' ) ) {
-	echo "Please specify a generator\n";
-	$help = true;
+	$help = "Please specify the --generator=VALUE";
 }
 
 // the search and replace are mandatory
 if( ! $help && ! $main_args ) {
-	echo "Please specify a SEARCH and a REPLACE\n";
-	$help = true;
+	$help = "Please specify a SEARCH and a REPLACE";
 }
 
 // every search must have its replace
 if( ! $help && count( $main_args ) % 2 !== 0 ) {
 	$last = $main_args[ count( $main_args ) - 1 ];
-	echo "Please specify a REPLACE for your latest SEARCH ($last)\n";
-	$help = true;
+	$help = "Please specify a REPLACE for your latest SEARCH ($last)";
 }
 
 // plain vs regex
 if( ! $help && null === $IS_REGEX ) {
-	echo "Please specify if it's --plain or it's --regex\n";
-	$help = true;
+	$help = "Please specify if it's --plain or it's --regex";
 }
 
 // plain with regex
 if( ! $help && $opts->getArg( 'regex' ) && $opts->getArg( 'plain' ) ) {
-	echo "Please do not specify both --regex or --plain\n";
-	$help = true;
+	$help = "Please do not specify both --regex or --plain";
 }
 
 // show the help
 if( $help ) {
-	echo "Usage: {$argv[ 0 ]} --generator=GENERATOR [OPTIONS] SEARCH... REPLACE...\n";
+	echo "Usage: {$argv[ 0 ]} --generator=VALUE [OPTIONS] SEARCH... REPLACE...\n";
 	echo "You can use this script to search and replace things\n";
 	echo "Allowed OPTIONS:\n";
 	foreach( $opts->getParams() as $param ) {
@@ -148,6 +148,9 @@ if( $help ) {
 			echo ' ' . $param->getDescription();
 		}
 		echo "\n";
+	}
+	if( is_string( $help ) ) {
+		echo "\nError: $help\n";
 	}
 	exit( $opts->getArg( 'help' ) ? 0 : 1 );
 }
@@ -178,9 +181,6 @@ foreach( $opts->getParams() as $param ) {
 		$args[ $param->getLongName() ] = $arg;
 	}
 }
-
-// find the desired wiki
-$wiki = MediaWikis::findFromUID( $opts->getArg( 'wiki' ) );
 
 $wiki->login();
 

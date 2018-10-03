@@ -34,25 +34,6 @@ use \cli\ParamValued;
 use \cli\ParamValuedLong;
 use \web\MediaWikis;
 
-// whitelisted API parameter => description
-$API_PARAMS = [
-	'generator'    => 'Choose between: linkshere, categorymembers, transcludedin, etc.',
-
-	'titles'       => 'A list of titles to work on.',
-	'pageids'      => 'A list of page IDs to work on.',
-
-	// linkshere generator
-	'glhnamespace' => null,
-
-	// transcludedin generator
-	'gtinamespace' => null,
-
-	// categorymembers generator
-	'gcmtitle'     => null,
-	'gcmpageid'    => null,
-	'gcmnamespace' => null,
-];
-
 // all the available wiki UIDs
 $mediawiki_uids = [];
 foreach( MediaWikis::all() as $site ) {
@@ -60,11 +41,20 @@ foreach( MediaWikis::all() as $site ) {
 }
 $mediawiki_uids = implode( ', ', $mediawiki_uids );
 
+// this class is useful only to distinguish this type of params :^)
+class APIParam extends ParamValuedLong {}
+
 // register all CLI parameters
 $opts = new Opts( [
 	new ParamFlagLong(   'wiki',          "Specify the UID of the wiki you want to edit from: $mediawiki_uids" ),
-	new ParamFlagLong(   'simulate',      'Show changes without saving' ),
-	new ParamFlagLong(   'always',        'Always run without asking y/n' ),
+	new APIParam(        'generator',     'Choose between: linkshere, categorymembers, transcludedin, etc.' ),
+	new APIParam(        'titles',        'Title of pages to work on' ),
+	new APIParam(        'pageids',       'Page IDs to work on' ),
+	new APIParam(        'glhnamespace',  'For linkshere: Namespace number' ),
+	new APIParam(        'gtinamespace',  'For transcludedin: Namespace number' ),
+	new APIParam(        'gcmtitle',      'For categorymembers: Category name prefixed' ),
+	new APIParam(        'gcmpageid',     'For categorymembers: Category page ID' ),
+	new APIParam(        'gcmnamespace',  'For categorymembers: Namespace number' ),
 	new ParamFlagLong(   'plain',         'Use plain text instead of regexes (default)' ),
 	new ParamFlagLong(   'regex',         'Use regexes instead of plain text' ),
 	new ParamValued(     'summary', 'm',  'Specify an edit summary' ),
@@ -72,14 +62,11 @@ $opts = new Opts( [
 	new ParamFlagLong(   'not-minor',     'Do not mark this change as minor' ),
 	new ParamFlagLong(   'not-bot',       'Do not mark this change as edited by a bot' ),
 	new ParamFlagLong(   'first-section', 'Edit only the first section' ),
+	new ParamFlagLong(   'always',        'Always run without asking y/n' ),
+	new ParamFlagLong(   'simulate',      'Show changes without saving' ),
 	new ParamFlagLong(   'show',          'Show the wikitext before saving' ),
 	new ParamFlag(       'help',    'h',  'Show this help and quit' ),
 ] );
-
-// register also all CLI API parameters
-foreach( $API_PARAMS as $param => $description ) {
-	$opts->add( new ParamValuedLong( $param, $description ) );
-};
 
 // unnamed arguments
 $main_args = Opts::unnamedArguments();
@@ -180,10 +167,10 @@ if( $ONLY_FIRST_SECTION ) {
 }
 
 // apply API arguments from CLI API parameters
-foreach( $API_PARAMS as $param => $description ) {
+foreach( $opts->getParams() as $param ) {
 	$arg = $opts->getArg( $param );
 	if( $arg ) {
-		$args[ $param ] = $arg;
+		$args[ $param->getLongName() ] = $arg;
 	}
 }
 

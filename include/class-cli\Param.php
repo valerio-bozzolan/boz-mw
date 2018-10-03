@@ -81,7 +81,8 @@ class Param {
 	 *
 	 * @param $long_name string Long name
 	 * @param $short_name string Short name
-	 * @param $value_kind string
+	 * @param $value_kind int Value kind
+	 * @param $description string Description
 	 */
 	public function __construct( $long_name, $short_name, $value_kind, $description ) {
 		$this->longName = $long_name;

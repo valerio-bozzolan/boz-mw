@@ -48,12 +48,14 @@ class APIParamSub extends APIParam        {}
 // register all CLI parameters
 $opts = new Opts( [
 	new ParamValuedLong( 'wiki',          "Available wikis: $mediawiki_uids" ),
-	new APIParam(        'generator',     'Choose between: linkshere, categorymembers, transcludedin' ),
-	new APIParamSub(     'glhnamespace',  'only in linkshere:       Namespace number' ),
-	new APIParamSub(     'gtinamespace',  'only in transcludedin:   Namespace number' ),
-	new APIParamSub(     'gcmtitle',      'only in categorymembers: Category name prefixed' ),
-	new APIParamSub(     'gcmpageid',     'only in categorymembers: Category page ID' ),
-	new APIParamSub(     'gcmnamespace',  'only in categorymembers: Namespace number' ),
+	new APIParam(        'generator',     'Choose between: linkshere, categorymembers, transcludedin, search' ),
+	new APIParamSub(     'glhnamespace',  'Only in linkshere:       Namespace number' ),
+	new APIParamSub(     'gtinamespace',  '        transcludedin:   Namespace number' ),
+	new APIParamSub(     'gcmtitle',      '                         Category name prefixed' ),
+	new APIParamSub(     'gcmpageid',     '                         Category page ID' ),
+	new APIParamSub(     'gcmnamespace',  '        categorymembers: Namespace number' ),
+	new APIParamSub(     'gsrsearch',     '        search:          Search term' ),
+	new APIParamSub(     'gsrnamespace',  '                         Namespace number' ),
 	new APIParam(        'titles',        'Title of pages to work on' ),
 	new APIParam(        'pageids',       'Page IDs to work on' ),
 	new ParamFlagLong(   'plain',         'Use plain text instead of regexes (default)' ),
@@ -73,13 +75,11 @@ $opts = new Opts( [
 $main_args = Opts::unnamedArguments();
 
 // operate using regex or in plain text?
-$IS_REGEX = $opts->getArg( 'regex', ! $opts->getArg( 'plain', true ) );
+$IS_PLAIN = $opts->getArg( 'plain', true  );
+$IS_REGEX = $opts->getArg( 'regex', false );
 
 // maximum number of replacements for each LIMIT
-$LIMIT = $opts->getArg( 'limit' );
-if( $LIMIT ) {
-	$LIMIT = (int) $LIMIT;
-}
+$LIMIT = (int) $opts->getArg( 'limit', -1 );
 
 // show the help?
 $help = (bool) $opts->getArg( 'help' );

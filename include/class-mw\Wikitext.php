@@ -169,17 +169,21 @@ class Wikitext {
 	 * @see preg_replace()
 	 */
 	public function pregReplace( $pattern, $replacement, $limit = -1, &$count = 0 ) {
-		if( 1 === $this->pregMatch( $pattern, $matches ) ) {
-			$from = $matches[ 0 ];
-			$to   = $replacement;
-			foreach( $matches as $i => $match ) {
-				$to = str_replace( [
-					'\\' . $i,      // \\1
-					'$'  . $i,      // $1
-					'${' . $i . '}' // ${1}
-				], $match, $to );
+		if( $n = $this->pregMatchAll( $pattern, $matches ) ) {
+			$groups = count( $matches );
+			for( $i = 0; $i < $n; $i++ ) {
+				$from = $matches[ 0 ][ $i ];
+				$to = $replacement;
+				for( $g = 0; $g < $groups; $g++ ) {
+					$group = $matches[ $g ][ $i ];
+					$to = str_replace( [
+						'\\' . $g,      // \\1
+						'$'  . $g,      // $1
+						'${' . $g . '}' // ${1}
+					], $group, $to );
+				}
+				$this->sobstitutions[] = [ $from, $to ];
 			}
-			$this->sobstitutions[] = [ $from, $to ];
 		}
 		$this->setWikitext( preg_replace( $pattern, $replacement, $this->getWikitext(), $limit, $count ) );
 		return $this;

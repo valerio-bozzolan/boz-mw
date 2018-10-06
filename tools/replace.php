@@ -62,7 +62,7 @@ $opts = new Opts( [
 	new ParamValuedLong( 'limit',         'Maximum number of replacements for each SEARCH' ),
 	new ParamFlagLong(   'not-minor',     'Do not mark this change as minor' ),
 	new ParamFlagLong(   'not-bot',       'Do not mark this change as edited by a bot' ),
-	new ParamValueLong(  'rvsection',     'Number of section to be edited' ),
+	new ParamValuedLong( 'rvsection',     'Number of section to be edited' ),
 	new ParamFlagLong(   'always',        'Always run without asking y/n' ),
 	new ParamFlagLong(   'simulate',      'Show changes without saving' ),
 	new ParamFlagLong(   'show',          'Show the wikitext before saving' ),

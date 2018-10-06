@@ -245,7 +245,7 @@ foreach( $results->getGenerator() as $response ) {
 						'pageid'        => $page->pageid,
 						'basetimestamp' => $page->revisions[ 0 ]->timestamp,
 						'text'          => $wikitext->getWikitext(),
-						'section'       => $opt->getArg( 'rvsection' ),
+						'section'       => $opts->getArg( 'rvsection' ),
 						'summary'       => $summary,
 						'minor'         => ! $opts->getArg( 'not-minor' ),
 						'bot'           => ! $opts->getArg( 'not-bot'   ),

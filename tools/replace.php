@@ -168,9 +168,11 @@ $args = [
 
 // apply API arguments from CLI API parameters
 foreach( $opts->getParams() as $param ) {
-	$value = $param->getValue();
-	if( $value ) {
-		$args[ $param->getLongName() ] = $value;
+	if( $param instanceof APIParam ) {
+		$value = $param->getValue();
+		if( $value ) {
+			$args[ $param->getLongName() ] = $value;
+		}
 	}
 }
 

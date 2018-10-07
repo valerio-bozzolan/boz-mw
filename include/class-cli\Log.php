@@ -50,9 +50,10 @@ class Log {
 	 * Use it for errors that can be solved without interaction
 	 *
 	 * @param $message string
+	 * @param $args array arguments
 	 */
-	public static function warn( $message ) {
-		self::log( 'WARN', $message );
+	public static function warn( $message, $args = [] ) {
+		self::log( 'WARN', $message, $args );
 	}
 
 	/**
@@ -61,10 +62,11 @@ class Log {
 	 * Use it to show actions under the hood
 	 *
 	 * @param $message string
+	 * @param $args array arguments
 	 */
-	public static function info( $message ) {
+	public static function info( $message, $args = [] ) {
 		if( self::$INFO ) {
-			self::log( 'INFO', $message );
+			self::log( 'INFO', $message, $args );
 		}
 	}
 
@@ -74,10 +76,11 @@ class Log {
 	 * Use it to show actions under the hood
 	 *
 	 * @param $message string
+	 * @param $args array arguments
 	 */
-	public static function debug( $message ) {
+	public static function debug( $message, $args ) {
 		if( self::$DEBUG ) {
-			self::log( 'DEBUG', $message );
+			self::log( 'DEBUG', $message, $args );
 		}
 	}
 
@@ -85,8 +88,9 @@ class Log {
 	 * Show an error
 	 *
 	 * @param $message string
+	 * @param $args array arguments
 	 */
-	public static function error( $message ) {
+	public static function error( $message, $args = [] ) {
 		self::log( 'ERROR', $message );
 	}
 
@@ -95,8 +99,9 @@ class Log {
 	 *
 	 * @param $message_sensitive Message with sensitive informations
 	 * @param $message_unsensitive Message secure to be shown
+	 * @param $args array arguments
 	 */
-	public static function sensitive( $message_sensitive, $message_unsensitive ) {
+	public static function sensitive( $message_sensitive, $message_unsensitive, $args = [] ) {
 		if( self::$DEBUG ) {
 			if( self::$SENSITIVE ) {
 				self::log( '!DEBUG!', $message_sensitive );
@@ -111,11 +116,15 @@ class Log {
 	 *
 	 * @param $type string
 	 * @param $message string
+	 * @param $args array arguments
 	 */
-	public static function log( $type, $message ) {
+	public static function log( $type, $message, $args = [] ) {
+		if( ! @ $args[ 'newline' ] ) {
+			$message .= "\n";
+		}
 		if( isset( $_SERVER['argv'] ) ) {
 			$date = date( 'Y-m-d H:i:s' );
-			printf( "[%s][%s] %s\n", $date, $type, $message );
+			printf( "[%s][%s] %s", $date, $type, $message );
 		} else {
 			error_log( "$type $message" );
 		}

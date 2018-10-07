@@ -78,7 +78,7 @@ class Log {
 	 * @param $message string
 	 * @param $args array arguments
 	 */
-	public static function debug( $message, $args ) {
+	public static function debug( $message, $args = [] ) {
 		if( self::$DEBUG ) {
 			self::log( 'DEBUG', $message, $args );
 		}
@@ -91,7 +91,7 @@ class Log {
 	 * @param $args array arguments
 	 */
 	public static function error( $message, $args = [] ) {
-		self::log( 'ERROR', $message );
+		self::log( 'ERROR', $message, $args );
 	}
 
 	/**
@@ -104,9 +104,9 @@ class Log {
 	public static function sensitive( $message_sensitive, $message_unsensitive, $args = [] ) {
 		if( self::$DEBUG ) {
 			if( self::$SENSITIVE ) {
-				self::log( '!DEBUG!', $message_sensitive );
+				self::log( '!DEBUG!', $message_sensitive, $args );
 			} elseif( $message_unsensitive ) {
-				self::log( '!DEBUG!', "$message_unsensitive [SENSITIVE DATA HIDDEN]" );
+				self::log( '!DEBUG!', "$message_unsensitive [SENSITIVE DATA HIDDEN]", $args );
 			}
 		}
 	}
@@ -119,7 +119,12 @@ class Log {
 	 * @param $args array arguments
 	 */
 	public static function log( $type, $message, $args = [] ) {
-		if( ! @ $args[ 'newline' ] ) {
+		// default arguments
+		$args = array_replace( [
+			'newline' => true,
+		], $args );
+
+		if( $args[ 'newline' ] ) {
 			$message .= "\n";
 		}
 		if( isset( $_SERVER['argv'] ) ) {

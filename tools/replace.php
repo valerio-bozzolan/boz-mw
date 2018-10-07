@@ -237,7 +237,11 @@ foreach( $results->getGenerator() as $response ) {
 
 			// edit summary
 			$summary = $opts->getArg( 'summary', 'Bot: changed ' . implode( ', ', $wikitext->getHumanUniqueSobstitutions() ) );
-			Log::info( "Summary: \t $summary" );
+
+			// show the summary if it's auto-generated
+			if( ! $opts->getArg( 'summary' ) ) {
+				Log::info( "Summary: \t $summary" );
+			}
 
 			if( ! $opts->getArg( 'simulate' ) ) {
 

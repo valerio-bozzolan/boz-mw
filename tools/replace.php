@@ -18,6 +18,9 @@
 // exit if not CLI
 $argv or exit( 1 );
 
+// default seconds to wait in always mode
+$DEFAULT_ALWAYS_WAIT = 3;
+
 // load boz-mw
 require __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload.php';
 
@@ -66,6 +69,7 @@ $opts = new Opts( [
 	new ParamFlagLong(   'not-bot',       'Do not mark this change as edited by a bot' ),
 	new ParamValuedLong( 'rvsection',     'Number of section to be edited' ),
 	new ParamFlagLong(   'always',        'Always run without asking y/n' ),
+	new ParamValuedLong( 'always-wait',   "Seconds to wait during --always mode (default $DEFAULT_ALWAYS_WAIT)" ),
 	new ParamFlagLong(   'simulate',      'Show changes without saving' ),
 	new ParamFlagLong(   'show',          'Show the wikitext before saving' ),
 	new ParamFlag(       'help',    'h',  'Show this help and quit' ),
@@ -73,6 +77,9 @@ $opts = new Opts( [
 
 // unnamed arguments
 $main_args = Opts::unnamedArguments();
+
+// wait seconds for --always
+$ALWAYS_WAIT = (int) $opts->getArg( 'always-wait', $DEFAULT_ALWAYS_WAIT );
 
 // operate using regex or in plain text?
 $IS_PLAIN = $opts->getArg( 'plain', true  );
@@ -235,7 +242,14 @@ foreach( $results->getGenerator() as $response ) {
 			if( ! $opts->getArg( 'simulate' ) ) {
 
 				$proceed = true;
-				if( ! $opts->getArg( 'always' ) ) {
+				if( $opts->getArg( 'always' ) && $ALWAYS_WAIT ) {
+					Log::info( "Waiting $ALWAYS_WAIT seconds before saving", [ 'newline' => false ] );
+					for( $i = 0; $i < $ALWAYS_WAIT; $i++ ) {
+						echo ".";
+						sleep( 1 );
+					}
+					echo "\n";
+				} else {
 					$proceed = 'y' === Input::yesNoQuestion( "Save page [[{$page->title}]]?" );
 				}
 

@@ -223,8 +223,9 @@ foreach( $results->getGenerator() as $response ) {
 
 			// show changes
 			Log::info( 'Changes:' );
-			foreach( $wikitext->getHumanUniqueSobstitutions() as $message ) {
-				Log::info( "\t" . $message );
+			foreach( $wikitext->getUniqueSobstitutions() as $change ) {
+				list( $a, $b, $n ) = $change;
+				Log::info( sprintf( '% 40s    →    % 40s    (%d times)', $a, $b, $n ) );
 			}
 
 			// edit summary

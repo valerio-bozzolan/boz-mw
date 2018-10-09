@@ -39,3 +39,5 @@ Other options:
 ```bash
 ./replace.php --help
 ```
+
+You can see some [examples](./examples).

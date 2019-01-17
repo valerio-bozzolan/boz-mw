@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 namespace generic;
 
 /**
- * A singleton gives a getInstance() method
+ * A singleton gives an #instance() method
  */
 trait Singleton {
 
@@ -28,7 +28,7 @@ trait Singleton {
 	 *
 	 * @return self
 	 */
-	public static function getInstance() {
+	public static function instance() {
 		static $instance;
 		if( ! $instance ) {
 			$instance = static::create();
@@ -50,7 +50,7 @@ trait Singleton {
 	 */
 	protected static function throwSingletonUsage() {
 		throw new \Exception( sprintf(
-			'wrong singleton usage, you must call %s::getInstance()',
+			'wrong singleton usage, you must call %s::instance()',
 			static::class
 		) );
 	}

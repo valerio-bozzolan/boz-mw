@@ -19,7 +19,7 @@ require 'boz-mw/autoload.php';
 \cli\Log::$DEBUG = true;
 
 echo "Simple Italian Wikipedia API query:\n";
-$w = \wm\WikipediaIt::getInstance();
+$w = \wm\WikipediaIt::instance();
 $response = $w->fetch( [
 	'action' => 'query',
 	'prop'   => 'info',
@@ -30,7 +30,7 @@ $response = $w->fetch( [
 print_r( $response );
 
 echo "Simple Italian Wikipedia API query with continuation support:\n";
-$members = \wm\WikipediaIt::getInstance()->createQuery( [
+$members = \wm\WikipediaIt::instance()->createQuery( [
 	'action' => 'query',
 	'list'   => 'categorymembers',
 	'cmtitle' => 'Categoria:Software con licenza GNU GPL',
@@ -42,7 +42,7 @@ foreach( $members->getGenerator() as $response ) {
 echo "Simple POST request:\n";
 \mw\API::$DEFAULT_USERNAME = 'My username';
 \mw\API::$DEFAULT_PASSWORD = 'My bot password';
-$w = \wm\WikipediaIt::getInstance()->login();
+$w = \wm\WikipediaIt::instance()->login();
 $response = $w->edit( [
 	'title'   => 'Special:Nothing',
 	'text'    => 'My wikitext',

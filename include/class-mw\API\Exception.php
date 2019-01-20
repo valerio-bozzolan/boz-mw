@@ -63,6 +63,9 @@ class Exception extends \Exception {
 			ArticleExistsException::class,
 			MissingTitleException ::class,
 			ProtectedPageException::class,
+
+			// Wikibase related
+			NoSuchEntityException ::class,
 		];
 		$exception = new self( $api_error );
 		$code = $exception->getApiErrorCode();

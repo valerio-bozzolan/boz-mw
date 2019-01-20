@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,17 @@ namespace wm;
 /**
  * Commons singleton class
  *
+ * Note that now Wikimedia Commons supports Wikibase :)
+ *
  * @see https://commons.wikimedia.org/
  */
-class Commons extends \mw\StaticSite {
+class Commons extends \mw\StaticWikibaseSite {
 
 	/**
+	 * Commons site UID
+	 *
+	 * This value is also the current Wikimedia Commons Wikibase sitelink UID.
+	 *
 	 * @override
 	 */
 	const UID = 'commonswiki';

@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -54,6 +54,11 @@ class DataModel {
 	 */
 	private $claims;
 
+	/*
+	 * @var Sitelinks
+	 */
+	private $sitelinks;
+
 	/**
 	 * Constructor
 	 *
@@ -65,6 +70,7 @@ class DataModel {
 		$this->labels       = new Labels();
 		$this->descriptions = new Descriptions();
 		$this->claims       = new Claims();
+		$this->setSitelinks(  new Sitelinks() );
 		if( $entity_id ) {
 			$this->setEntityID( $entity_id );
 		}
@@ -142,6 +148,26 @@ class DataModel {
 	}
 
 	/**
+	 * Get all the sitelinks
+	 *
+	 * @return array
+	 */
+	public function getSitelinks() {
+		return $this->sitelinks;
+	}
+
+	/**
+	 * Set all the sitelinks
+	 *
+	 * @param $sitelinks
+	 * @return array
+	 */
+	public function setSitelinks( Sitelinks $sitelinks ) {
+		$this->sitelinks = $sitelinks;
+		return $this;
+	}
+
+	/**
 	 * Get all the claims grouped by property
 	 *
 	 * n.b. The claims without a property will be indexed by 'asd'
@@ -163,6 +189,12 @@ class DataModel {
 		return $this;
 	}
 
+	/**
+	 * Set claims
+	 *
+	 * @param $claims array
+	 * @return self
+	 */
 	public function setClaims( $claims ) {
 		$this->claims->set( $claims );
 		return $this;
@@ -178,8 +210,24 @@ class DataModel {
 		return $this->claims->haveProperty( $property );
 	}
 
+	/**
+	 * Get claims in a property
+	 *
+	 * @param $property string
+	 * @return array
+	 */
 	public function getClaimsInProperty( $property ) {
 		return $this->claims->getInProperty( $property );
+	}
+
+	/**
+	 * Has sitelink in site
+	 *
+	 * @param $site string
+	 * @return boolean
+	 */
+	public function hasSitelinkInSite( $site ) {
+		return false !== $this->getSitelinkInSite( $site );
 	}
 
 	/**
@@ -238,8 +286,9 @@ class DataModel {
 	 */
 	public function get( $clear = false ) {
 		$data = [
-			'labels'       => $this->getLabels(),
-			'descriptions' => $this->getDescriptions(),
+			'labels'       => $this->getLabels(),       // TODO: $this->getLabelsData()
+			'descriptions' => $this->getDescriptions(), // TODO: $this->getDescriptionsData()
+			'sitelinks'    => $this->sitelinks->toData(),
 			'claims'       => $this->getClaimsGrouped()
 		];
 		foreach( $data as $k => $v ) {
@@ -338,6 +387,11 @@ class DataModel {
 			$changes[] = $this->descriptions->__toString();
 		}
 
+		$sitelinks = $this->getSitelinks();
+		if( $sitelinks->getAll() ) {
+			$changes[] = $this->sitelinks->__toString();
+		}
+
 		foreach( $this->getClaims() as $claim ) {
 			$snak = $claim->getMainsnak();
 			if( $snak ) {
@@ -373,7 +427,7 @@ class DataModel {
 	 *
 	 * @param $data array API data request
 	 * @return mixed
-	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
+	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 	 */
 	public function editEntity( $data = [] ) {
 		$data = array_replace( [
@@ -385,31 +439,41 @@ class DataModel {
 	}
 
 	/**
-	 * Static constructor from an array
+	 * Static constructor from an associative array
 	 *
-	 * @param $data array
+	 * This method is used to import an array obtained
+	 * from JSON-decoding the Wikibase wbgetentity API result
+	 *
+	 * @param $data array Response of wbgetentity API result
 	 * @param $site WikibaseSite
 	 * @param $entity_id string
 	 * @return self
+	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
 	 */
 	public static function createFromData( $data, $site = null, $entity_id = null ) {
 		$dataModel = new self( $site, $entity_id );
 		if( ! empty( $data[ 'labels' ] ) ) {
+			// TODO: Labels::createFromData()
 			foreach( $data[ 'labels' ] as $label ) {
 				$dataModel->setLabel( Label::createFromData( $label ) );
 			}
 		}
 		if( ! empty( $data[ 'descriptions' ] ) ) {
+			// TODO: Descriptions::createFromData()
 			foreach( $data[ 'descriptions' ] as $description ) {
 				$dataModel->setDescription( Description::createFromData( $description ) );
 			}
 		}
 		if( ! empty( $data[ 'claims' ] ) ) {
+			// TODO: Claims::createFromData()
 			foreach( $data[ 'claims' ] as $claims ) {
 				foreach( $claims as $claim ) {
 					$dataModel->addClaim( Claim::createFromData( $claim ) );
 				}
 			}
+		}
+		if( ! empty( $data[ 'sitelinks' ] ) ) {
+			$dataModel->setSitelinks( Sitelinks::createFromData( $data[ 'sitelinks' ] ) );
 		}
 		return $dataModel;
 	}

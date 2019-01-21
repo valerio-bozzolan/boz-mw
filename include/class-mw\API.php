@@ -270,8 +270,8 @@ class API extends \network\HTTPRequest {
 		if( isset( $response->error ) ) {
 			$exception = API\Exception::createFromApiError( $response->error );
 			if( $exception instanceof API\MaxLagException ) {
-				// Retry after some time when server lags
-				Log::warn( "Lag!" );
+				// retry after some time when server lags
+				Log::warn( "Lag! ({$this->api})" );
 				$response = $this->fetch( $request_data, [
 					'wait' => self::WAIT_DOS
 				] );

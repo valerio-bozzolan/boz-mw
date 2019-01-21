@@ -240,6 +240,19 @@ class DataModel {
 	}
 
 	/**
+	 * Check if it's empty
+	 *
+	 * @return bool
+	 */
+	public function isEmpty() {
+		return
+			   ! $this->countClaims()
+			&& ! $this->getLabels()
+			&& ! $this->getDescriptions()
+			&& ! $this->sitelinks->getAll();
+	}
+
+	/**
 	 * Check if a label of a certain language exists
 	 *
 	 * @param $language string

@@ -66,7 +66,7 @@ class HTTPRequest {
 	 *
 	 * @var string
 	 */
-	private $api;
+	protected $api;
 
 	/**
 	 * HTTP GET/POST data

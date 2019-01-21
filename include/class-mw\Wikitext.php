@@ -294,6 +294,15 @@ class Wikitext {
 	}
 
 	/**
+	 * Check if there were changes since creation
+	 *
+	 * @return bool
+	 */
+	public function isChanged() {
+		return $this->countSobstitutions() || $this->prepended || $this->appended;
+	}
+
+	/**
 	 * Get the sobstituted wikitext without repetitions
 	 *
 	 * It also count the repetitions

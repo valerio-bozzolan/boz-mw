@@ -162,30 +162,37 @@ class Wikitext {
 	/**
 	 * Run a preg_replace() on the wikitext
 	 *
-	 * @param $pattern string Pattern
+	 * @param $patterns string|array Pattern
 	 * @param $replacement mixed Replacement where you can use group placeholders such as $0, $1 or ${0}, ${1}, ecc.
 	 * @param $limit int Sobstitution limit
 	 * @param $count int Sobstitution count
 	 * @see preg_replace()
 	 */
-	public function pregReplace( $pattern, $replacement, $limit = -1, &$count = 0 ) {
-		if( $n = $this->pregMatchAll( $pattern, $matches ) ) {
-			$groups = count( $matches );
-			for( $i = 0; $i < $n; $i++ ) {
-				$from = $matches[ 0 ][ $i ];
-				$to = $replacement;
-				for( $g = 0; $g < $groups; $g++ ) {
-					$group = $matches[ $g ][ $i ];
-					$to = str_replace( [
-						'\\' . $g,      // \\1
-						'$'  . $g,      // $1
-						'${' . $g . '}' // ${1}
-					], $group, $to );
+	public function pregReplace( $patterns, $replacement, $limit = -1, &$count = 0 ) {
+		// note that preg_replace() supports $pattern as array, but pregMatchAll() requires a string, so let's loop
+		if( ! is_array( $patterns ) ) {
+			$patterns = [ $patterns ];
+		}
+		foreach( $patterns as $pattern ) {
+			$n = $this->pregMatchAll( $pattern, $matches );
+			if( $n ) {
+				$groups = count( $matches );
+				for( $i = 0; $i < $n; $i++ ) {
+					$from = $matches[ 0 ][ $i ];
+					$to = $replacement;
+					for( $g = 0; $g < $groups; $g++ ) {
+						$group = $matches[ $g ][ $i ];
+						$to = str_replace( [
+							'\\' . $g,      // \\1
+							'$'  . $g,      // $1
+							'${' . $g . '}' // ${1}
+						], $group, $to );
+					}
+					$this->sobstitutions[] = [ $from, $to ];
 				}
-				$this->sobstitutions[] = [ $from, $to ];
 			}
 		}
-		$this->setWikitext( preg_replace( $pattern, $replacement, $this->getWikitext(), $limit, $count ) );
+		$this->setWikitext( preg_replace( $patterns, $replacement, $this->getWikitext(), $limit, $count ) );
 		return $this;
 	}
 

@@ -222,7 +222,7 @@ class Site {
 	 *
 	 * @return Wikitext
 	 */
-	public function createWikitext( $wikitext ) {
+	public function createWikitext( $wikitext = '' ) {
 		return new Wikitext( $this, $wikitext );
 	}
 

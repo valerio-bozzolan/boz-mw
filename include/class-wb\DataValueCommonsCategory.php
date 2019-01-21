@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018 Valerio Bozzolan
+# Copyright (C) 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,11 +19,11 @@
 namespace wb;
 
 /**
- * A DataValue for a Wikimedia Commons category.
+ * A DataValue for a Wikimedia Commons category
  *
  * There is no special datavalue for a Wikimedia Commons file :^)
  */
-class DataValueCommonsCategory extends DataValueCommonsMedia {
+class DataValueCommonsCategory extends DataValueString {
 
 	/**
 	 * @return string

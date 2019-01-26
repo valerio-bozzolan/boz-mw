@@ -25,14 +25,35 @@ namespace mw;
  */
 class Ns {
 
+	/**
+	 * @var int
+	 */
 	private $id;
 
+	/**
+	 * @var string
+	 */
 	private $name;
 
+	/**
+	 * @var string
+	 */
 	private $canonicalName;
 
+	/**
+	 * Aliases of this namespace
+	 *
+	 * @var array
+	 */
 	private $aliases = [];
 
+	/**
+	 * Constructor
+	 *
+	 * @var $id int
+	 * @var $name string
+	 * @var $aliases array
+	 */
 	public function __construct( $id, $name, $aliases = [] ) {
 		$this->setID( $id );
 		$this->setName( $name );
@@ -45,33 +66,73 @@ class Ns {
 		}
 	}
 
+	/**
+	 * Get the namespace ID
+	 *
+	 * @return int
+	 */
 	public function getID() {
 		return $this->id;
 	}
 
+	/**
+	 * Get the namespace name (eventually localized)
+	 *
+	 * @return string
+	 */
 	public function getName() {
 		return $this->name->get();
 	}
 
+	/**
+	 * Get the namespace canonical name (in English)
+	 *
+	 * @return string
+	 */
 	public function getCanonicalName() {
 		return $this->canonicalName->get();
 	}
 
+	/**
+	 * Set the namespace ID
+	 *
+	 * @param $id int
+	 * @return self
+	 */
 	public function setID( $id ) {
 		$this->id = $id;
 		return $this;
 	}
 
+	/**
+	 * Set the namespace name
+	 *
+	 * @param $name string
+	 * @return self
+	 */
 	public function setName( $name ) {
 		$this->name = new TitlePartCapitalized( $name );
 		return $this;
 	}
 
-	public function setCanonicalName( $canonical_name ) {
-		$this->canonicalName = new TitlePartCapitalized( $canonical_name );
+	/**
+	 * Set the namespace canonical name
+	 *
+	 * @param $name string
+	 * @param $id int
+	 * @return self
+	 */
+	public function setCanonicalName( $name ) {
+		$this->canonicalName = new TitlePartCapitalized( $name );
 		return $this;
 	}
 
+	/**
+	 * Add another namespace alias
+	 *
+	 * @param $alias string
+	 * @return self
+	 */
 	public function addAlias( $alias ) {
 		$this->aliases[] = new TitlePartCapitalized( $alias );
 		return $this;
@@ -92,14 +153,31 @@ class Ns {
 		return $all;
 	}
 
+	/**
+	 * Check if the canonical name is different from the local one
+	 *
+	 * @return bool
+	 */
 	public function isCanonicalNameDifferent() {
 		return $this->getName() !== $this->getCanonicalName();
 	}
 
+	/**
+	 * Check if it exists this default canonical name (from ID)
+	 *
+	 * @param $id int
+	 * @return boolean
+	 */
 	public static function existsDefaultCanonicalName( $id ) {
 		return array_key_exists( $id, self::defaultCanonicalNames() );
 	}
 
+	/**
+	 * Get the default canonical name from its ID
+	 *
+	 * @param $id int
+	 * @return boolean
+	 */
 	public static function defaultCanonicalName( $id ) {
 		if( ! self::existsDefaultCanonicalName( $id ) ) {
 			throw new \Exception('unexisting namespace ID');
@@ -117,6 +195,11 @@ class Ns {
 		return ucfirst( strtolower( $name ) );
 	}
 
+	/**
+	 * Get all the known MediaWiki default canonical names
+	 *
+	 * @return array
+	 */
 	public static function defaultCanonicalNames() {
 		return [
 			0  => '',

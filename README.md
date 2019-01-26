@@ -34,7 +34,7 @@ print_r( $response );
 ### API query with continuation
 
 
-```
+```php
 $wiki = \wm\WikipediaIt::instance();
 
 $queries =
@@ -51,7 +51,7 @@ foreach( $queries as $query ) {
 
 ### Edit API query
 
-```
+```php
 $wiki = \wm\WikipediaIt::instance();
 
 $user     = '';

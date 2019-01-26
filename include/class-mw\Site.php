@@ -176,6 +176,22 @@ class Site {
 	}
 
 	/**
+	 * Find a namespace by it's name
+	 *
+	 * @param $name string
+	 * @return object|false
+	 */
+	public function findNamespace( $name ) {
+		$name = Ns::normalizeName( $name );
+		foreach( $this->namespaces as $ns ) {
+			if( $ns->getName() === $name ) {
+				return $ns;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Stupid shortcut for setting multiple namespaces
 	 *
 	 * @param $namespaces array Array of namespaces

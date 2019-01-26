@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -105,6 +105,16 @@ class Ns {
 			throw new \Exception('unexisting namespace ID');
 		}
 		return self::defaultCanonicalNames()[ $id ];
+	}
+
+	/**
+	 * Normalize a namespace name
+	 *
+	 * @param $name string
+	 * @return string
+	 */
+	public static function normalizeName( $name ) {
+		return ucfirst( strtolower( $name ) );
 	}
 
 	public static function defaultCanonicalNames() {

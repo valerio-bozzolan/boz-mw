@@ -58,7 +58,7 @@ $user     = '';
 $password = '';
 $wiki->login( $user, $password );
 
-$w->edit( [
+$wiki->edit( [
 	'title'   => 'Special:Nothing',
 	'text'    => 'My wikitext',
 	'summary' => 'My edit summary',

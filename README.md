@@ -8,47 +8,61 @@ See [the tools](./tools/README.md).
 
 ## API showcase
 
-Here some usage examples:
+Here some usage examples.
+
+### Basic API query
 
 ```php
 <?php
-// autoload classes
 require 'boz-mw/autoload.php';
 
-// enable verbose messages
-\cli\Log::$DEBUG = true;
+// load it.wiki
+$wiki = \wm\WikipediaIt::instance();
 
-echo "Simple Italian Wikipedia API query:\n";
-$w = \wm\WikipediaIt::instance();
-$response = $w->fetch( [
-	'action' => 'query',
-	'prop'   => 'info',
-	'titles' => [
-		'Pagina principale'
-	]
-] );
+$response =
+	$wiki->fetch( [
+		'action' => 'query',
+		'prop'   => 'info',
+		'titles' => [
+			'Pagina principale'
+		]
+	] );
+
 print_r( $response );
+```
 
-echo "Simple Italian Wikipedia API query with continuation support:\n";
-$queries = \wm\WikipediaIt::instance()->createQuery( [
-	'action' => 'query',
-	'list'   => 'categorymembers',
-	'cmtitle' => 'Categoria:Software con licenza GNU GPL',
-] );
+### API query with continuation
+
+
+```
+$wiki = \wm\WikipediaIt::instance();
+
+$queries =
+	$wiki->createQuery( [
+		'action' => 'query',
+		'list'   => 'categorymembers',
+		'cmtitle' => 'Categoria:Software con licenza GNU GPL',
+	] );
+
 foreach( $queries as $query ) {
 	print_r( $query );
 }
+```
 
-echo "Simple POST request:\n";
-\mw\API::$DEFAULT_USERNAME = 'My username';
-\mw\API::$DEFAULT_PASSWORD = 'My bot password';
-$w = \wm\WikipediaIt::instance()->login();
-$response = $w->edit( [
+### Edit API query
+
+```
+$wiki = \wm\WikipediaIt::instance();
+
+$user     = '';
+$password = '';
+$wiki->login( $user, $password );
+
+$w->edit( [
 	'title'   => 'Special:Nothing',
 	'text'    => 'My wikitext',
 	'summary' => 'My edit summary',
 ] );
-print_r( $response );
 ```
 
 ## Known usage

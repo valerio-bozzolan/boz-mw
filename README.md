@@ -30,13 +30,13 @@ $response = $w->fetch( [
 print_r( $response );
 
 echo "Simple Italian Wikipedia API query with continuation support:\n";
-$members = \wm\WikipediaIt::instance()->createQuery( [
+$queries = \wm\WikipediaIt::instance()->createQuery( [
 	'action' => 'query',
 	'list'   => 'categorymembers',
 	'cmtitle' => 'Categoria:Software con licenza GNU GPL',
 ] );
-foreach( $members->getGenerator() as $response ) {
-	print_r( $response );
+foreach( $queries as $query ) {
+	print_r( $query );
 }
 
 echo "Simple POST request:\n";

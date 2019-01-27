@@ -31,7 +31,7 @@ class Ns {
 	private $id;
 
 	/**
-	 * @var string
+	 * @var object
 	 */
 	private $name;
 
@@ -154,6 +154,19 @@ class Ns {
 	}
 
 	/**
+	 * Get a regex that matches this namespace
+	 *
+	 * You may have to group this regex
+	 */
+	public function getRegex() {
+		$all = [];
+		foreach( $this->getAllTitlePartsCapitalized() as $name ) {
+			$all[] = preg_escape( $name );
+		}
+		return implode( '|', $all );
+	}
+
+	/**
 	 * Check if the canonical name is different from the local one
 	 *
 	 * @return bool
@@ -192,7 +205,7 @@ class Ns {
 	 * @return string
 	 */
 	public static function normalizeName( $name ) {
-		return ucfirst( strtolower( $name ) );
+		return ucfirst( strtolower( trim( $name ) ) );
 	}
 
 	/**

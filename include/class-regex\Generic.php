@@ -59,7 +59,13 @@ class Generic {
 		return "(?P<$name>$group)";
 	}
 
-	public function groupName( $group_name ) {
+	/**
+	 * Get a group name usable as replacement e.g. in preg_replace()
+	 *
+	 * @param $name string
+	 * @return string
+	 */
+	public function groupName( $name ) {
 		return '${' . $name . '}';
 	}
 

@@ -180,13 +180,12 @@ class Wikitext {
 				for( $i = 0; $i < $n; $i++ ) {
 					$from = $matches[ 0 ][ $i ];
 					$to = $replacement;
-					for( $g = 0; $g < $groups; $g++ ) {
-						$group = $matches[ $g ][ $i ];
+					foreach( $matches as $group_name => $groups ) {
 						$to = str_replace( [
-							'\\' . $g,      // \\1
-							'$'  . $g,      // $1
-							'${' . $g . '}' // ${1}
-						], $group, $to );
+							'\\' . $group_name,      // \\1
+							'$'  . $group_name,      // $1
+							'${' . $group_name . '}' // ${1}
+						], $groups[ $i ], $to );
 					}
 					$this->sobstitutions[] = [ $from, $to ];
 				}

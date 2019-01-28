@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -21,18 +21,24 @@ namespace mw;
 /**
  * A string part of a wikilink, a namespace, etc.
  *
- * The first character is always capitalized.
+ * The first character can be capitalized.
  */
 class TitlePartCapitalized extends TitlePart {
 
+	/**
+	 * @TODO Just set ucfirst only if wiki is configured to do it
+	 */
 	public static function normalize( $s ) {
 		$s = ucfirst( $s );
 		return parent::normalize( $s );
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function getRegexFirstCaseInsensitive( $first_case_group_name = null, $delimiter = null ) {
 		return \regex\Generic::firstCaseInsensitive(
-			$this->getRegex( $delimiter ),
+			parent::getRegex( $delimiter ),
 			$first_case_group_name
 		);
 	}

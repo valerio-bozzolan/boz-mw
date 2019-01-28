@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,34 @@
 namespace mw;
 
 /**
- * A page Title.
+ * A page Title without a namespace.
+ *
+ * See also CompleteTitle class.
  */
-class Title extends TitlePartCapitalized { }
+class Title extends TitlePartCapitalized {
+
+	private $site;
+
+	/**
+	 * Constructor
+	 *
+	 * @param $name string
+	 * @param $site object
+	 */
+	public function __construct( $name, $site ) {
+		parent::__construct( $name );
+		$this->site = $site;
+	}
+
+	/**
+	 * Get a regex matching this title part
+	 *
+	 * @return string
+	 */
+	public function getRegex() {
+		return $this->site->hasCapitalLinks()
+			? $this->getRegexFirstCaseInsensitive()
+			: parent::getRegex();
+	}
+
+}

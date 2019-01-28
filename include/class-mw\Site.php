@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,13 @@
 namespace mw;
 
 class Site {
+
+	/**
+	 * A sort of $wgCapitalLinks
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:$wgCapitalLinks
+	 */
+	const CAPITAL_LINKS = true;
 
 	/**
 	 * MediaWiki API
@@ -240,6 +247,34 @@ class Site {
 	 */
 	public function createWikitext( $wikitext = '' ) {
 		return new Wikitext( $this, $wikitext );
+	}
+
+	/**
+	 * Create a complete title object
+	 *
+	 * @return object
+	 */
+	public function createTitleParsing( $s ) {
+		return CompleteTitle::createParsingTitle( $this, $s );
+	}
+
+	/**
+	 * Create a wikilink object
+	 *
+	 * @return object
+	 */
+	public function createWikilink( CompleteTitle $title, $alias = null ) {
+		return new Wikilink( $title, $alias );
+	}
+
+	/**
+	 * Check if in this wiki the first case is insensitive
+	 *
+	 * @TODO generalize
+	 * @return boolean
+	 */
+	public function hasCapitalLinks() {
+		return static::CAPITAL_LINKS;
 	}
 
 	/**

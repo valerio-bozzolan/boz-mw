@@ -36,7 +36,7 @@ class Ns {
 	private $name;
 
 	/**
-	 * @var string
+	 * @var object
 	 */
 	private $canonicalName;
 
@@ -76,7 +76,7 @@ class Ns {
 	}
 
 	/**
-	 * Get the namespace name (eventually localized)
+	 * Get the local namespace name (eventually localized)
 	 *
 	 * @return string
 	 */
@@ -111,7 +111,7 @@ class Ns {
 	 * @return self
 	 */
 	public function setName( $name ) {
-		$this->name = new TitlePartCapitalized( $name );
+		$this->name = new NsPart( $name );
 		return $this;
 	}
 
@@ -123,7 +123,7 @@ class Ns {
 	 * @return self
 	 */
 	public function setCanonicalName( $name ) {
-		$this->canonicalName = new TitlePartCapitalized( $name );
+		$this->canonicalName = new NsPart( $name );
 		return $this;
 	}
 
@@ -134,14 +134,16 @@ class Ns {
 	 * @return self
 	 */
 	public function addAlias( $alias ) {
-		$this->aliases[] = new TitlePartCapitalized( $alias );
+		$this->aliases[] = new NsPart( $alias );
 		return $this;
 	}
 
 	/**
-	 * @return TitlePartCapitalized[]
+	 * Get all namespace parts
+	 *
+	 * @return array
 	 */
-	public function getAllTitlePartsCapitalized() {
+	public function getParts() {
 		$all = [];
 		$all[] = $this->name;
 		if( $this->isCanonicalNameDifferent() ) {
@@ -154,16 +156,32 @@ class Ns {
 	}
 
 	/**
+	 * @deprecated
+	 * @return array
+	 */
+	public function getAllTitlePartsCapitalized() {
+		return $this->getParts();
+	}
+
+	/**
 	 * Get a regex that matches this namespace
 	 *
-	 * You may have to group this regex
+	 * @return string
 	 */
 	public function getRegex() {
 		$all = [];
-		foreach( $this->getAllTitlePartsCapitalized() as $name ) {
-			$all[] = preg_escape( $name );
+		foreach( $this->getParts() as $part ) {
+			$all[] = $part->getRegex();
 		}
-		return implode( '|', $all );
+
+		// eventually returns a cleaner regex
+		if( count( $all ) === 1 ) {
+			return $all[ 0 ];
+		}
+
+		// return an 'OR' query, without creating a group
+		$or = implode( '|', $all );
+		return "(?>$or)";
 	}
 
 	/**

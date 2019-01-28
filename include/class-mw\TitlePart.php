@@ -60,14 +60,22 @@ class TitlePart {
 		return str_replace('_', ' ', $s);
 	}
 
-	public static function regex( $s, $delimiter ) {
+	/**
+	 * Create a regex matching this title
+	 *
+	 * Spaces will be converted into optional tabs/spaces.
+	 *
+	 * @param $s string
+	 * @param $delimiter string
+	 * @return string
+	 */
+	public static function regex( $s, $delimiter = null ) {
 		$s = preg_quote( $s, $delimiter );
 
 		// These are all valids
 		// [[Main page]]
-		// [[Main      page]]
-		// [[Main______page]]
-		// [[Main_ _ _ page]]
-		return str_replace( ' ', '[ _]*', $s );
+		// [[Main _ page]]
+		// [[_ _ Main_ _ _ page _ _ ]]
+		return str_replace( ' ', '[ _]+', $s );
 	}
 }

@@ -174,14 +174,19 @@ class Ns {
 			$all[] = $part->getRegex();
 		}
 
-		// eventually returns a cleaner regex
+		// category corner-case: a wikilink to a category has the ':' prefix
+		$catprefix = $this->getID() === 14
+			? ':'
+			: '';
+
+		// in case of a single part we can avoid the OR group
 		if( count( $all ) === 1 ) {
-			return $all[ 0 ];
+			return $catprefix . $all[ 0 ];
 		}
 
 		// return an 'OR' query, without creating a group
 		$or = implode( '|', $all );
-		return "(?>$or)";
+		return $catprefix . "(?>$or)";
 	}
 
 	/**

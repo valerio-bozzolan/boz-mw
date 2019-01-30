@@ -157,7 +157,7 @@ class Wikilink {
 			// the alias part, when it's a captch-all, is optional
 			if( $this->alias === self::WHATEVER_ALIAS ) {
 				// note, do not try to create an atomic group, because atomic groups do not backreference past
-				$alias_regex = "(\|$alias_regex)?";
+				$alias_regex = "([ _]*\|$alias_regex)?";
 			}
 		}
 

@@ -52,7 +52,7 @@ class Generic {
 	 * @param $name string Name or NULL to do not group
 	 * @return string
 	 */
-	public function groupNamed( $group, $name = null ) {
+	public static function groupNamed( $group, $name = null ) {
 		if( null === $name ) {
 			return $group;
 		}
@@ -65,7 +65,7 @@ class Generic {
 	 * @param $name string
 	 * @return string
 	 */
-	public function groupName( $name ) {
+	public static function groupName( $name ) {
 		return '${' . $name . '}';
 	}
 
@@ -116,7 +116,7 @@ class Generic {
 	 * @param $bread string
 	 * @return string
 	 */
-	public function burger( $s, $bread ) {
+	public static function burger( $s, $bread ) {
 		return $bread . $s . $bread;
 	}
 }

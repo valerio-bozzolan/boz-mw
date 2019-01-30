@@ -43,7 +43,7 @@ class Title extends TitlePartCapitalized {
 	 *
 	 * @return string
 	 */
-	public function getRegex() {
+	public function getRegex( $unused = null ) {
 		return $this->site->hasCapitalLinks()
 			? $this->getRegexFirstCaseInsensitive()
 			: parent::getRegex();

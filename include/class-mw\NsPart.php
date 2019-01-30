@@ -30,7 +30,7 @@ class NsPart extends TitlePartCapitalized {
 	 *
 	 * @return string
 	 */
-	public function getRegex() {
+	public function getRegex( $unused = null ) {
 		$s = $this->get();
 		if( $s ) {
 			// normal namespace

@@ -164,6 +164,7 @@ class Wikitext {
 	 *
 	 * @param $patterns string|array Pattern
 	 * @param $replacement mixed Replacement where you can use group placeholders such as $0, $1 or ${0}, ${1}, ecc.
+	 *                           Note that it does NOT support named parameter.
 	 * @param $limit int Sobstitution limit
 	 * @param $count int Sobstitution count
 	 * @see preg_replace()
@@ -191,7 +192,43 @@ class Wikitext {
 				}
 			}
 		}
-		$this->setWikitext( preg_replace( $patterns, $replacement, $this->getWikitext(), $limit, $count ) );
+		if( $n ) {
+			$this->setWikitext( preg_replace( $patterns, $replacement, $this->getWikitext(), $limit, $count ) );
+		}
+		return $this;
+	}
+
+	/**
+	 * Run a preg_replace_callback() on the wikitext
+	 *
+	 * @param $patterns string|array Pattern
+	 * @param $callback callable
+	 * @param $limit int Sobstitution limit
+	 * @param $count int Sobstitution count
+	 * @see preg_replace()
+	 */
+	public function pregReplaceCallback( $patterns, $callback, $limit = -1, &$count = 0 ) {
+		// note that preg_replace_callback() supports $pattern as array, but pregMatchAll() requires a string, so let's loop
+		if( ! is_array( $patterns ) ) {
+			$patterns = [ $patterns ];
+		}
+		foreach( $patterns as $pattern ) {
+			$n = $this->pregMatchAll( $pattern, $matches );
+			if( $n ) {
+				for( $i = 0; $i < $n; $i++ ) {
+					$groups = [];
+					foreach( $matches as $key => $_ ) {
+						$groups[ $key ] = $matches[ $key ][ $i ];
+					}
+					$from = $matches[ 0 ][ $i ];
+					$to = $callback( $groups );
+					$this->sobstitutions[] = [ $from, $to ];
+				}
+			}
+		}
+		if( $n ) {
+			$this->setWikitext( preg_replace_callback( $patterns, $callback, $this->getWikitext(), $limit, $count ) );
+		}
 		return $this;
 	}
 

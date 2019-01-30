@@ -124,7 +124,7 @@ class CompleteTitle {
 		if( ! $ns ) {
 			// that was the main namespace with a ':' in the title
 			$ns = $wiki->getNamespace( 0 );
-			$title_raw = "$ns_raw:$title";
+			$title_raw = "$ns_raw:$title_raw";
 		}
 
 		$title = new Title( $title_raw, $wiki );

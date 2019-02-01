@@ -70,7 +70,7 @@ class Generic {
 	}
 
 	public static function spaceBurger( $s ) {
-		return self::burger( $s, '[_ ]*' );
+		return self::burger( $s, '[ _]*' );
 	}
 
 	public static function tabBurger( $s ) {

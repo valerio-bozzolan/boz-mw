@@ -36,20 +36,6 @@ class Wikilink {
 	const NO_ALIAS = false;
 
 	/**
-	 * Legal characters for a title
-	 *
-	 * @see https://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars
-	 */
-	const LEGAL_TITLE_CHARS = ' %!\"$&\'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+';
-
-	/**
-	 * Legal characters for an alias
-	 *
-	 * @see https://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars
-	 */
-	const LEGAL_ALIAS_CHARS = self::LEGAL_TITLE_CHARS . '#<>\[\]{}\n\t';
-
-	/**
 	 * MediaWiki title
 	 *
 	 * When falsy, it means that can be whatever
@@ -111,7 +97,7 @@ class Wikilink {
 	public function getRegexTitle() {
 		return $this->title
 			? $this->title->getRegex()
-			: '[' . self::LEGAL_TITLE_CHARS . ']*';
+			: '[' . self::legalTitleCharset() . ']*';
 	}
 
 	/**
@@ -128,7 +114,7 @@ class Wikilink {
 		}
 
 		// match whatever alias otherwise (non-greedy, because of it can contains ']')
-		return '[' . self::LEGAL_ALIAS_CHARS . ']*?';
+		return '[' . self::legalAliasCharset() . ']*?';
 	}
 
 	/**
@@ -169,6 +155,24 @@ class Wikilink {
 
 		// surround with brackets
 		return "\[\[$regex\]\]";
+	}
+
+	/**
+	 * Legal characters for a title
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars
+	 */
+	public static function legalTitleCharset() {
+		return ' %!\"$&\'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+';
+	}
+
+	/**
+	 * Legal characters for an alias
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars
+	 */
+	public static function legalAliasCharset() {
+		return self::legalTitleCharset() . '#<>\[\]{}\n\t';
 	}
 
 }

@@ -153,6 +153,9 @@ class Wikilink {
 			$regex .= $alias_regex;
 		}
 
+		// surround with spaces
+		$regex = \regex\Generic::spaceBurger( $regex );
+
 		// surround with brackets
 		return "\[\[$regex\]\]";
 	}

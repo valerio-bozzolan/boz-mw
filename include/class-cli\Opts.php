@@ -47,6 +47,24 @@ class Opts {
 	}
 
 	/**
+	 * Static instance
+	 */
+	private static $_instance;
+
+	/**
+	 * Get a singleton instance
+	 *
+	 * @param $params array
+	 * @return self
+	 */
+	public static function instance() {
+		if( ! isset( self::$_instance ) ) {
+			self::$_instance = new self();
+		}
+		return self::$_instance;
+	}
+
+	/**
 	 * Register multiple parameters
 	 *
 	 * @param $params array

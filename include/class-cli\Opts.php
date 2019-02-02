@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018 Valerio Bozzolan
+# Copyright (C) 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -43,9 +43,20 @@ class Opts {
 	 * @param $params array Parameters
 	 */
 	public function __construct( $params = [] ) {
+		$this->register( $params );
+	}
+
+	/**
+	 * Register multiple parameters
+	 *
+	 * @param $params array
+	 * @return self
+	 */
+	public function register( $params ) {
 		foreach( $params as $param ) {
 			$this->add( $param );
 		}
+		return $this;
 	}
 
 	/**

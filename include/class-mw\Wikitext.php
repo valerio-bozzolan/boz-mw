@@ -310,10 +310,11 @@ class Wikitext {
 		if( !$this->hasCategory( $category_name ) ) {
 			return false;
 		}
-		$category_namespace = $this->getSite()->getNamespace( 14 )->getName();
+		// TODO: create new Title from $category_name and use it's regex
+		$category_namespace = $this->getSite()->getNamespace( 14 )->getRegex();
 		$this->pregReplace(
 			sprintf(
-				"![[%s:%s]]\s*!",
+				"/\[\[%s:%s\]\]\s*\n?/",
 				$category_namespace,
 				$category_name
 			)
@@ -321,7 +322,7 @@ class Wikitext {
 		);
 		return true;
 	}
-	
+
 	/**
 	 * Get the prepended wikitext
 	 *

@@ -284,7 +284,7 @@ class Wikitext {
 	 *
 	 * @param $category_name string Category name without category prefix
 	 * @param $sortkey string
-	 * @return string
+	 * @return bool
 	 */
 	public function addCategory( $category_name, $sortkey = null ) {
 		if( $this->hasCategory( $category_name ) ) {
@@ -300,6 +300,28 @@ class Wikitext {
 		return true;
 	}
 
+	/**
+	 * Removes a category
+	 *
+	 * @param string $category_name Category name, unprefixed
+	 * @return bool
+	 */
+	public function removeCategory( $category_name ) {
+		if( !$this->hasCategory( $category_name ) ) {
+			return false;
+		}
+		$category_namespace = $this->getSite()->getNamespace( 14 )->getName();
+		$this->pregReplace(
+			sprintf(
+				"![[%s:%s]]\s*!",
+				$category_namespace,
+				$category_name
+			)
+			''
+		);
+		return true;
+	}
+	
 	/**
 	 * Get the prepended wikitext
 	 *

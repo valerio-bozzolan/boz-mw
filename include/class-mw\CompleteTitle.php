@@ -118,6 +118,16 @@ class CompleteTitle {
 	}
 
 	/**
+	 * Create a Wikilink to this title
+	 *
+	 * @param $alias string|false|null (NULL: whatever, false: no one)
+	 * @return object
+	 */
+	public function createWikilink( $alias = null ) {
+		return new Wikilink( $this, $alias );
+	}
+
+	/**
 	 * Static constructor parsing a string
 	 *
 	 * @param $wiki object

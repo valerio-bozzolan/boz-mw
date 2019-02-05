@@ -273,10 +273,11 @@ class Site {
 	/**
 	 * Create a wikilink object
 	 *
+	 * @deprecate Unuseful, just use createTitleParsing()->createWikilink()
 	 * @return object
 	 */
 	public function createWikilink( CompleteTitle $title, $alias = null ) {
-		return new Wikilink( $title, $alias );
+		return $title->createWikilink( $alias );
 	}
 
 	/**

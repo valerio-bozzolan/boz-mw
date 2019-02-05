@@ -302,16 +302,13 @@ class Wikitext {
 		if( !$this->hasCategory( $category_name ) ) {
 			return false;
 		}
-		// TODO: create new Title from $category_name and use it's regex
-		$category_namespace = $this->getSite()->getNamespace( 14 )->getRegex();
-		$this->pregReplace(
-			sprintf(
-				"/\[\[%s:%s\]\]\s*\n?/",
-				$category_namespace,
-				$category_name
-			)
-			''
-		);
+
+		$category = $this->getSite()
+			->createTitle( $category_name )
+			->createWikilink( Wikilink::WHATEVER_ALIAS );
+
+		$category_pattern = $category->getRegex( [ 'wikilink' => false ] );
+		$this->pregReplace( "/$category_pattern\s*\n?/", '' );
 		return true;
 	}
 

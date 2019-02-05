@@ -113,8 +113,8 @@ class Wikilink {
 			return preg_quote( $this->alias );
 		}
 
-		// match whatever alias otherwise (non-greedy, because of it can contains ']')
-		return '[' . self::legalAliasCharset() . ']*?';
+		// match whatever alias otherwise (non-greedy)
+		return '.*?';
 	}
 
 	/**

@@ -250,8 +250,20 @@ class Site {
 	}
 
 	/**
-	 * Create a complete title object
+	 * Create a CompleteTitle object
 	 *
+	 * @param $title string Page title without namespace prefix
+	 * @param $ns int Namespace number
+	 * @return object
+	 */
+	public function createTitle( $title, $ns = 0 ) {
+		return new CompleteTitle( $this, $this->getNamespace( $ns ), new Title( $title, $this ) );
+	}
+
+	/**
+	 * Create a CompleteTitle object
+	 *
+	 * @param $s Page title with namespace prefix
 	 * @return object
 	 */
 	public function createTitleParsing( $s ) {

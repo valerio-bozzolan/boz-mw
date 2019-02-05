@@ -92,11 +92,13 @@ class Wikilink {
 	 *
 	 * If there is no title, match a generic one.
 	 *
+	 * @param $args array Arguments
+	 * 	'wikilink' boolean If false, a category will categorize (default true)
 	 * @return string
 	 */
-	public function getRegexTitle() {
+	public function getRegexTitle( $args = [] ) {
 		return $this->title
-			? $this->title->getRegex()
+			? $this->title->getRegex( $args )
 			: '[' . self::legalTitleCharset() . ']*';
 	}
 
@@ -118,22 +120,60 @@ class Wikilink {
 	}
 
 	/**
+	 * Get the wikitext that will point to this wikilink
+	 *
+	 * @param $args array
+	 * @return string
+	 */
+	public function getWikitext( $args = [] ) {
+
+		// default arguments
+		$args = array_replace( [
+			'wikilink' => true,
+		], $args );
+
+		$completetitle = $this->title;
+		$ns = $completetitle->getNs();
+		$ns_name = $ns->getName();
+		$title = $completetitle->getTitle()->get();
+
+		// categories must me prefixed with ':' if you want a wikilink
+		$prefix = '';
+		if( $ns->getID() === 14 && $args[ 'wikilink' ] ) {
+			$prefix = ':';
+		}
+
+		// the alias is the piped text
+		$alias = '';
+		if( strlen( $this->alias ) > 1 ) {
+			$alias = "|$this->alias";
+		}
+
+		return "[[$prefix$ns_name:$title$alias]]";
+	}
+
+	/**
 	 * Get a regex matching this wikilink
 	 *
 	 * @param $args array Arguments to be specified
-	 * 	'title-group-name': If specified, the title will be captured in a group with this name
-	 * 	'alias-group-name': If specified, the alias will be captured in a group with this name
+	 * 	'title-group-name' string If specified, the title will be captured in a group with this name
+	 * 	'alias-group-name' string If specified, the alias will be captured in a group with this name
+	 *    'wikilink':        bool   If false, a category will categorize (default true)
 	 */
 	public function getRegex( $args = [] ) {
 
 		// default options
 		$args = array_replace( [
+			'wikilink'         => true,
 			'title-group-name' => null,
 			'alias-group-name' => null,
 		], $args );
 
 		// regex matching the title
-		$title_regex = \regex\Generic::groupNamed( $this->getRegexTitle(), $args[ 'title-group-name' ] );
+		$title_regex = $this->getRegexTitle( [
+			'wikilink' => $args[ 'wikilink' ],
+		] );
+		$title_regex = \regex\Generic::groupNamed( $title_regex, $args[ 'title-group-name' ] );
 
 		// regex matching the alias (if any)
 		$alias_regex = false;

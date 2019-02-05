@@ -273,8 +273,8 @@ class Wikitext {
 	 * Add a Category
 	 *
 	 * @param $category_name string Category name without category prefix
-	 * @param $sortkey mixed
-	 * @return string
+	 * @param $sortkey string
+	 * @return bool
 	 */
 	public function addCategory( $category_name, $sortkey = false ) {
 		if( $this->hasCategory( $category_name ) ) {
@@ -289,6 +289,29 @@ class Wikitext {
 		$category_wlink = $category->getWikitext( [ 'wikilink' => false ] );
 
 		$this->appendWikitext( "\n$category_wlink" );
+		return true;
+	}
+
+	/**
+	 * Removes a category
+	 *
+	 * @param string $category_name Category name, unprefixed
+	 * @return bool
+	 */
+	public function removeCategory( $category_name ) {
+		if( !$this->hasCategory( $category_name ) ) {
+			return false;
+		}
+		// TODO: create new Title from $category_name and use it's regex
+		$category_namespace = $this->getSite()->getNamespace( 14 )->getRegex();
+		$this->pregReplace(
+			sprintf(
+				"/\[\[%s:%s\]\]\s*\n?/",
+				$category_namespace,
+				$category_name
+			)
+			''
+		);
 		return true;
 	}
 

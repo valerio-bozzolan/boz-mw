@@ -238,10 +238,9 @@ class Wikilink {
 	 * Legal characters for a title
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars
-	 * '#' is added to allow section links.
 	 */
 	public static function legalTitleCharset() {
-		return '# %!\"$&\'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+';
+		return ' %!\"$&\'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+';
 	}
 
 	/**

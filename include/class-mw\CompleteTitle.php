@@ -110,6 +110,8 @@ class CompleteTitle {
 		// title regex
 		$title = $this->getTitle()->getRegex();
 
+		// @TODO: handle anchor
+
 		// eventually group
 		$ns    = \regex\Generic::groupNamed( $ns,    $args[ 'ns-group-name'    ] );
 		$title = \regex\Generic::groupNamed( $title, $args[ 'title-group-name' ] );
@@ -135,6 +137,8 @@ class CompleteTitle {
 	 * @return self
 	 */
 	public static function createParsingTitle( $wiki, $s ) {
+
+		// @TODO: parse also anchor
 
 		// split namespace and title
 		$ns_raw = '';

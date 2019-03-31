@@ -103,6 +103,32 @@ class Wikilink {
 	}
 
 	/**
+	 * Get a regex matching this wikilink's anchor
+	 *
+	 * @param $args array Arguments
+	 * 	anchor-group-name (string) group name for the anchor
+	 * @return string
+	 */
+	public function getRegexAnchor( $args = [] ) {
+		//if( $this->title ) {
+			// @TODO: allow CompleteTitle objects to have a specific anchor
+			// return $this->title->getRegexAnchor( $args );
+		//}
+
+		// allowed characters in the anchor
+		$regex = self::legalTitleCharset();
+
+		// may be empty
+		$regex = "[$regex]*";
+
+		// create a group for just the text after the '#' (that may be empty)
+		$regex = \regex\Generic::groupNamed( $regex, $args[ 'anchor-group-name' ] );
+
+		// the anchor may be not specified
+		return "( *#$regex)?";
+	}
+
+	/**
 	 * Get a regex matching this wikilink's alias
 	 *
 	 * If there is no alias, match a generic one.
@@ -149,6 +175,8 @@ class Wikilink {
 			$alias = "|$this->alias";
 		}
 
+		// @TODO: get the anchor from CompleteTitle
+
 		return "[[$prefix$ns_name:$title$alias]]";
 	}
 
@@ -156,17 +184,19 @@ class Wikilink {
 	 * Get a regex matching this wikilink
 	 *
 	 * @param $args array Arguments to be specified
-	 * 	'title-group-name' string If specified, the title will be captured in a group with this name
-	 * 	'alias-group-name' string If specified, the alias will be captured in a group with this name
+	 * 	'title-group-name'  string If specified, the title will be captured in a group with this name
+	 * 	'alias-group-name'  string If specified, the alias will be captured in a group with this name
+	 *  'anchor-group-name' string If specified, the anchor will be captured in a group with this name
 	 *    'wikilink':        bool   If false, a category will categorize (default true)
 	 */
 	public function getRegex( $args = [] ) {
 
 		// default options
 		$args = array_replace( [
-			'wikilink'         => true,
-			'title-group-name' => null,
-			'alias-group-name' => null,
+			'wikilink'          => true,
+			'title-group-name'  => null,
+			'alias-group-name'  => null,
+			'anchor-group-name' => null,
 		], $args );
 
 		// regex matching the title
@@ -174,6 +204,9 @@ class Wikilink {
 			'wikilink' => $args[ 'wikilink' ],
 		] );
 		$title_regex = \regex\Generic::groupNamed( $title_regex, $args[ 'title-group-name' ] );
+
+		// regex matching the anchor
+		$anchor_regex = $this->getRegexAnchor( $args );
 
 		// regex matching the alias (if any)
 		$alias_regex = false;
@@ -188,7 +221,8 @@ class Wikilink {
 		}
 
 		// complete regex
-		$regex = $title_regex;
+		$regex  = $title_regex;
+		$regex .= $anchor_regex;
 		if( $alias_regex ) {
 			$regex .= $alias_regex;
 		}

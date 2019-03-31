@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -255,28 +255,18 @@ class Wikitext {
 	 * @return bool
 	 */
 	public function hasCategory( $category_name ) {
-		$category_name_regex = Title::factory( $category_name )->getRegexFirstCaseInsensitive();
-		$category_name_regex = \regex\Generic::spaceBurger( $category_name_regex );
 
-		$category_ns_titleparts = $this->getSite()->getNamespace( 14 )->getAllTitlePartsCapitalized();
-		$category_ns_regexes = [];
-		foreach( $category_ns_titleparts as $category_ns_titlepart ) {
-			$category_ns_regexes[] = $category_ns_titlepart->getRegexFirstCaseInsensitive();
-		}
+		// category with whatever sortkey
+		$category = $this->getSite()
+			->createTitle( $category_name, 14 )
+			->createWikilink( Wikilink::WHATEVER_ALIAS );
 
-		$whatever_sortkey = '(\|.*?)?';
-		foreach( $category_ns_regexes as $category_ns_regex ) {
-			$category_ns_regex = \regex\Generic::spaceBurger( $category_ns_regex );
-			$pattern = sprintf(
-				'/\[\[%s\]\]/',
-				$category_ns_regex . ':' . $category_name_regex . $whatever_sortkey
-			);
-			if( 1 === $this->pregMatch( $pattern ) ) {
-				return true;
-			}
-		}
+		// category wiki syntax
+		$category_regex = $category->getRegex( [
+			'wikilink' => false,
+		] );
 
-		return false;
+		return 1 === $this->pregMatch( "/$category_regex/" );
 	}
 
 	/**
@@ -286,17 +276,19 @@ class Wikitext {
 	 * @param $sortkey string
 	 * @return bool
 	 */
-	public function addCategory( $category_name, $sortkey = null ) {
+	public function addCategory( $category_name, $sortkey = false ) {
 		if( $this->hasCategory( $category_name ) ) {
 			return false;
 		}
-		$category_namespace = $this->getSite()->getNamespace( 14 )->getName();
-		$this->appendWikitext( sprintf(
-			"\n[[%s:%s%s]]",
-			$category_namespace,
-			$category_name,
-			$sortkey ? "|$sortkey" : ''
-		) );
+
+		$category = $this->getSite()
+			->createTitle( $category_name, 14 )
+			->createWikilink( $sortkey );
+
+		// [[Category:asd|sortkey]]
+		$category_wlink = $category->getWikitext( [ 'wikilink' => false ] );
+
+		$this->appendWikitext( "\n$category_wlink" );
 		return true;
 	}
 
@@ -310,18 +302,16 @@ class Wikitext {
 		if( !$this->hasCategory( $category_name ) ) {
 			return false;
 		}
-		$category_namespace = $this->getSite()->getNamespace( 14 )->getName();
-		$this->pregReplace(
-			sprintf(
-				"![[%s:%s]]\s*!",
-				$category_namespace,
-				$category_name
-			)
-			''
-		);
+
+		$category = $this->getSite()
+			->createTitle( $category_name )
+			->createWikilink( Wikilink::WHATEVER_ALIAS );
+
+		$category_pattern = $category->getRegex( [ 'wikilink' => false ] );
+		$this->pregReplace( "/$category_pattern\s*\n?/", '' );
 		return true;
 	}
-	
+
 	/**
 	 * Get the prepended wikitext
 	 *

@@ -166,18 +166,27 @@ class Ns {
 	/**
 	 * Get a regex that matches this namespace
 	 *
+	 * @param $args array
+	 * 	wikilink: flag indicating that the NS is inside a wikilink
 	 * @return string
 	 */
-	public function getRegex() {
+	public function getRegex( $args = [] ) {
+
+		// default arguments
+		$args = array_replace( [
+			'wikilink' => true,
+		] , $args );
+
 		$all = [];
 		foreach( $this->getParts() as $part ) {
 			$all[] = $part->getRegex();
 		}
 
 		// category corner-case: a wikilink to a category has the ':' prefix
-		$catprefix = $this->getID() === 14
-			? ':'
-			: '';
+		$catprefix = '';
+		if( $args[ 'wikilink' ] && $this->getID() === 14) {
+			$catprefix = ':';
+		}
 
 		// in case of a single part we can avoid the OR group
 		if( count( $all ) === 1 ) {

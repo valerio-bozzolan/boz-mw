@@ -158,12 +158,21 @@ class API extends \network\HTTPRequest {
 	}
 
 	/**
+	 * Get the username used for the login
+	 *
+	 * @return string|null
+	 */
+	 public function getUsername() {
+	 	return $this->username;
+	 }
+
+	/**
 	 * Check if it's already logged in.
 	 *
 	 * @return bool
 	 */
 	public function isLogged() {
-		return isset( $this->username );
+		return $this->getUsername() !== null;
 	}
 
 	/**
@@ -243,7 +252,7 @@ class API extends \network\HTTPRequest {
 		}
 		if( $this->isLogged() ) {
 			$data = array_replace( [
-				'assertuser' => $this->username
+				'assertuser' => $this->getUsername(),
 			], $data );
 		}
 		return $data;

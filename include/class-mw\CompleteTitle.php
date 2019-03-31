@@ -47,7 +47,7 @@ class CompleteTitle {
 	 * @param $ns object
 	 * @param $title object
 	 */
-	public function __construct( $wiki, $ns, $title ) {
+	public function __construct( $wiki, Ns $ns, Title $title ) {
 		$this->wiki  = $wiki;
 		$this->ns    = $ns;
 		$this->title = $title;
@@ -72,6 +72,20 @@ class CompleteTitle {
 	}
 
 	/**
+	 * Get the complete title, as displayed in a page
+	 *
+	 * @return string
+	 */
+	public function getCompleteTitle() {
+		$title = $this->getTitle()->get();
+		$ns = $this->getNs()->getName();
+		if( $ns ) {
+			$ns .= ":";
+		}
+		return $ns . $title;
+	}
+
+	/**
 	 * Get the regex able to match this complete title
 	 *
 	 * @param $args array
@@ -83,19 +97,34 @@ class CompleteTitle {
 
 		// default options
 		$args = array_replace( [
+			'wikilink'         => true,
 			'ns-group-name'    => null,
 			'title-group-name' => null,
 		], $args );
 
-		// single regexes
-		$ns    = $this->getNs()->getRegex();
-		$title = $this->title->getRegex();
+		// namespace regex
+		$ns = $this->getNs()->getRegex( [
+			'wikilink' => $args[ 'wikilink' ],
+		] );
+
+		// title regex
+		$title = $this->getTitle()->getRegex();
 
 		// eventually group
 		$ns    = \regex\Generic::groupNamed( $ns,    $args[ 'ns-group-name'    ] );
 		$title = \regex\Generic::groupNamed( $title, $args[ 'title-group-name' ] );
 
 		return $ns . '[ _]*' . $title;
+	}
+
+	/**
+	 * Create a Wikilink to this title
+	 *
+	 * @param $alias string|false|null (NULL: whatever, false: no one)
+	 * @return object
+	 */
+	public function createWikilink( $alias = null ) {
+		return new Wikilink( $this, $alias );
 	}
 
 	/**

@@ -104,6 +104,25 @@ class Site {
 	}
 
 	/**
+	 * Check if I'm logged
+	 *
+	 * @return bool
+	 */
+	public function isLogged() {
+		return $this->getApi()->isLogged();
+	}
+
+	/**
+	 * Get the username used for the login (if any)
+	 *
+	 * @return string|null
+	 */
+	public function getUsername() {
+		return $this->getApi()->getUsername();
+	}
+
+
+	/**
 	 * Preload some tokens
 	 *
 	 * @return self

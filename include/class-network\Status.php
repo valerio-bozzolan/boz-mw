@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018 Valerio Bozzolan
+# Copyright (C) 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,8 @@ use InvalidArgumentException;
 
 /**
  * HTTP status
+ *
+ * @see https://tools.ietf.org/html/rfc2616
  */
 class Status {
 
@@ -150,11 +152,20 @@ class Status {
 	}
 
 	/**
-	 * Is the HTTP class 5?
+	 * Is the HTTP class 4?
 	 *
 	 * @return boolean
 	 */
 	public function isClientError() {
+		return $this->isClass( 4 );
+	}
+
+	/**
+	 * Is the HTTP class 5?
+	 *
+	 * @return boolean
+	 */
+	public function isServerError() {
 		return $this->isClass( 5 );
 	}
 

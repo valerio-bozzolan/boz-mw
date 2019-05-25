@@ -33,7 +33,7 @@ class HTTPRequest {
 	 *
 	 * @var string
 	 */
-	const VERSION = 0.4;
+	const VERSION = 0.6;
 
 	/**
 	 * Source code URL
@@ -44,22 +44,47 @@ class HTTPRequest {
 
 	/**
 	 * Wait seconds before each GET request.
+	 *
+	 * @var float
 	 */
-	static $WAIT = 0.2;
+	public static $WAIT = 0.2;
 
 	/**
 	 * Wait seconds before each POST request
 	 *
 	 * @var float
 	 */
-	static $WAIT_POST = 0.2;
+	public static $WAIT_POST = 0.2;
 
 	/**
-	 * Wait seconds before each lag
+	 * Seconds to wait before each server error
+	 *
+	 * Well, do not try to not denial of service the webserver.
 	 *
 	 * @var float
 	 */
-	const WAIT_DOS  = 5;
+	public static $WAIT_ANTI_DOS = 5.0;
+
+	/**
+	 * Additional seconds to wait for each retry
+	 *
+	 * @var float
+	 */
+	public static $WAIT_ANTI_DOS_STEP = 1.5;
+
+	/**
+	 * Number of requests done because of server errors
+	 *
+	 * When it's over self::$MAX_RETRIES, the script dies.
+	 *
+	 * @var int
+	 */
+	private $retries = 0;
+
+	/**
+	 * Maximum number of retries before quitting
+	 */
+	public static $MAX_RETRIES = 8;
 
 	/**
 	 * Full HTTP URL to the API endpoint
@@ -167,6 +192,7 @@ class HTTPRequest {
 	 */
 	public function fetch( $data = [], $args = [] ) {
 
+		// merge the default arguments with the specified ones (the last have more priority)
 		$args = array_replace( $this->args, $args );
 
 		// Eventually post-process the data before using
@@ -178,10 +204,13 @@ class HTTPRequest {
 			'http' => [],
 		];
 		$context['http']['method'] = $args['method'];
+
+		// populate the User-Agent
 		if( $args['user-agent'] ) {
 			$args['headers'][] = self::header( 'User-Agent', $args['user-agent'] );
 		}
 
+		// well, we support Cookie
 		if( $this->haveCookies() ) {
 			$args['headers'][] = $this->getCookieHeader();
 		}
@@ -222,16 +251,37 @@ class HTTPRequest {
 			$context['http']['header'] = self::implodeHTTPHeaders( $args['headers'] );
 		}
 
+		// eventually preserve server resources to avoid a denial of serve
+		if( isset( $args['wait-anti-dos'] ) ) {
+
+			// I hope you will see this amazing warning
+			if( $this->retries >= self::$MAX_RETRIES ) {
+				Log::error( "stop riding a dead horse: this server ({$this->api}) is burning ¯\_(ツ)_/¯" );
+				exit( 1 );
+			}
+
+			// set a base wait time and increase it on each step
+			$args['wait']  = self::$WAIT_ANTI_DOS;
+			$args['wait'] += self::$WAIT_ANTI_DOS_STEP * $this->retries;
+			$this->retries++;
+
+			Log::warn( sprintf( "wait and retry (%d of %d)", $this->retries, self::$MAX_RETRIES ) );
+		}
+
+		// wait before executing the query
 		if( $args['wait'] ) {
 			Log::debug( sprintf(
-				"Waiting %.2f s.",
+				"waiting %.2f seconds",
 				$args['wait']
 			) );
 			usleep( $args['wait'] * 1000000 );
 		}
 
+		// build context for the shitty but handy file_get_contents()
 		$stream_context = stream_context_create( $context );
-		$response = file_get_contents( $url, false, $stream_context );
+
+		// suppress warnings about error 500 (handled later)
+		$response = @file_get_contents( $url, false, $stream_context );
 
 		// Here $http_response_header exists magically (PHP merda!)
 		if( ! isset( $http_response_header ) ) {
@@ -242,15 +292,19 @@ class HTTPRequest {
 		// Check the HTTP status
 		$status = $this->getLatestHTTPResponseStatus();
 		if( ! $status->isOK() ) {
-			if( $status->isClientError() ) {
-				Log::warn( sprintf(
-					"waiting because of HTTP status %s: %s",
+			if( $status->isServerError() ) {
+
+				// oh nose!
+				Log::error( sprintf( "Huston, we have the code %s: %s",
 					$status->getCode(),
 					$status->getMessage()
 				) );
-				$args = array_replace( [
-					'wait' => self::WAIT_DOS
-				], $args );
+
+				// override the upstream wait
+				$args = array_replace( $args, [
+					'wait-anti-dos' => true,
+				] );
+
 				return $this->fetch( $data, $args );
 			}
 			throw new NotOKException( $status );
@@ -297,16 +351,10 @@ class HTTPRequest {
 	 * @return mixed Response
 	 */
 	public function postMultipart( $data = [], $args = [] ) {
-		$args = array_replace(
-			// low-priority arguments
-			$args,
-
-			// high priority arguments
-			[
-				'multipart'    => true,
-				'content-type' => null, // will be filled later
-			]
-		);
+		$args = array_replace( $args, [
+			'multipart'    => true,
+			'content-type' => null, // will be filled later
+		] );
 		return $this->post( $data, $args );
 	}
 
@@ -422,10 +470,10 @@ class HTTPRequest {
 	 * @return string
 	 */
 	public static function implodeHTTPHeaders( $headers ) {
+		$s = '';
 		if( ! $headers ) {
 			return null;
 		}
-		$s = '';
 		foreach( $headers as $header ) {
 			$s .= "$header\r\n";
 		}
@@ -475,11 +523,7 @@ class HTTPRequest {
 	 * @return string HTTP header
 	 */
 	public static function header( $name, $value ) {
-		return self::headerRaw( sprintf(
-			'%s: %s',
-			$name,
-			$value
-		) );
+		return self::headerRaw( sprintf( '%s: %s', $name, $value ) );
 	}
 
 	/**

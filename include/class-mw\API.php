@@ -302,7 +302,7 @@ class API extends \network\HTTPRequest {
 				// retry after some time when server lags
 				Log::warn( "Lag! ({$this->api})" );
 				$response = $this->fetch( $request_data, [
-					'wait' => self::WAIT_DOS
+					'wait-anti-dos' => true,
 				] );
 			} else {
 				throw $exception;

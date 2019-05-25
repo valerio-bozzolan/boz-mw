@@ -358,6 +358,11 @@ class HTTPRequest {
 		return $this;
 	}
 
+	/**
+	 * Get the 'Cookie' HTTP header
+	 *
+	 * @return string
+	 */
 	public function getCookieHeader() {
 		$cookies = [];
 		foreach( $this->getCookies() as $name => $value ) {
@@ -369,6 +374,11 @@ class HTTPRequest {
 		);
 	}
 
+	/**
+	 * Get an array of all the cookies
+	 *
+	 * @return array
+	 */
 	public function getHTTPCookies() {
 		return $this->cookies;
 	}
@@ -390,7 +400,9 @@ class HTTPRequest {
 	}
 
 	/**
-	 * Load HTTP response headers, filling cookies.
+	 * Load HTTP response headers filling cookies
+	 *
+	 * It will be analyzed the 'Set-Cookie' response header.
 	 */
 	private function loadHTTPResponseHeaders( $http_response_headers ) {
 		list( $this->latestHttpResponseHeaders, $this->latestHttpResponseStatus )
@@ -406,7 +418,7 @@ class HTTPRequest {
 	/**
 	 * Implode HTTP headers with CRLF
 	 *
-	 * @param $headers array
+	 * @param array $headers
 	 * @return string
 	 */
 	public static function implodeHTTPHeaders( $headers ) {
@@ -423,7 +435,7 @@ class HTTPRequest {
 	/**
 	 * Group HTTP headers by keys and get the HTTP Status.
 	 *
-	 * @param $http_response_headers array
+	 * @param array $http_response_headers
 	 * @return array The first element contains an associative array of header name and value(s). The second one contains the Status.
 	 */
 	private static function parseHTTPResponseHeaders( $http_response_headers ) {
@@ -447,6 +459,7 @@ class HTTPRequest {
 			}
 		}
 
+		// wtf
 		if( null === $status ) {
 			throw new \Exception( 'HTTP response without an HTTP status code' );
 		}
@@ -455,10 +468,10 @@ class HTTPRequest {
 	}
 
 	/**
-	 * Get an HTTP header string from a name => value pair.
+	 * Build a sanitized HTTP header string from a name => value pair
 	 *
-	 * @param $name string HTTP header name
-	 * @param $value string HTTP header value
+	 * @param string $name  HTTP header name
+	 * @param string $value HTTP header value
 	 * @return string HTTP header
 	 */
 	public static function header( $name, $value ) {
@@ -470,7 +483,7 @@ class HTTPRequest {
 	}
 
 	/**
-	 * This function simply returns a single header
+	 * Sanitize a single header
 	 *
 	 * As you know an header does not contains a line feed or a carriage return.
 	 *

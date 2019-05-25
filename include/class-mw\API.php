@@ -219,6 +219,8 @@ class API extends \network\HTTPRequest {
 			) );
 		}
 
+		Log::info( "login with username '$username'" );
+
 		// Login
 		$response = parent::post( [
 			'action'     => 'login',

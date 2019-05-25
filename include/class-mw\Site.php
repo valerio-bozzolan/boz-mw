@@ -90,6 +90,18 @@ class Site {
 	}
 
 	/**
+	 * Make an HTTP POST request to the API
+	 *
+	 * This method will call the API#login() method.
+	 *
+	 * @param array $data Array of ContentDisposition(s)
+	 * @return mixed API result
+	 */
+	public function postMultipart( $data ) {
+		return $this->getApi()->postMultipart( $data );
+	}
+
+	/**
 	 * Do an API edit request
 	 *
 	 * @param $data array API request data

@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -150,6 +150,7 @@ class HTTPRequest {
 			'method'     => 'GET',
 			'user-agent' => sprintf( 'boz-mw HTTPRequest.php/%s %s', self::VERSION, self::REPO ),
 			'sensitive'  => false,
+			'multipart'  => false,
 			'wait'       => self::$WAIT,
 			'wait-post'  => self::$WAIT_POST,
 			'headers'    => [],
@@ -173,9 +174,8 @@ class HTTPRequest {
 
 		// HTTP query using file_get_contents()
 		$url = $this->api;
-		$query = http_build_query( $data );
 		$context = [
-			'http' => []
+			'http' => [],
 		];
 		$context['http']['method'] = $args['method'];
 		if( $args['user-agent'] ) {
@@ -186,19 +186,36 @@ class HTTPRequest {
 			$args['headers'][] = $this->getCookieHeader();
 		}
 
-		if( $query ) {
-			if( 'POST' === $args['method'] ) {
-				$args['headers'][] = self::header('Content-Type', 'application/x-www-form-urlencoded' );
-				$context['http']['content'] = $query;
-			} else {
-				$url .= "?$query";
-			}
-		}
+		$query = '';
+		switch( $args['method'] ) {
+			case 'POST':
+			case 'PUT':
+				// populate the content context
 
-		if( 'GET' === $args['method'] ) {
-			Log::debug( "GET $url" );
-		} else {
-			Log::sensitive( "{$args['method']} $url $query", "{$args['method']} $url" );
+				// the multipart has a data boundary
+				if( $args['multipart'] ) {
+					// get the request body aggregating the content dispositions generating a safe boundary
+					$query = ContentDisposition::aggregate( $data, $boundary );
+
+					// override the content type and set the boundary
+					$args['content-type'] = "multipart/form-data; boundary=$boundary";
+				} else {
+					// normal POST/PUT request
+					$query = http_build_query( $data );
+				}
+
+				$context['http']['content'] = $query;
+				$args['headers'][] = self::header( 'Content-Type', $args['content-type'] );
+
+				Log::sensitive( "{$args['method']} $url $query", "{$args['method']} $url" );
+				break;
+			case 'GET':
+			case 'HEAD':
+				$query = http_build_query( $data );
+				$url .= "?$query";
+
+				Log::debug( "GET $url" );
+				break;
 		}
 
 		if( $args['headers'] ) {
@@ -253,11 +270,44 @@ class HTTPRequest {
 	 */
 	public function post( $data = [], $args = [] ) {
 		$args = array_replace(
-			[ 'wait' => $this->args['wait-post'] ],
+			// low-priority arguments
+			[
+				'wait'         => $this->args['wait-post'],
+				'content-type' => 'application/x-www-form-urlencoded',
+			],
+
+			// medium priority arguments
 			$args,
+
+			// high priority arguments
 			[ 'method' => 'POST' ]
 		);
 		return $this->fetch( $data, $args );
+	}
+
+	/**
+	 * Effectuate an HTTP POST with multipart (suitable for files)
+	 *
+	 * An useful reference:
+	 *  	https://stackoverflow.com/a/4247082
+	 *
+	 * @param array $data POST data to be converted in content dispositions
+	 * @param array $content_disposition Array of ContentDisposition(s)
+	 * @param array $args Internal arguments
+	 * @return mixed Response
+	 */
+	public function postMultipart( $data = [], $args = [] ) {
+		$args = array_replace(
+			// low-priority arguments
+			$args,
+
+			// high priority arguments
+			[
+				'multipart'    => true,
+				'content-type' => null, // will be filled later
+			]
+		);
+		return $this->post( $data, $args );
 	}
 
 	/**
@@ -354,12 +404,12 @@ class HTTPRequest {
 	}
 
 	/**
-	 * Implode HTTP headers
+	 * Implode HTTP headers with CRLF
 	 *
 	 * @param $headers array
 	 * @return string
 	 */
-	private function implodeHTTPHeaders( $headers ) {
+	public static function implodeHTTPHeaders( $headers ) {
 		if( ! $headers ) {
 			return null;
 		}
@@ -411,7 +461,7 @@ class HTTPRequest {
 	 * @param $value string HTTP header value
 	 * @return string HTTP header
 	 */
-	private static function header( $name, $value ) {
+	public static function header( $name, $value ) {
 		return self::headerRaw( sprintf(
 			'%s: %s',
 			$name,

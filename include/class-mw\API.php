@@ -103,7 +103,7 @@ class API extends \network\HTTPRequest {
 	 * @return mixed
 	 */
 	public function post( $data = [], $args = [] ) {
-		if( ! $this->isLogged() ) {
+		if( !$this->isLogged() ) {
 			$this->login();
 		}
 		if( static::$INSPECT_BEFORE_POST ) {
@@ -111,6 +111,25 @@ class API extends \network\HTTPRequest {
 			\cli\Input::askInput( "Press ENTER to submit" );
 		}
 		return parent::post( $data, $args );
+	}
+
+	/**
+	 * Effectuate an HTTP POST (multipart) request but only after a login.
+	 *
+	 * @param $data array Array of ContentDispositions(s)
+	 * @param $args array Internal arguments
+	 * @override \network\HTTPRequest#post()
+	 * @return mixed
+	 */
+	public function postMultipart( $data = [], $args = [] ) {
+		if( !$this->isLogged() ) {
+			$this->login();
+		}
+		if( static::$INSPECT_BEFORE_POST ) {
+			print_r( $data );
+			\cli\Input::askInput( "Press ENTER to submit" );
+		}
+		return parent::postMultipart( $data, $args );
 	}
 
 	/**
@@ -266,10 +285,11 @@ class API extends \network\HTTPRequest {
 	 * @override \network\HTTPRequest#onFetched()
 	 * @throws \mw\API\Exception
 	 */
-	protected function onFetched( $response, $request_data ) {
-		$response = json_decode( $response );
+	protected function onFetched( $response_raw, $request_data ) {
+		$response = json_decode( $response_raw );
 		if( null === $response ) {
-			throw new \Exception( 'response not JSON-encoded: ' . $response );
+			Log::debug( $response_raw );
+			throw new \Exception( 'response is not JSON-encoded' );
 		}
 		if( isset( $response->warnings ) ) {
 			foreach( $response->warnings as $subject => $warning ) {

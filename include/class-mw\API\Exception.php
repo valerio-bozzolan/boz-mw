@@ -58,11 +58,12 @@ class Exception extends \Exception {
 	 */
 	public static function createFromApiError( $api_error ) {
 		$known_exceptions = [
-			BadTokenException     ::class,
-			MaxLagException       ::class,
-			ArticleExistsException::class,
-			MissingTitleException ::class,
-			ProtectedPageException::class,
+			BadTokenException        ::class,
+			MaxLagException          ::class,
+			ArticleExistsException   ::class,
+			MissingTitleException    ::class,
+			ProtectedPageException   ::class,
+			PermissionDeniedException::class,
 
 			// Wikibase related
 			NoSuchEntityException ::class,

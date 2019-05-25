@@ -73,7 +73,7 @@ class ContentDisposition {
 	 * @param string $content_type Content type e.g. 'image/jpg'
 	 * @return self
 	 */
-	public static function createFromNameURLFilenameContentType( $name, $url, $filename, $content_type ) {
+	public static function createFromNameURLFilenameType( $name, $url, $filename, $content_type ) {
 		$content = file_get_contents( $url );
 		if( !$filename ) {
 			$filename = basename( $url );
@@ -93,7 +93,7 @@ class ContentDisposition {
 	 * @return self
 	 */
 	public static function createFromNameURLType( $name, $url, $content_type ) {
-		return self::createFromNameURLTypeFilename( $name, $url, 'dummy', $content_type );
+		return self::createFromNameURLFilenameType( $name, $url, 'dummy', $content_type );
 	}
 
 

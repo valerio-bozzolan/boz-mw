@@ -90,6 +90,20 @@ class Site {
 	}
 
 	/**
+	 * Do an API edit request
+	 *
+	 * @param $data array API request data
+	 * @return mixed
+	 * @see https://www.mediawiki.org/wiki/API:Edit
+	 */
+	public function edit( $data ) {
+		return $this->post( array_replace( $data, [
+			'action' => 'edit',
+			'token'  => $this->getToken( \mw\Tokens::CSRF )
+		] ) );
+	}
+
+	/**
 	 * Make an HTTP POST request to the API
 	 *
 	 * This method will call the API#login() method.
@@ -102,15 +116,15 @@ class Site {
 	}
 
 	/**
-	 * Do an API edit request
+	 * Do an API upload request
 	 *
-	 * @param $data array API request data
+	 * @param $data array API request data and ContentDisposition(s)
 	 * @return mixed
-	 * @see https://www.mediawiki.org/wiki/API:Edit
+	 * @see https://www.mediawiki.org/wiki/API:Upload
 	 */
-	public function edit( $data ) {
-		return $this->getApi()->post( array_replace( $data, [
-			'action' => 'edit',
+	public function upload( $data ) {
+		return $this->postMultipart( array_replace( $data, [
+			'action' => 'upload',
 			'token'  => $this->getToken( \mw\Tokens::CSRF )
 		] ) );
 	}

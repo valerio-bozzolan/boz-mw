@@ -77,11 +77,11 @@ $wiki->upload( [
 	'comment'  => 'upload file about...',
 	'text'     => 'bla bla [[bla]]',
 	'filename' => 'Libre image.jpg',
-	ContentDisposition::createFromNameURLType( 'file', $photo_url, 'image/jpg' ),
+	\network\ContentDisposition::createFromNameURLType( 'file', $photo_url, 'image/jpg' ),
 ] );
 ```
 
-See the `ContentDisposition` class for some other shorcuts.
+See the [`ContentDisposition`](include/class-network\ContentDisposition.php) class for some other constructors.
 
 ## Known usage
 * [MediaWikiOrphanizerBot](https://github.com/valerio-bozzolan/MediaWikiOrphanizerBot)

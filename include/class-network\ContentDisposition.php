@@ -26,10 +26,10 @@ class ContentDisposition {
 	/**
 	 * Constructor
 	 *
-	 * @param string $name
-	 * @param string $content
-	 * @param string $filename Just the file name without the path
-	 * @param string $content_type
+	 * @param string $name         Form variable name e.g. 'name'
+	 * @param string $content      Form variable value e.g. 'value'
+	 * @param string $filename     Filename during upload e.g. 'myimage.jpg'
+	 * @param string $content_type Content type e.g. 'image/jpg'
 	 */
 	public function __construct( $name, $content, $filename = null, $content_type = null ) {
 		$this->name = $name;
@@ -39,23 +39,23 @@ class ContentDisposition {
 	}
 
 	/**
-	 * Explicit constructor
+	 * Explicit constructor from a name and it's value
 	 *
-	 * @param string $name
-	 * @param string $content
+	 * @param string $name    Form variable name e.g. 'name'
+	 * @param string $content Form variable value e.g. 'value'
 	 * @return self
 	 */
 	public static function createFromNameContent( $name, $content ) {
-		return new self( $name, $content );
+		return new self( $name, $content, null, null );
 	}
 
 	/**
-	 * Explicit constructor
+	 * Explicit constructor from file content, filename, and it's type
 	 *
-	 * @param string $name
-	 * @param string $content
-	 * @param string $filename Just the file name without the path
-	 * @param string $content_type
+	 * @param string $name         Form variable name e.g. 'file'
+	 * @param string $content      File content
+	 * @param string $filename     Filename during upload e.g. 'myimage.jpg'
+	 * @param string $content_type Content type e.g. 'image/jpg'
 	 * @return self
 	 */
 	public static function createFromNameContentFilenameType( $name, $content, $filename, $content_type ) {
@@ -63,19 +63,37 @@ class ContentDisposition {
 	}
 
 	/**
-	 * Explicit constructor
+	 * Explicit constructor from an URL, content type and filename
 	 *
-	 * @param string $name Variable name
-	 * @param string $url  File URL to be downloaded
-	 * @param string $content_type
+	 * This is a shortcut to download the file and send the content.
+	 *
+	 * @param string $name         Form variable name e.g. 'file'
+	 * @param string $url          File URL to be downloaded
+	 * @param string $filename     Filename during upload e.g. 'myimage.jpg'
+	 * @param string $content_type Content type e.g. 'image/jpg'
 	 * @return self
 	 */
-	public static function createFromNameURLTypeFilename( $name, $url, $content_type, $filename ) {
+	public static function createFromNameURLFilenameContentType( $name, $url, $filename, $content_type ) {
 		$content = file_get_contents( $url );
 		if( !$filename ) {
 			$filename = basename( $url );
 		}
 		return new self( $name, $content, $filename, $content_type );
+	}
+
+	/**
+	 * Explicit constructor from an URL and its content type
+	 *
+	 * Will be used a dummy filename.
+	 *
+	 * @param string $name         Form variable name e.g. 'file'
+	 * @param string $url          File URL to be downloaded
+	 * @param string $content_type e.g. 'image/jpg'
+	 * @param string $content_type
+	 * @return self
+	 */
+	public static function createFromNameURLType( $name, $url, $content_type ) {
+		return self::createFromNameURLTypeFilename( $name, $url, 'dummy', $content_type );
 	}
 
 

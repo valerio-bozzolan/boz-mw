@@ -65,6 +65,24 @@ $wiki->edit( [
 ] );
 ```
 
+### Upload API query
+
+Uploading a file requires to respect the [RFC1341](https://tools.ietf.org/html/rfc1341) about an HTTP multipart request.
+
+Well, we made it easy:
+
+```php
+$photo_url = 'http://.../libre-image.jpg';
+$wiki->upload( [
+	'comment'  => 'upload file about...',
+	'text'     => 'bla bla [[bla]]',
+	'filename' => 'Libre image.jpg',
+	ContentDisposition::createFromNameURLType( 'file', $photo_url, 'image/jpg' ),
+] );
+```
+
+See the `ContentDisposition` class for some other shorcuts.
+
 ## Known usage
 * [MediaWikiOrphanizerBot](https://github.com/valerio-bozzolan/MediaWikiOrphanizerBot)
 * [ItalianWikipediaDeletionBot](https://github.com/valerio-bozzolan/ItalianWikipediaDeletionBot)

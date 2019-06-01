@@ -60,6 +60,7 @@ class Exception extends \Exception {
 		$known_exceptions = [
 			BadTokenException        ::class,
 			MaxLagException          ::class,
+			EditConflictException    ::class,
 			ArticleExistsException   ::class,
 			MissingTitleException    ::class,
 			ProtectedPageException   ::class,

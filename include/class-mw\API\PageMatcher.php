@@ -77,7 +77,7 @@ class PageMatcher {
 				if( isset( $this->responseQuery->{ $page_container } ) ) {
 					$this->responseQuery = $this->responseQuery->{ $page_container };
 				} else {
-					throw new Exception( "missing property $page_container in the response" );
+					throw new \Exception( "missing property $page_container in the response" );
 				}
 			}
 		}

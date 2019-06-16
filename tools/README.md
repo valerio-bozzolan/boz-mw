@@ -63,7 +63,7 @@ Allowed OPTIONS:
 E.g. to download the full history of the [Software libero](https://it.wikipedia.org/wiki/Software_libero) page:
 
 ```
-./mega-export.php --wiki=itwiki --file=manzoni.xml "Alessandro Manzoni"
+./mega-export.php --wiki=itwiki --file=out.xml "Software libero"
 ```
 
 Note that actually the official MediaWiki/XML format is actually mistreated at least for the heading section: you will not obtain the namespace list, the wiki name, and other unuseful things. Just revisions. Much revisions.

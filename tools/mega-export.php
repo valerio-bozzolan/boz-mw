@@ -50,25 +50,32 @@ $opts = new Opts( [
 	new ParamFlag(       'help',    'h',  "Show this help and quit" ),
 ] );
 
-$help = '';
+$messages = [];
 
 // choosen wiki
 $wiki_uid = $opts->getArg( 'wiki' );
 if( !$wiki_uid ) {
-	$help .= "Please specify --wiki=WIKI";
+	$messages[] = "Please specify --wiki=WIKI";
 }
 
 // page titles
 $page_titles = Opts::unnamedArguments();
 if( !$page_titles ) {
-	$help .= "Please specify some page titles";
+	$messages[] = "Please specify some page titles";
 }
 
 $limit = $opts->getArg( 'limit', 500 );
 
 // show the help
-if( $help ) {
-	echo "Usage:\n {$argv[ 0 ]} [OPTIONS] Page_title > filename.xml\n";
+$show_help = $opts->getArg( 'help' );
+if( $show_help ) {
+	$messages = [];
+} else {
+	$show_help = $messages;
+}
+
+if( $show_help ) {
+	echo "Usage:\n {$argv[ 0 ]} --wiki=WIKI [OPTIONS] Page_title > filename.xml\n";
 	echo "Allowed OPTIONS:\n";
 	foreach( $opts->getParams() as $param ) {
 		$commands = [];
@@ -90,9 +97,10 @@ if( $help ) {
 		}
 		echo "\n";
 	}
-	if( is_string( $help ) ) {
-		echo "\nError: $help\n";
+	foreach( $messages as $msg ) {
+		echo "\nError: $msg";
 	}
+	echo "\n";
 	exit( $opts->getArg( 'help' ) ? 0 : 1 );
 }
 

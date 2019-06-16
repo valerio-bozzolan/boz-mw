@@ -6,7 +6,9 @@ This is a directory for command line tools that uses the boz-mw framework. Actua
 
 Copy the `config-example.php` to `config.php` and fill it with your bot credentials.
 
-## replace.php
+## Available scripts
+
+### Replace script - `replace.php`
 
 This is a script to sobstitute text in the wikitext from an API query.
 
@@ -41,3 +43,27 @@ Other options:
 ```
 
 You can see some [examples](./examples).
+
+### Mega export - `mega-export.php`
+
+This is a script that acts similar to the `[[Special:Export]]` page, but exporting the full page history.
+
+Note that you have to provide your user credentials in the `config.php` script in order to download more than `50` revisions at time.
+
+```
+Usage:
+ ./mega-export.php --wiki=WIKI [OPTIONS] Page_title > filename.xml
+Allowed OPTIONS:
+ --wiki=VALUE          Available wikis: itwiki, wikidatawiki, commonswiki, metawiki, landscapeforwiki
+ --limit=VALUE         Number of revisions for each request
+ --file=VALUE          Output filename
+ --help|-h             Show this help and quit
+```
+
+E.g. to download the full history of the [Software libero](https://it.wikipedia.org/wiki/Software_libero) page:
+
+```
+./mega-export.php --wiki=itwiki "Alessandro Manzoni" > manzoni.xml
+```
+
+Note that actually the official MediaWiki/XML format is actually mistreated at least for the heading section: you will not obtain the namespace list, the wiki name, and other unuseful things. Just revisions. Much revisions.

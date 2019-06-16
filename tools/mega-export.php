@@ -21,6 +21,9 @@ $argv or exit( 1 );
 // load boz-mw
 require __DIR__ . '/../autoload.php';
 
+// the number '500' gives to much <This result was truncated because it would otherwise be larger than the limit of 12,582,912 bytes>
+$DEFAULT_LIMIT = 100;
+
 // load configuration
 include 'config.php';
 
@@ -64,7 +67,13 @@ if( !$page_titles ) {
 	$messages[] = "Please specify some page titles";
 }
 
-$limit = $opts->getArg( 'limit', 500 );
+// output filename
+$filename = $opts->getArg( 'file' );
+if( !$filename ) {
+	$messages[] = "Please specify a filename";
+}
+
+$limit = (int) $opts->getArg( 'limit', $DEFAULT_LIMIT );
 
 // show the help
 $show_help = $opts->getArg( 'help' );
@@ -75,7 +84,7 @@ if( $show_help ) {
 }
 
 if( $show_help ) {
-	echo "Usage:\n {$argv[ 0 ]} --wiki=WIKI [OPTIONS] Page_title > filename.xml\n";
+	echo "Usage:\n {$argv[ 0 ]} --wiki=WIKI --file=out.xml [OPTIONS] Page_title\n";
 	echo "Allowed OPTIONS:\n";
 	foreach( $opts->getParams() as $param ) {
 		$commands = [];
@@ -104,6 +113,13 @@ if( $show_help ) {
 	exit( $opts->getArg( 'help' ) ? 0 : 1 );
 }
 
+// try to open the file
+$file = fopen( $filename, 'w' );
+if( !$file ) {
+	Log::error( "Can't open file '$filename'" );
+	exit( 1 );
+}
+
 $wiki = MediaWikis::findFromUID( $wiki_uid );
 $wiki->login();
 
@@ -127,30 +143,75 @@ $requests = $wiki->createQuery( [
 	'rvlimit' => $limit,
 ] );
 
-?>
-<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.10/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mediawiki.org/xml/export-0.10/ http://www.mediawiki.org/xml/export-0.10.xsd" version="0.10" xml:lang="it">
-<?php foreach( $requests as $request ): ?>
-	<?php foreach( $request->query->pages as $page ): ?>
-		<?php foreach( $page->revisions as $revision ): ?>
-			<?php if( empty( $revision->comment ) ) continue ?>
-			<?php foreach( $revision->slots as $slot ): ?>
-				<?php if( empty( $slot->contentmodel ) ) continue ?>
-				<revision>
-					<id><?=        $revision->revid ?></id>
-					<parentid><?=  $revision->parentid ?></parentid>
-					<timestamp><?= $revision->timestamp ?></timestamp>
-					<contributor>
-						<username><?= htmlentities( $revision->user ) ?></username>
-						<id><?=       htmlentities( $revision->userid ) ?></id>
-					</contributor>
-					<comment><?= htmlentities( $revision->comment ) ?></comment>
-					<model><?=   htmlentities( $slot->contentmodel ) ?></model>
-					<format><?=  htmlentities( $slot->contentformat ) ?></format>
-					<text xml:space="preserve" bytes="<?= $slot->size ?>"><?= htmlentities( $slot->{'*'} ) ?></text>
-					<sha1><?= htmlentities( $revision->sha1 ) ?></sha1>
-				</revision>
-			<?php endforeach ?>
-		<?php endforeach ?>
-	<?php endforeach ?>
-<?php endforeach ?>
-</mediawiki>
+// total number of revisions
+$total = 0;
+
+// do not print to the out
+$out  = '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.10/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mediawiki.org/xml/export-0.10/ http://www.mediawiki.org/xml/export-0.10.xsd" version="0.10" xml:lang="it">' . "\n";
+foreach( $requests as $request ) {
+
+	foreach( $request->query->pages as $page ) {
+
+		if( isset( $page->missing ) ) {
+			Log::error( "Page '{$page->title}' is missing" );
+			exit( 1 );
+		}
+
+		$alert_much_revisions = true;
+		foreach( $page->revisions as $i => $revision ) {
+
+			// avoid nonsense revisions
+			if( empty( $revision->comment ) ) {
+				if( $alert_much_revisions ) {
+					$count = count( $page->revisions );
+					if( $count !== $limit ) {
+						Log::warn( "response with $count revisions instead of $limit: consider to lower your limit" );
+						$alert_much_revisions = false;
+					}
+				}
+				continue;
+			}
+
+			$total++;
+
+			foreach( $revision->slots as $slot ) {
+
+				// avoid nonsense slots
+				if( empty( $slot->contentmodel ) ) {
+					continue;
+				}
+
+				$safe_user    = htmlentities( $revision->user      );
+				$safe_userid  = htmlentities( $revision->userid    );
+				$safe_comment = htmlentities( $revision->comment   );
+				$safe_model   = htmlentities( $slot->contentmodel  );
+				$safe_format  = htmlentities( $slot->contentformat );
+				$safe_text    = htmlentities( $slot->{'*'}         );
+
+				$out .= "<revision>\n";
+					$out .= "\t<id>{$revision->revid}</id>\n";
+					$out .= "\t<parentid>{$revision->parentid}</parentid>\n";
+					$out .= "\t<timestamp>{$revision->timestamp}</timestamp>\n";
+					$out .= "\t<contributor>\n";
+						$out .= "\t\t<username>$safe_user</username>\n";
+						$out .= "\t\t<id>$safe_userid</id>\n";
+					$out .= "\t</contributor>\n";
+					$out .= "\t<comment>$safe_comment ?></comment>";
+					$out .= "\t<model>$safe_model</model>\n";
+					$out .= "\t<format>$safe_format</format>\n";
+					$out .= "\t<text xml:space=\"preserve\" bytes=\"{$slot->size}\">$safe_text</text>\n";
+					$out .= "\t<sha1>{$revision->sha1}</sha1>\n";
+				$out .= "</revision>\n";
+			}
+		}
+	}
+
+	// write the file in chunks
+	fwrite( $file, $out );
+	$out = '';
+}
+
+Log::info( "you mega-exported $total revisions! nice shot!" );
+
+fwrite( $file, "</mediawiki>\n" );
+fclose( $file );

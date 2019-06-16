@@ -52,7 +52,7 @@ Note that you have to provide your user credentials in the `config.php` script i
 
 ```
 Usage:
- ./mega-export.php --wiki=WIKI [OPTIONS] Page_title > filename.xml
+ ./mega-export.php --wiki=WIKI --file=out.xml [OPTIONS] Page_title
 Allowed OPTIONS:
  --wiki=VALUE          Available wikis: itwiki, wikidatawiki, commonswiki, metawiki, landscapeforwiki
  --limit=VALUE         Number of revisions for each request
@@ -63,7 +63,7 @@ Allowed OPTIONS:
 E.g. to download the full history of the [Software libero](https://it.wikipedia.org/wiki/Software_libero) page:
 
 ```
-./mega-export.php --wiki=itwiki "Alessandro Manzoni" > manzoni.xml
+./mega-export.php --wiki=itwiki --file=manzoni.xml "Alessandro Manzoni"
 ```
 
 Note that actually the official MediaWiki/XML format is actually mistreated at least for the heading section: you will not obtain the namespace list, the wiki name, and other unuseful things. Just revisions. Much revisions.

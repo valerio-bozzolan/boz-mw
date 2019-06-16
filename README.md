@@ -2,11 +2,15 @@
 
 This is another MediaWiki API handler in PHP.
 
-## Tools
+## Download
+
+	git clone https://github.com/valerio-bozzolan/boz-mw
+
+## Command line tools
 
 See [the tools](./tools/README.md).
 
-## API showcase
+## API framework showcase
 
 Here some usage examples.
 
@@ -82,6 +86,8 @@ $wiki->upload( [
 ```
 
 See the [`ContentDisposition`](include/class-network\ContentDisposition.php) class for some other constructors.
+
+Well, I have not the time to document also the Wikibase part, but hey, we support it quite well.
 
 ## Known usage
 * [MediaWikiOrphanizerBot](https://github.com/valerio-bozzolan/MediaWikiOrphanizerBot)

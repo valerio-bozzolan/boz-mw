@@ -18,11 +18,8 @@
 // exit if not CLI
 $argv or exit( 1 );
 
-// default seconds to wait in always mode
-$DEFAULT_ALWAYS_WAIT = 3;
-
 // load boz-mw
-require __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload.php';
+require __DIR__ . '/../autoload.php';
 
 // load configuration
 include 'config.php';
@@ -36,6 +33,7 @@ use \cli\ParamFlagLong;
 use \cli\ParamValued;
 use \cli\ParamValuedLong;
 use \web\MediaWikis;
+use \mw\API\PageMatcher;
 
 // all the available wiki UIDs
 $mediawiki_uids = [];
@@ -48,10 +46,17 @@ $mediawiki_uids = implode( ', ', $mediawiki_uids );
 $opts = new Opts( [
 	new ParamValuedLong( 'wiki',          "Available wikis: $mediawiki_uids" ),
 	new ParamValuedLong( 'limit',         "Number of revisions for each request" ),
+	new ParamValuedLong( 'file',          "Output filename" ),
 	new ParamFlag(       'help',    'h',  "Show this help and quit" ),
 ] );
 
 $help = '';
+
+// choosen wiki
+$wiki_uid = $opts->getArg( 'wiki' );
+if( !$wiki_uid ) {
+	$help .= "Please specify --wiki=WIKI";
+}
 
 // page titles
 $page_titles = Opts::unnamedArguments();
@@ -59,16 +64,11 @@ if( !$page_titles ) {
 	$help .= "Please specify some page titles";
 }
 
-
-// choosen wiki
-$wiki_uid = $opts->getArg( 'wiki' );
-if( !$wiki_uid ) {
-	$help .= "Please specify --wiki";
-}
+$limit = $opts->getArg( 'limit', 500 );
 
 // show the help
 if( $help ) {
-	echo "Usage:\n {$argv[ 0 ]} [OPTIONS] Page_title...\n";
+	echo "Usage:\n {$argv[ 0 ]} [OPTIONS] Page_title > filename.xml\n";
 	echo "Allowed OPTIONS:\n";
 	foreach( $opts->getParams() as $param ) {
 		$commands = [];
@@ -97,8 +97,7 @@ if( $help ) {
 }
 
 $wiki = MediaWikis::findFromUID( $wiki_uid );
-
-$limit = $opts->getArg( 'limit', 500 );
+$wiki->login();
 
 $requests = $wiki->createQuery( [
 	'action' => 'query',
@@ -115,13 +114,35 @@ $requests = $wiki->createQuery( [
 		'sha1',
 		'comment',
 		'content',
-		'tags',
 	],
 	'rvslots' => 'main',
 	'rvlimit' => $limit,
 ] );
 
-
-foreach( $requests as $request ) {
-	print_r( $request );
-}
+?>
+<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.10/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mediawiki.org/xml/export-0.10/ http://www.mediawiki.org/xml/export-0.10.xsd" version="0.10" xml:lang="it">
+<?php foreach( $requests as $request ): ?>
+	<?php foreach( $request->query->pages as $page ): ?>
+		<?php foreach( $page->revisions as $revision ): ?>
+			<?php if( empty( $revision->comment ) ) continue ?>
+			<?php foreach( $revision->slots as $slot ): ?>
+				<?php if( empty( $slot->contentmodel ) ) continue ?>
+				<revision>
+					<id><?=        $revision->revid ?></id>
+					<parentid><?=  $revision->parentid ?></parentid>
+					<timestamp><?= $revision->timestamp ?></timestamp>
+					<contributor>
+						<username><?= htmlentities( $revision->user ) ?></username>
+						<id><?=       htmlentities( $revision->userid ) ?></id>
+					</contributor>
+					<comment><?= htmlentities( $revision->comment ) ?></comment>
+					<model><?=   htmlentities( $slot->contentmodel ) ?></model>
+					<format><?=  htmlentities( $slot->contentformat ) ?></format>
+					<text xml:space="preserve" bytes="<?= $slot->size ?>"><?= htmlentities( $slot->{'*'} ) ?></text>
+					<sha1><?= htmlentities( $revision->sha1 ) ?></sha1>
+				</revision>
+			<?php endforeach ?>
+		<?php endforeach ?>
+	<?php endforeach ?>
+<?php endforeach ?>
+</mediawiki>

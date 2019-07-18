@@ -94,8 +94,8 @@ class WikibaseSite extends Site {
 	 * @return DataModel
 	 */
 	public function createDataModelFromObject( $data ) {
-		$title = $data->title;
-		return \wb\DataModel::createFromObject( $data, $this, $title );
+		$id = $data->id;
+		return \wb\DataModel::createFromObject( $data, $this, $id );
 	}
 
 }

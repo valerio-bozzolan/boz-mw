@@ -31,6 +31,7 @@ class WikibaseSite extends Site {
 	 * @return wb\DataModel
 	 */
 	public function fetchSingleEntity( $entity_id, $data = [] ) {
+
 		$data = array_replace( [
 			'action' => 'wbgetentities',
 			'ids'    => $entity_id,
@@ -40,7 +41,8 @@ class WikibaseSite extends Site {
 		if( ! isset( $entity->entities->{ $entity_id } ) ) {
 			throw new Exception( "$wikidata_item does not exist" );
 		}
-		return \wb\DataModel::createFromObject( $entity->entities->{ $entity_id }, $this, $entity_id );
+
+		return $this->createDataModelFromObject( $entity->entities->{ $entity_id } );
 	}
 
 	/**
@@ -83,6 +85,17 @@ class WikibaseSite extends Site {
 	 */
 	public function createDataModel( $entity_id = null ) {
 		return new \wb\DataModel( $this, $entity_id );
+	}
+
+	/**
+	 * Create an empty Wikibase data model related to this site
+	 *
+	 * @param $data object Single Entity object retrieved from wbgetentities API
+	 * @return DataModel
+	 */
+	public function createDataModelFromObject( $data ) {
+		$title = $data->title;
+		return \wb\DataModel::createFromObject( $data, $this, $title );
 	}
 
 }

@@ -43,8 +43,8 @@ $wiki = \wm\WikipediaIt::instance();
 
 $queries =
 	$wiki->createQuery( [
-		'action' => 'query',
-		'list'   => 'categorymembers',
+		'action'  => 'query',
+		'list'    => 'categorymembers',
 		'cmtitle' => 'Categoria:Software con licenza GNU GPL',
 	] );
 
@@ -73,7 +73,7 @@ $wiki->edit( [
 
 What if you want to list all the [cats from Wikidata](https://query.wikidata.org/#%23Cats%0ASELECT%20%3Fitem%20%3FitemLabel%20%0AWHERE%20%0A%7B%0A%20%20%3Fitem%20wdt%3AP31%20wd%3AQ146.%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22%5BAUTO_LANGUAGE%5D%2Cen%22.%20%7D%0A%7D)?
 
-```
+```php
 // you should know how to build a SPARQL query
 $query  = 'SELECT ?item ?itemLabel WHERE {';
 $query .= ' ?item wdt:P31 wd:Q146 ';
@@ -90,7 +90,7 @@ foreach( $rows as $row ) {
 	$url = $row->item->value;
 
 	// example: 'Q5317221'
-	$id  = basename( $url );
+	$id = basename( $url );
 
 	// example: 'Dusty the Klepto Kitty'
 	$itemLabel = $row->itemLabel->value;

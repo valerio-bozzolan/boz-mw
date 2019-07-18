@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,36 +19,84 @@
 namespace wb;
 
 /**
- * A Snak collector.
+ * A Snak collector
+ *
+ * @since 2019-07-18
  */
 class Snaks {
 
-	var $snaks = [];
+	/**
+	 * All the Snaks indexed by property
+	 */
+	private $snaks = [];
 
+	/**
+	 * Constructor
+	 *
+	 * @param array $snaks Initial set of snaks
+	 */
 	public function __construct( $snaks = [] ) {
 		foreach( $snaks as $snak ) {
 			$this->add( $snak );
 		}
 	}
 
-	public static function factory( $snaks = [] ) {
-		return new self( $snaks );
-	}
-
+	/**
+	 * Add a Snak
+	 *
+	 * @param object $snak
+	 * @return this
+	 */
 	public function add( Snak $snak ) {
-		$this->snaks[] = $snak;
+
+		// eventually init the property container of snaks
+		$property = $snak->getProperty();
+		if( !isset( $this->snaks[ $property ] ) ) {
+			$this->snaks[ $property ] = [];
+		}
+
+		// append
+		$this->snaks[ $property ][] = $snak;
+
 		return $this;
 	}
 
-	public function getAll() {
-		$properties = [];
-		foreach( $this->snaks as $snak ) {
-			$property = $snak->getProperty();
-			if( ! isset( $properties[ $property ] ) ) {
-				$properties[ $property ] = [];
-			}
-			$properties[ $property ][] = $snak;
+	/**
+	 * Get all the snaks from a certain property
+	 *
+	 * @param string $property Property name e.g. 'P123'
+	 * @return array
+	 */
+	public function getInProperty( $property ) {
+		if( $this->hasInProperty( $property ) ) {
+			return $this->snaks[ $property ];
 		}
-		return $properties;
+		return [];
 	}
+
+	/**
+	 * Check if there are some snaks in this property
+	 */
+	public function hasInProperty( $property ) {
+		return !empty( $this->snaks[ $property ] );
+	}
+
+	/**
+	 * Check if there are not snaks
+	 *
+	 * @return boolean
+	 */
+	public function isEmpty() {
+		return !empty( $this->snaks );
+	}
+
+	/**
+	 * Get all the snaks indexed by property
+	 *
+	 * @return array
+	 */
+	public function getAll() {
+		return $this->snaks;
+	}
+
 }

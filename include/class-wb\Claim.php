@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,12 @@ class Claim {
 
 	//var $id;
 
-	//var $qualifiers;
+	/**
+	 * Qualifiers collector
+	 *
+	 * @var Snaks
+	 */
+	private $qualifiers;
 
 	/**
 	 * Constructor
@@ -57,6 +62,9 @@ class Claim {
 		if( $mainsnak ) {
 			$this->setMainsnak( $mainsnak );
 		}
+
+		// initialize snaks collector
+		$this->qualifiers = new Snaks();
 	}
 
 	/**
@@ -69,29 +77,13 @@ class Claim {
 	}
 
 	/**
-	 * Get the mainsnak
-	 *
-	 * @return Snak|null
-	 */
-	public function hasQualifiers() {
-		return ! empty( $this->qualifiers );
-	}
-
-	/**
-	 * Get a property. Also a dummy one. asd
+	 * Get a property. Also a dummy one. NOW. asd
 	 *
 	 * @return string
 	 */
 	public function getPropertyAlsoDummy() {
 		$snak = $this->getMainsnak();
 		return $snak ? $snak->getProperty() : self::DUMMY_PROPERTY;
-	}
-
-	/**
-	 * Get the qualifiers
-	 */
-	public function getQualifiers() {
-		return $this->qualifiers;
 	}
 
 	/**
@@ -106,14 +98,63 @@ class Claim {
 	}
 
 	/**
-	 * Set the qualifiers
+	 * Set the qualifiers (snaks)
 	 *
 	 * @param $qualifiers
 	 * @return self
 	 */
-	public function setQualifiers( $qualifiers ) {
+	public function setQualifiers( Snaks $qualifiers ) {
 		$this->qualifiers = $qualifiers;
 		return $this;
+	}
+
+	/**
+	 * Add a qualifier (snak)
+	 *
+	 * @param object $qualifier Qualifier (snak)
+	 * @return array
+	 */
+	public function addQualifier( Snak $qualifier ) {
+		$this->qualifiers->add( $qualifier );
+		return $this;
+	}
+
+	/**
+	 * Check if the claim has at least a qualifier
+	 *
+	 * @return boolean
+	 */
+	public function hasQualifiers() {
+		return !$this->qualifiers->isEmpty();
+	}
+
+	/**
+	 * Check if there are qualifiers related to a property
+	 *
+	 * @param $property string e.g. 'P123'
+	 * @return boolean
+	 */
+	public function hasQualifiersInProperty( $property ) {
+		return $this->qualifiers->hasInProperty( $property );
+	}
+
+	/**
+	 * Get all the qualifiers indexed by property (they are snaks)
+	 *
+	 * @return array
+	 */
+	public function getQualifiers() {
+		return $this->qualifiers->getAll();
+	}
+
+	/**
+	 * Get all the qualifiers that are related to a property (they are snaks)
+	 *
+	 * @param $property string e.g. 'P123'
+	 * @return array
+	 */
+	public function getQualifiersInProperty( $property ) {
+		return $this->qualifiers->getInProperty( $property );
 	}
 
 	/**
@@ -171,22 +212,36 @@ class Claim {
 	}
 
 	/**
-	 * Create a claim from raw data
+	 * Create a claim from raw data returned from API responses
 	 *
 	 * @param $data array
 	 * @return self
 	 */
 	public static function createFromData( $data ) {
+
+		// wtf is this shit
 		if( ! isset( $data[ 'mainsnak' ] ) ) {
 			throw new WrongDataException( __CLASS__ );
 		}
+
+		// initialize the claim
 		$claim = new static( Snak::createFromData( $data[ 'mainsnak' ] ) );
+
+		// add qualifiers
 		if( isset( $data[ 'qualifiers' ] ) ) {
-			$claim->setQualifiers( $data[ 'qualifiers' ] );
+			foreach( $data[ 'qualifiers' ] as $property => $qualifier_raws ) {
+				foreach( $qualifier_raws as $qualifier_raw ) {
+					$qualifier = Snak::createFromData( $qualifier_raw );
+					$claim->addQualifier( $qualifier );
+				}
+			}
 		}
+
+		// claim ID
 		if( isset( $data[ 'id' ] ) ) {
 			$claim->setID( $data[ 'id' ] );
 		}
+
 		return $claim;
 	}
 

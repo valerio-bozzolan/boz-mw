@@ -443,9 +443,14 @@ class DataModel {
 	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 	 */
 	public function editEntity( $data = [] ) {
+
+		// can auto-generate a summary
+		if( empty( $data['summary'] ) ) {
+			$data['summary'] = $this->getEditSummary();
+		}
+
 		$data = array_replace( [
 			'id'      => $this->hasEntityID() ? $this->getEntityID() : null,
-			'summary' => $this->getEditSummary(),
 			'data'    => $this->getJSON(),
 		], $data );
 		return $this->getWikibaseSite()->editEntity( $data );

@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -46,12 +46,14 @@ class WikibaseSite extends Site {
 	/**
 	 * Edit a Wikidata entity using the wbeditentity API
 	 *
+	 * You do not need to send the CSRF 'token' and the 'action' parameters.
+	 *
 	 * @param $data array API data request (with some extensions)
 	 * 	Allowed extensions:
 	 * 		summary.pre  Add something before the summary
 	 * 		summary.post Add something after  the summary
 	 * @return mixed
-	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
+	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 	 */
 	public function editEntity( $data = [] ) {
 
@@ -74,7 +76,7 @@ class WikibaseSite extends Site {
 	}
 
 	/**
-	 * Create an empty data model related to this site
+	 * Create an empty Wikibase data model related to this site
 	 *
 	 * @param $entity_id string Entity Q-ID
 	 * @return DataModel

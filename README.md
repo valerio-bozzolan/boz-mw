@@ -1,6 +1,8 @@
 # boz-mw
 
-This is another MediaWiki API handler in PHP.
+This is `boz-mw`,  __another MediaWiki API handler in PHP__. It has a tons of features that will make your head spin!
+
+This is a library to interact with MediaWiki and Wikibase APIs. There are also some command line scripts.
 
 ## Download
 
@@ -9,6 +11,14 @@ This is another MediaWiki API handler in PHP.
 ## Command line tools
 
 See [the tools](./tools/README.md).
+
+### Command line script `replace.php`
+
+The [replace.php](https://github.com/valerio-bozzolan/boz-mw/tree/master/tools#replace-script---replacephp) allows you to do some sobstitutions in a wiki.
+
+### Command line script `mega-export.php`
+
+The [mega-export.php](https://github.com/valerio-bozzolan/boz-mw/tree/master/tools#mega-export---mega-exportphp) allows you to export the _full_ page history of whatever page.
 
 ## API framework showcase
 
@@ -144,9 +154,14 @@ $wiki->upload( [
 
 See the [`ContentDisposition`](include/class-network\ContentDisposition.php) class for some other constructors.
 
-Well, I have not the time to document also the Wikibase part, but hey, we support it quite well.
+### Other examples?
+
+Feel free to fork and improve this documentation! Or just look inside the [/include](./include) directory where there is some inline documentation for you!
 
 ## Known usage
 * [MediaWikiOrphanizerBot](https://github.com/valerio-bozzolan/MediaWikiOrphanizerBot)
 * [ItalianWikipediaDeletionBot](https://github.com/valerio-bozzolan/ItalianWikipediaDeletionBot)
+* [ItalianWikipediaListAdmins](https://github.com/valerio-bozzolan/ItalianWikipediaListAdmins)
+* [2018 MiBACT Wikidata fixed](https://github.com/valerio-bozzolan/Wikimedia-Valerio-Bozzolan-bot-tasks/tree/master/2018-09-mibact-fixer)
+* [2018 Wiki loves monuments CH](https://github.com/valerio-bozzolan/Wikimedia-Valerio-Bozzolan-bot-tasks/tree/master/2018-08-wiki-loves-monuments-switzerland)
 * [wiki-users-leaflet](https://github.com/valerio-bozzolan/wiki-users-leaflet/) hosted at [WMF Labs](https://tools.wmflabs.org/it-wiki-users-leaflet/)

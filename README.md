@@ -53,7 +53,7 @@ foreach( $queries as $query ) {
 }
 ```
 
-### Edit API query
+### Login and Edit API query
 
 ```php
 $wiki = \wm\WikipediaIt::instance();
@@ -67,6 +67,13 @@ $wiki->edit( [
 	'text'    => 'My wikitext',
 	'summary' => 'My edit summary',
 ] );
+```
+
+Note that you can also call `login()` without parameters if you specify a global username and password on the top of your script:
+
+```php
+\mw\API::$DEFAULT_USERNAME = '':
+\mw\API::$DEFAULT_PASSWORD = '';
 ```
 
 ### Wikidata SPARQL query
@@ -97,6 +104,26 @@ foreach( $rows as $row ) {
 
 	echo "Found cat ID: $id. Name: $itemLabel \n";
 }
+```
+
+### Wikidata edit API
+
+```php
+$data = new \wb\DataModel();
+
+// add a Commons category
+$statement = new \wb\StatementCommonsCategory( 'P373', 'Test category name' );
+$data->addClaim( $statement );
+
+// set a new label value
+$label = \wb\Label( 'en', "New label" );
+$data->setLabel( $label );
+
+// save
+\wm\Wikidata::instance()->editEntity(
+	'id'   => 'Q4115189',
+	'data' => $data->getJSON(),
+] );
 ```
 
 ### Upload API query

@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018 Valerio Bozzolan
+# Copyright (C) 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,19 +19,23 @@
 namespace wb;
 
 /**
+ * Statement suitable for a globe coordinate
+ *
  * A StatementItem is a Statement that contains a SnakItem.
+ *
+ * @see https://www.mediawiki.org/wiki/Wikibase/DataModel#Geographic_locations
  */
 class StatementGlobeCoordinate extends Statement {
 
 	/**
-	 * @param $property Wikidata property as 'P123'
-	 * @param $latitude float
+	 * @param $property  string Wikidata property as 'P123'
+	 * @param $latitude  float
 	 * @param $longitude float
 	 * @param $precision float
-	 * @param $altitude float
-	 * @param $globe string
+	 * @param $altitude  float
+	 * @param $globe     string
 	 */
-	public function __construct( $property, $latitude, $longitude, $precision, $altitude = null, $globe = null ) {
+	public function __construct( $property, $latitude, $longitude, $precision = null, $altitude = null, $globe = null ) {
 		parent::__construct( new SnakGlobeCoordinate( $property, $latitude, $longitude, $precision, $altitude, $globe ) );
 	}
 

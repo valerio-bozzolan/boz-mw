@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,8 @@ class DataValue {
 	var $value;
 
 	/**
+	 * Constructor
+	 *
 	 * @param $type  string Type
 	 * @param $value mixed  Value
 	 */
@@ -35,24 +37,49 @@ class DataValue {
 		     ->setValue( $value );
 	}
 
+	/**
+	 * Get the type
+	 *
+	 * @return string
+	 */
 	public function getType() {
 		return $this->type;
 	}
 
+	/**
+	 * Get the value
+	 *
+	 * @return mixed
+	 */
 	public function getValue() {
 		return $this->value;
 	}
 
+	/**
+	 * Set the type
+	 */
 	public function setType( $type ) {
 		$this->type = $type;
 		return $this;
 	}
 
+	/**
+	 * Set the value
+	 *
+	 * @param  mixed $value
+	 * @return self
+	 */
 	public function setValue( $value ) {
 		$this->value = $value;
 		return $this;
 	}
 
+	/**
+	 * Static constructor from a standard object
+	 *
+	 * @param  object $data
+	 * @return self
+	 */
 	public static function createFromData( $data ) {
 		if( ! isset( $data['type'], $data['value'] ) ) {
 			throw new WrongDataException( __CLASS__ );
@@ -61,9 +88,11 @@ class DataValue {
 	}
 
 	/**
+	 * Get this object in form of a string
+	 *
 	 * @return string
 	 */
 	public function __toString() {
-		return $this->getValue();
+		return json_encode( $this->getValue() );
 	}
 }

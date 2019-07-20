@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018 Valerio Bozzolan
+# Copyright (C) 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -42,20 +42,20 @@ class LandscapeforWiki extends \mw\StaticSite {
 	protected static function create() {
 		$site = parent::create();
 		$site->setNamespaces( [
-			new \mw\Ns( 1,   'Discussione' ),
-			new \mw\Ns( 2,   'Utente' ),
-			new \mw\Ns( 3,   'Discussioni utente' ),
-			new \mw\Ns( 4,   'Landscapefor' ),
-			new \mw\Ns( 5,   'Discussioni Landscapefor' ),
-			new \mw\Ns( 6,   'File' ),
-			new \mw\Ns( 7,   'Discussioni file' ),
-			new \mw\Ns( 9,   'Discussioni MediaWiki' ),
-			new \mw\Ns( 10,  'Template' ),
-			new \mw\Ns( 11,  'Discussioni template' ),
-			new \mw\Ns( 12,  'Aiuto' ),
-			new \mw\Ns( 13,  'Discussioni aiuto' ),
-			new \mw\Ns( 14,  'Categoria' ),
-			new \mw\Ns( 15,  'Discussioni categoria' ),
+			new \mw\Ns( 1,  'Discussione' ),
+			new \mw\Ns( 2,  'Utente' ),
+			new \mw\Ns( 3,  'Discussioni utente' ),
+			new \mw\Ns( 4,  'Landscapefor' ),
+			new \mw\Ns( 5,  'Discussioni Landscapefor' ),
+			new \mw\Ns( 6,  'File' ),
+			new \mw\Ns( 7,  'Discussioni file' ),
+			new \mw\Ns( 9,  'Discussioni MediaWiki' ),
+			new \mw\Ns( 10, 'Template' ),
+			new \mw\Ns( 11, 'Discussioni template' ),
+			new \mw\Ns( 12, 'Aiuto' ),
+			new \mw\Ns( 13, 'Discussioni aiuto' ),
+			new \mw\Ns( 14, 'Categoria' ),
+			new \mw\Ns( 15, 'Discussioni categoria' ),
 		] );
 		return $site;
 	}

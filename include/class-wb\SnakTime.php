@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018 Valerio Bozzolan
+# Copyright (C) 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -24,9 +24,13 @@ namespace wb;
 class SnakTime extends Snak {
 
 	/**
+	 * Constructor
+	 *
+	 * Note that: <Hour, minute, and second are currently unused and should always be 00.> WHAT THE FUCK I'M READING HOLY CRAP WIKIBASE
+	 *
 	 * @param $property string Property as 'P123'
-	 * @param $time string example "+1539-00-00T00:00:00Z"
-	 * @param $precision int
+	 * @param $time string example "+1539-00-00T00:00:00Z" As default it's the current datetime
+	 * @param $precision int As default it's 11 (days)
 	 *	0: 1 Gigayear
 	 * 	1: 100 Megayears
 	 * 	2: 10 Megayears
@@ -47,8 +51,23 @@ class SnakTime extends Snak {
 	 * 	calendarmodel: "Q1985786"
 	 * @see https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON
 	 */
-	public function __construct( $property, $time, $precision, $args = [] ) {
-		return parent::__construct( 'value', $property, DataType::QUANTITY,
+	public function __construct( $property, $time = null, $precision = 11, $args = [] ) {
+
+		// as default take current date and time
+		if( !$time ) {
+			$time = new \DateTime();
+			$time->setTimezone( new \DateTimeZone( 'UTC' ) );
+
+			// Note that: <Hour, minute, and second are currently unused and should always be 00.> WHAT THE FUCK I'M READING HOLY CRAP WIKIBASE
+			$time->setTime( 0, 0 );
+		}
+
+		// accept both a string or a datetime object
+		if( $time instanceof \DateTime ) {
+			$time = $time->format( '+Y-m-d\TH:i:s\Z' );
+		}
+
+		return parent::__construct( 'value', $property, DataType::TIME,
 			new DataValueTime( $time, $precision, $args )
 		);
 	}

@@ -95,8 +95,37 @@ class Snaks {
 	 *
 	 * @return array
 	 */
-	public function getAll() {
+	public function getAllByProperty() {
 		return $this->snaks;
+	}
+
+	/**
+	 * Count all the snaks
+	 *
+	 * @return int
+	 */
+	public function count() {
+		$n = 0;
+		foreach( $this->getAll() as $property => $snaks ) {
+			$n += count( $snaks );
+		}
+		return $n;
+	}
+
+	/**
+	 * Convert this object to an associative array suitable for JSON encoding
+	 *
+	 * @return array
+	 */
+	public function toData() {
+		$data = [];
+		foreach( $this->getAllByProperty() as $property => $snaks ) {
+			$data[ $property ] = [];
+			foreach( $snaks as $snak ) {
+				$data[ $property ][] = $snak->toData();
+			}
+		}
+		return $data;
 	}
 
 }

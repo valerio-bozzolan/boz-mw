@@ -121,4 +121,19 @@ class Claims {
 		}
 		return $properties;
 	}
+
+	/**
+	 * Convert this object to an associative array suitable for JSON encoding
+	 *
+	 * @return array
+	 */
+	public function toData() {
+		$all = $this->getAllGrouped();
+		foreach( $all as & $claims ) {
+			foreach( $claims as & $claim ) {
+				$claim = $claim->toData();
+			}
+		}
+		return $all;
+	}
 }

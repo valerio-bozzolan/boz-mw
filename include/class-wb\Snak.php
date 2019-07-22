@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -25,11 +25,15 @@ namespace wb;
  */
 class Snak {
 
-	//var $hash;
-	var $snaktype;
-	var $property;
-	var $datatype;
-	var $datavalue;
+	private $hash;
+
+	private $snaktype;
+
+	private $property;
+
+	private $datatype;
+
+	private $datavalue;
 
 	/**
 	 * @param $snaktype string
@@ -191,6 +195,7 @@ class Snak {
 	 */
 	public static function createFromData( $data ) {
 		if( ! isset( $data['snaktype'], $data['property'], $data['datatype'] ) ) {
+			var_dump( $data );
 			throw new WrongDataException( __CLASS__ );
 		}
 		$snak = new self(
@@ -205,6 +210,27 @@ class Snak {
 			$snak->setHash( $data['hash'] );
 		}
 		return $snak;
+	}
+
+	/**
+	 * Convert this object to an associative array suitable for JSON encoding
+	 *
+	 * @return array
+	 */
+	public function toData() {
+		$data = [];
+
+		// it may have an hash
+		if( $this->hasHash() ) {
+			$data['hash'] = $this->getHash();
+		}
+
+		$data['snaktype']  = $this->getSnakType();
+		$data['property']  = $this->getProperty();
+		$data['datatype']  = $this->getDataType();
+		$data['datavalue'] = $this->getDataValue();
+
+		return $data;
 	}
 
 	/**

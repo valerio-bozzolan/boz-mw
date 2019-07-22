@@ -37,13 +37,18 @@ class Claim {
 	const DUMMY_PROPERTY = 'ASD-ASD-ASD';
 
 	/**
-	 * Snak
+	 * The 'mainsnak' is a Snak
 	 *
 	 * @var Snak|null
 	 */
-	//var $mainsnak;
+	private $mainsnak;
 
-	//var $id;
+	/**
+	 * Claim ID
+	 *
+	 * @var string|null
+	 */
+	private $id;
 
 	/**
 	 * Qualifiers collector
@@ -53,18 +58,40 @@ class Claim {
 	private $qualifiers;
 
 	/**
+	 * References collector
+	 *
+	 * @TODO: it has also an hash!
+	 *
+	 * @var References
+	 */
+	private $references;
+
+	/**
 	 * Constructor
 	 *
 	 * @param $mainsnak Snak|null Main snak
 	 */
 	public function __construct( $mainsnak = null ) {
-		// avoid to set a NULL value in order to do not send { 'mainsnak': null } to the API
+
+		// eventually initialize mainsnak
 		if( $mainsnak ) {
 			$this->setMainsnak( $mainsnak );
 		}
 
 		// initialize snaks collector
 		$this->qualifiers = new Snaks();
+
+		// initialize references collector
+		$this->references = new References();
+	}
+
+	/**
+	 * Check if there is a mainsnak
+	 *
+	 * @return boolean
+	 */
+	public function hasMainsnak() {
+		return isset( $this->mainsnak );
 	}
 
 	/**
@@ -73,7 +100,7 @@ class Claim {
 	 * @return Snak|null
 	 */
 	public function getMainsnak() {
-		return isset( $this->mainsnak ) ? $this->mainsnak : null;
+		return $this->mainsnak;
 	}
 
 	/**
@@ -100,7 +127,7 @@ class Claim {
 	/**
 	 * Set the qualifiers (snaks)
 	 *
-	 * @param $qualifiers
+	 * @param  object $qualifiers
 	 * @return self
 	 */
 	public function setQualifiers( Snaks $qualifiers ) {
@@ -109,13 +136,35 @@ class Claim {
 	}
 
 	/**
+	 * Set the references
+	 *
+	 * @param  object $references
+	 * @return self
+	 */
+	public function setReferences( References $references ) {
+		$this->references = $references;
+		return $this;
+	}
+
+	/**
 	 * Add a qualifier (snak)
 	 *
 	 * @param object $qualifier Qualifier (snak)
-	 * @return array
+	 * @return self
 	 */
 	public function addQualifier( Snak $qualifier ) {
 		$this->qualifiers->add( $qualifier );
+		return $this;
+	}
+
+	/**
+	 * Add a reference
+	 *
+	 * @param object $reference Reference
+	 * @return self
+	 */
+	public function addReference( Reference $reference ) {
+		$this->references->add( $reference );
 		return $this;
 	}
 
@@ -129,6 +178,15 @@ class Claim {
 	}
 
 	/**
+	 * Check if the claim has at least a reference
+	 *
+	 * @return boolean
+	 */
+	public function hasReferences() {
+		return !$this->references->isEmpty();
+	}
+
+	/**
 	 * Check if there are qualifiers related to a property
 	 *
 	 * @param $property string e.g. 'P123'
@@ -136,6 +194,16 @@ class Claim {
 	 */
 	public function hasQualifiersInProperty( $property ) {
 		return $this->qualifiers->hasInProperty( $property );
+	}
+
+	/**
+	 * Check if there are references related to a property
+	 *
+	 * @param $property string e.g. 'P123'
+	 * @return boolean
+	 */
+	public function hasReferencesInProperty( $property ) {
+		return $this->references->hasInProperty( $property );
 	}
 
 	/**
@@ -148,6 +216,15 @@ class Claim {
 	}
 
 	/**
+	 * Get all the qualifiers indexed by property (they are snaks)
+	 *
+	 * @return array
+	 */
+	public function getReferences() {
+		return $this->references->getAll();
+	}
+
+	/**
 	 * Get all the qualifiers that are related to a property (they are snaks)
 	 *
 	 * @param $property string e.g. 'P123'
@@ -155,6 +232,25 @@ class Claim {
 	 */
 	public function getQualifiersInProperty( $property ) {
 		return $this->qualifiers->getInProperty( $property );
+	}
+
+	/**
+	 * Get all the references that are related to a property (they are snaks)
+	 *
+	 * @param $property string e.g. 'P123'
+	 * @return array
+	 */
+	public function getReferencesInProperty( $property ) {
+		return $this->references->getInProperty( $property );
+	}
+
+	/**
+	 * Check if there is an ID
+	 *
+	 * @return boolean
+	 */
+	public function hasID() {
+		return isset( $this->id );
 	}
 
 	/**
@@ -174,7 +270,7 @@ class Claim {
 	 * @return string
 	 */
 	public function getID() {
-		if( empty( $this->id ) ) {
+		if( !$this->hasID() ) {
 			throw new \Exception( 'missing id' );
 		}
 		return $this->id;
@@ -220,7 +316,7 @@ class Claim {
 	public static function createFromData( $data ) {
 
 		// wtf is this shit
-		if( ! isset( $data[ 'mainsnak' ] ) ) {
+		if( ! isset( $data['mainsnak'] ) ) {
 			throw new WrongDataException( __CLASS__ );
 		}
 
@@ -228,13 +324,18 @@ class Claim {
 		$claim = new static( Snak::createFromData( $data[ 'mainsnak' ] ) );
 
 		// add qualifiers
-		if( isset( $data[ 'qualifiers' ] ) ) {
-			foreach( $data[ 'qualifiers' ] as $property => $qualifier_raws ) {
+		if( isset( $data['qualifiers'] ) ) {
+			foreach( $data['qualifiers'] as $property => $qualifier_raws ) {
 				foreach( $qualifier_raws as $qualifier_raw ) {
 					$qualifier = Snak::createFromData( $qualifier_raw );
 					$claim->addQualifier( $qualifier );
 				}
 			}
+		}
+
+		// add references
+		if( isset( $data['references'] ) ) {
+			$claim->setReferences( References::createFromData( $data['references'] ) );
 		}
 
 		// claim ID
@@ -243,6 +344,38 @@ class Claim {
 		}
 
 		return $claim;
+	}
+
+	/**
+	 * Convert this object to an associative array suitable for JSON encoding
+	 *
+	 * @return array
+	 */
+	public function toData() {
+
+		$data = [];
+
+		// mainsnak
+		if( $this->hasMainsnak() ) {
+			$data['mainsnak'] = $this->getMainsnak()->toData();
+		}
+
+		// id
+		if( $this->hasID() ) {
+			$data['id'] = $this->getID();
+		}
+
+		// qualifiers
+		if( $this->hasQualifiers() ) {
+			$data['qualifiers'] = $this->qualifiers->toData();
+		}
+
+		// references
+		if( $this->hasReferences() ) {
+			$data['references'] = $this->references->toData();
+		}
+
+		return $data;
 	}
 
 	/**

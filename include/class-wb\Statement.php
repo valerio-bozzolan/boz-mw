@@ -25,50 +25,102 @@ namespace wb;
  */
 class Statement extends Claim {
 
-	//var $id;
-	var $type = 'statement';
-	var $rank = 'normal';
-	var $references = [];
+	/**
+	 * ID of the statement (if any)
+	 *
+	 * @var string|null
+	 */
+	private $id;
 
+	/**
+	 * Type of the statement
+	 *
+	 * I think that it's hardcoded to 'statement' in Wikibase.
+	 *
+	 * @var string
+	 */
+	private $type = 'statement';
+
+	/**
+	 * Rank of this statement
+	 *
+	 * @var string
+	 */
+	private $rank = 'normal';
+
+	/**
+	 * Get the type
+	 *
+	 * @return string
+	 */
 	public function getType() {
 		return $this->type;
 	}
 
+	/**
+	 * Get the rank
+	 *
+	 * @return string
+	 */
 	public function getRank() {
 		return $this->rank;
 	}
 
-	public function getReferences() {
-		return $this->references;
-	}
-
+	/**
+	 * Check if this statement has an ID
+	 *
+	 * @return boolean
+	 */
 	public function hasID() {
 		return isset( $this->id );
 	}
 
+	/**
+	 * Get the ID (if any)
+	 *
+	 * @return string|null
+	 */
 	public function getID() {
 		return $this->id;
 	}
 
+	/**
+	 * Get the ID (if any)
+	 *
+	 * @return string|null
+	 */
+	public function setID( $id ) {
+		$this->id = $id;
+	}
+
+	/**
+	 * Set the type
+	 *
+	 * @param string $type
+	 * @return self
+	 */
 	public function setType( $type ) {
 		$this->type = $type;
 		return $this;
 	}
 
+	/**
+	 * Set a rank
+	 *
+	 * @param  string $rank
+	 * @return self
+	 */
 	public function setRank( $rank ) {
 		$this->rank = $rank;
 		return $this;
 	}
 
-	public function setReferences( $references ) {
-		$this->references = $references;
-		return $this;
-	}
-
-	public function setID( $id ) {
-		$this->id = $id;
-	}
-
+	/**
+	 * Create a statement from raw data returned from API responses
+	 *
+	 * @param $data array
+	 * @return self
+	 */
 	public static function createFromData( $data ) {
 		if( ! isset( $data['type'], $data['rank'] ) ) {
 			throw new WrongDataException( __CLASS__ );
@@ -80,8 +132,31 @@ class Statement extends Claim {
 			$statement->setID( $data['id'] );
 		}
 		if( $data['references'] ) {
-			$statement->setReferences( $data['references'] );
+			$statement->setReferences( References::createFromData( $data['references'] ) );
 		}
 		return $statement;
 	}
+
+	/**
+	 * Convert this object to an associative array suitable for JSON encoding
+	 *
+	 * @return array
+	 */
+	public function toData() {
+		$data = parent::toData();
+
+		// statement ID
+		if( $this->hasID() ) {
+			$data['id'] = $this->getID();
+		}
+
+		// statement type
+		$data['type'] = $this->getType();
+
+		// statement rank
+		$data['rank'] = $this->getRank();
+
+		return $data;
+	}
+
 }

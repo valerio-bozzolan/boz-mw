@@ -302,7 +302,7 @@ class DataModel {
 			'labels'       => $this->getLabels(),       // TODO: $this->getLabelsData()
 			'descriptions' => $this->getDescriptions(), // TODO: $this->getDescriptionsData()
 			'sitelinks'    => $this->sitelinks->toData(),
-			'claims'       => $this->getClaimsGrouped()
+			'claims'       => $this->claims->toData(),
 		];
 		foreach( $data as $k => $v ) {
 			if( 0 === count( $v ) ) {

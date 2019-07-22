@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
+# Copyright (C) 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,22 +19,22 @@
 namespace wb;
 
 /**
- * A wikibase DataValue's type
- *
- * @see https://www.wikidata.org/wiki/Special:ListDatatypes
+ * A Snak for an URL
  */
-class DataType {
+class SnakURL extends Snak {
 
-	const STRING           = 'string';
-	const URL              = 'url';
-	const TIME             = 'time';
-	const QUANTITY         = 'quantity';
-	const MONOLINGUAL_TEXT = 'monolingualtext';
-	const GLOBE_COORDINATE = 'globecoordinate';
-	const EXTERNAL_ID      = 'external-id';
-	const COMMONS_MEDIA    = 'commonsMedia';
-	const ITEM             = 'wikibase-item';
-	const ENTITY_ID        = 'wikibase-entityid';
-	const PROPERTY         = 'wikibase-property';
-
+	/**
+	 * Constructor
+	 *
+	 * @param string $property Wikibase property name e.g. 'P123'
+	 * @param string $url
+	 */
+	public function __construct( $property, $url ) {
+		return parent::__construct(
+			'value',
+			$property,
+			DataType::URL,
+			new DataValueString( $url )
+		);
+	}
 }

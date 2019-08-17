@@ -19,12 +19,23 @@
 namespace wb;
 
 /**
- * A generic DataValue is part of a Snak.
+ * A generic DataValue is part of a Snak
  */
 class DataValue {
 
-	var $type;
-	var $value;
+	/**
+	 * Type of the DataValue
+	 *
+	 * @var string
+	 */
+	private $type;
+
+	/**
+	 * Value of the DataValue
+	 *
+	 * @var array
+	 */
+	private $value;
 
 	/**
 	 * Constructor
@@ -85,6 +96,18 @@ class DataValue {
 			throw new WrongDataException( __CLASS__ );
 		}
 		return new self( $data['type'], $data['value'] );
+	}
+
+	/**
+	 * Export this object to an associative array suitable for JSON-encoding
+	 *
+	 * @return array
+	 */
+	public function toData() {
+		return [
+			'type'  => $this->getType(),
+			'value' => $this->getValue(),
+		];
 	}
 
 	/**

@@ -230,6 +230,10 @@ class Snak {
 		$data['datatype']  = $this->getDataType();
 		$data['datavalue'] = $this->getDataValue();
 
+		if( $data['datavalue'] ) {
+			$data['datavalue'] = $data['datavalue']->toData();
+		}
+
 		return $data;
 	}
 

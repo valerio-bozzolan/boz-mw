@@ -68,7 +68,8 @@ class Exception extends \Exception {
 			ReadOnlyException        ::class,
 
 			// Wikibase related
-			NoSuchEntityException    ::class,
+			NoSuchEntityException      ::class,
+			ModificationFailedException::class,
 		];
 		$exception = new self( $api_error );
 		$code = $exception->getApiErrorCode();

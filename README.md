@@ -26,6 +26,8 @@ Here some usage examples.
 
 ### Basic API query
 
+To obtain a simple information from the server (no continuation support):
+
 ```php
 <?php
 require 'boz-mw/autoload.php';
@@ -47,6 +49,7 @@ print_r( $response );
 
 ### API query with continuation
 
+To obtain a long result set from the server (with continuation support):
 
 ```php
 $wiki = \wm\WikipediaIt::instance();
@@ -153,6 +156,17 @@ $wiki->upload( [
 ```
 
 See the [`ContentDisposition`](include/class-network\ContentDisposition.php) class for some other constructors.
+
+### Where to test
+
+Please use your own wiki to test this framework or at least use the Wikimedia Wikis' Sandboxes!
+
+Some known pages you can destroy:
+
+* https://www.wikidata.org/wiki/Q4115189
+* https://it.wikipedia.org/wiki/Wikipedia:Pagina_delle_prove_di_Wikidata
+* https://en.wikipedia.org/wiki/Wikipedia:Wikidata/Wikidata_Sandbox
+* etc.
 
 ### Other examples?
 

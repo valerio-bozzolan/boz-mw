@@ -51,6 +51,11 @@ class Claim {
 	private $id;
 
 	/**
+	 * Claim rank
+	 */
+	private $rank;
+
+	/**
 	 * Qualifiers collector
 	 *
 	 * @var Snaks
@@ -277,6 +282,44 @@ class Claim {
 	}
 
 	/**
+	 * Check if the Rank is set
+	 *
+	 * @return boolean
+	 */
+	public function hasRank() {
+		return isset( $this->rank );
+	}
+
+	/**
+	 * Get the claim rank
+	 *
+	 * @return string
+	 */
+	public function getRank() {
+		return $this->rank;
+	}
+
+	/**
+	 * Set the Claim rank
+	 *
+	 * @param  string $rank
+	 * @return self
+	 */
+	public function setRank( $rank ) {
+		$this->rank = $rank;
+		return $this;
+	}
+
+	/**
+	 * Check if the Rank of the Claim is 'deprecated'
+	 *
+	 * @return boolean
+	 */
+	public function isDeprecated() {
+		return $this->getRank() === 'deprecated';
+	}
+
+	/**
 	 * Check if this claim is marked for removal
 	 *
 	 * @return array
@@ -343,6 +386,11 @@ class Claim {
 			$claim->setID( $data[ 'id' ] );
 		}
 
+		// set rank
+		if( isset( $data['rank'] ) ) {
+			$claim->setRank( $data['rank'] );
+		}
+
 		return $claim;
 	}
 
@@ -363,6 +411,11 @@ class Claim {
 		// id
 		if( $this->hasID() ) {
 			$data['id'] = $this->getID();
+		}
+
+		// rank
+		if( $this->hasRank() ) {
+			$data['rank'] = $this->getRank();
 		}
 
 		// qualifiers

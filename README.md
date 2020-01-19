@@ -1,8 +1,8 @@
 # boz-mw
 
-This is `boz-mw`,  __another MediaWiki API handler in PHP__. It has a tons of features that will make your head spin!
+This is `boz-mw`,  __another MediaWiki API handler in PHP__ with batteries included! It has a tons of features that will make your head spin!
 
-This is a library to interact with MediaWiki and Wikibase APIs. There are also some command line scripts.
+This is a library to interact with MediaWiki and Wikibase APIs. There are also some [command line tools](./tools/README.md).
 
 ## Download
 
@@ -10,15 +10,15 @@ This is a library to interact with MediaWiki and Wikibase APIs. There are also s
 
 ## Command line tools
 
-See [the tools](./tools/README.md).
+See [the command line tools](./tools/README.md).
 
 ### Command line script `replace.php`
 
-The [replace.php](https://github.com/valerio-bozzolan/boz-mw/tree/master/tools#replace-script---replacephp) allows you to do some sobstitutions in a wiki.
+The [replace.php](https://gitpull.it/source/boz-mw/browse/master/tools/#replace-script-tt-class-remarkup) allows you to do some sobstitutions in a wiki.
 
 ### Command line script `mega-export.php`
 
-The [mega-export.php](https://github.com/valerio-bozzolan/boz-mw/tree/master/tools#mega-export---mega-exportphp) allows you to export the _full_ page history of whatever page.
+The [mega-export.php](https://gitpull.it/source/boz-mw/browse/master/tools/#mega-export-tt-class-remarkup) allows you to export the _full_ page history of whatever page.
 
 ## API framework showcase
 
@@ -28,7 +28,7 @@ Here some usage examples.
 
 To obtain a simple information from the server (no continuation support):
 
-```php
+```
 <?php
 require 'boz-mw/autoload.php';
 
@@ -51,7 +51,7 @@ print_r( $response );
 
 To obtain a long result set from the server (with continuation support):
 
-```php
+```
 $wiki = \wm\WikipediaIt::instance();
 
 $queries =
@@ -68,7 +68,7 @@ foreach( $queries as $query ) {
 
 ### Login and Edit API query
 
-```php
+```
 $wiki = \wm\WikipediaIt::instance();
 
 $user     = '';
@@ -84,7 +84,7 @@ $wiki->edit( [
 
 Note that you can also call `login()` without parameters if you specify a global username and password on the top of your script:
 
-```php
+```
 \mw\API::$DEFAULT_USERNAME = '':
 \mw\API::$DEFAULT_PASSWORD = '';
 ```
@@ -93,7 +93,7 @@ Note that you can also call `login()` without parameters if you specify a global
 
 What if you want to list all the [cats from Wikidata](https://query.wikidata.org/#%23Cats%0ASELECT%20%3Fitem%20%3FitemLabel%20%0AWHERE%20%0A%7B%0A%20%20%3Fitem%20wdt%3AP31%20wd%3AQ146.%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22%5BAUTO_LANGUAGE%5D%2Cen%22.%20%7D%0A%7D)?
 
-```php
+```
 // you should know how to build a SPARQL query
 $query  = 'SELECT ?item ?itemLabel WHERE {';
 $query .= ' ?item wdt:P31 wd:Q146 ';
@@ -121,7 +121,7 @@ foreach( $rows as $row ) {
 
 ### Wikidata edit API
 
-```php
+```
 $data = new \wb\DataModel();
 
 // add a Commons category
@@ -145,7 +145,7 @@ Uploading a file requires to respect the [RFC1341](https://tools.ietf.org/html/r
 
 Well, we made it easy:
 
-```php
+```
 $photo_url = 'http://.../libre-image.jpg';
 $wiki->upload( [
 	'comment'  => 'upload file about...',
@@ -172,10 +172,12 @@ Some known pages you can destroy:
 
 Feel free to fork and improve this documentation! Or just look inside the [/include](./include) directory where there is some inline documentation for you!
 
-## Known usage
+## Known usages
+
 * [MediaWikiOrphanizerBot](https://github.com/valerio-bozzolan/MediaWikiOrphanizerBot)
 * [ItalianWikipediaDeletionBot](https://github.com/valerio-bozzolan/ItalianWikipediaDeletionBot)
 * [ItalianWikipediaListAdmins](https://github.com/valerio-bozzolan/ItalianWikipediaListAdmins)
+* [Wikimedia Commons volleyball players uploader bot](https://gitpull.it/source/Wikimedia-Valerio-Bozzolan-bot-tasks/browse/master/2019-05-commons-volleyball-players-upload/)
 * [2018 MiBACT Wikidata fixed](https://github.com/valerio-bozzolan/Wikimedia-Valerio-Bozzolan-bot-tasks/tree/master/2018-09-mibact-fixer)
 * [2018 Wiki loves monuments CH](https://github.com/valerio-bozzolan/Wikimedia-Valerio-Bozzolan-bot-tasks/tree/master/2018-08-wiki-loves-monuments-switzerland)
 * [wiki-users-leaflet](https://github.com/valerio-bozzolan/wiki-users-leaflet/) hosted at [WMF Labs](https://tools.wmflabs.org/it-wiki-users-leaflet/)

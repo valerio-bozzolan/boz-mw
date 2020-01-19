@@ -2,15 +2,15 @@
 
 This is `boz-mw`,  __another MediaWiki API handler in PHP__ with batteries included! It has a tons of features that will make your head spin!
 
-This is a library to interact with MediaWiki and Wikibase APIs. There are also some [command line tools](./tools/README.md).
+This is a library to interact with MediaWiki and Wikibase APIs. There are also some [command line tools](https://gitpull.it/source/boz-mw/browse/master/tools/#boz-mw-command-line-tools).
 
 ## Download
 
-	git clone https://github.com/valerio-bozzolan/boz-mw
+	git clone https://gitpull.it/source/boz-mw.git
 
 ## Command line tools
 
-See [the command line tools](./tools/README.md).
+See [the command line tools](https://gitpull.it/source/boz-mw/browse/master/tools/#boz-mw-command-line-tools).
 
 ### Command line script `replace.php`
 

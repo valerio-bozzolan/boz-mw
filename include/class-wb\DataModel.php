@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,13 @@ use \mw\WikibaseSite;
 
 /**
  * Wikibase data container
+ *
+ * It can be used to abstract a Wikibase Entity and
+ * remove/add labels, descriptions, attributes,
+ * references, etc.
+ *
+ * It has shortcuts to directly talk with the APIs,
+ * generate a smart edit summary, printing changes, etc.
  */
 class DataModel {
 
@@ -435,10 +442,12 @@ class DataModel {
 	/**
 	 * Edit a Wikibase entity using the wbgetentities API
 	 *
-	 * It works only if the Wikibase site is specified
-	 * You can not specify the 'id' if you specified the entity ID
+	 * It can also create an Entity.
 	 *
 	 * @param $data array API data request
+	 * 	Allowed extensions:
+	 * 		summary.pre  Add something before the summary
+	 * 		summary.post Add something after  the summary
 	 * @return mixed
 	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 	 */
@@ -449,10 +458,16 @@ class DataModel {
 			$data['summary'] = $this->getEditSummary();
 		}
 
-		$data = array_replace( [
-			'id'      => $this->hasEntityID() ? $this->getEntityID() : null,
-			'data'    => $this->getJSON(),
-		], $data );
+		// eventually prefill ID
+		if( !array_key_exists( $data, 'id' ) ) {
+			$data['id'] = $this->hasEntityID() ? $this->getEntityID() : null;
+		}
+
+		// eventually prefill to-be-saved data
+		if( !array_key_exists( $data, 'data' ) ) {
+			$data['data'] = $this->getJSON();
+		}
+
 		return $this->getWikibaseSite()->editEntity( $data );
 	}
 

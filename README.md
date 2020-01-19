@@ -6,7 +6,9 @@ This is a library to interact with MediaWiki and Wikibase APIs. There are also s
 
 ## Download
 
-	git clone https://gitpull.it/source/boz-mw.git
+````
+git clone https://gitpull.it/source/boz-mw.git
+````
 
 ## Command line tools
 
@@ -52,6 +54,9 @@ print_r( $response );
 To obtain a long result set from the server (with continuation support):
 
 ```
+<?php
+require 'boz-mw/autoload.php';
+
 $wiki = \wm\WikipediaIt::instance();
 
 $queries =
@@ -69,6 +74,9 @@ foreach( $queries as $query ) {
 ### Login and Edit API query
 
 ```
+<?php
+require 'boz-mw/autoload.php';
+
 $wiki = \wm\WikipediaIt::instance();
 
 $user     = '';
@@ -94,6 +102,9 @@ Note that you can also call `login()` without parameters if you specify a global
 What if you want to list all the [cats from Wikidata](https://query.wikidata.org/#%23Cats%0ASELECT%20%3Fitem%20%3FitemLabel%20%0AWHERE%20%0A%7B%0A%20%20%3Fitem%20wdt%3AP31%20wd%3AQ146.%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22%5BAUTO_LANGUAGE%5D%2Cen%22.%20%7D%0A%7D)?
 
 ```
+<?php
+require 'boz-mw/autoload.php';
+
 // you should know how to build a SPARQL query
 $query  = 'SELECT ?item ?itemLabel WHERE {';
 $query .= ' ?item wdt:P31 wd:Q146 ';
@@ -122,6 +133,9 @@ foreach( $rows as $row ) {
 ### Wikidata edit API
 
 ```
+<?php
+require 'boz-mw/autoload.php';
+
 $data = new \wb\DataModel();
 
 // add a Commons category
@@ -146,6 +160,9 @@ Uploading a file requires to respect the [RFC1341](https://tools.ietf.org/html/r
 Well, we made it easy:
 
 ```
+<?php
+require 'boz-mw/autoload.php';
+
 $photo_url = 'http://.../libre-image.jpg';
 $wiki->upload( [
 	'comment'  => 'upload file about...',
@@ -155,7 +172,7 @@ $wiki->upload( [
 ] );
 ```
 
-See the [`ContentDisposition`](include/class-network\ContentDisposition.php) class for some other constructors.
+Eventually see the [`ContentDisposition`](https://gitpull.it/source/boz-mw/browse/master/include/class-network%5CContentDisposition.php) class for some other constructors.
 
 ### Where to test
 

@@ -454,17 +454,17 @@ class DataModel {
 	public function editEntity( $data = [] ) {
 
 		// can auto-generate a summary
-		if( empty( $data['summary'] ) ) {
+		if( !empty( $data['summary'] ) ) {
 			$data['summary'] = $this->getEditSummary();
 		}
 
 		// eventually prefill ID
-		if( !array_key_exists( $data, 'id' ) ) {
+		if( !isset( $data['id'] ) ) {
 			$data['id'] = $this->hasEntityID() ? $this->getEntityID() : null;
 		}
 
 		// eventually prefill to-be-saved data
-		if( !array_key_exists( $data, 'data' ) ) {
+		if( !isset( $data['data'] ) ) {
 			$data['data'] = $this->getJSON();
 		}
 

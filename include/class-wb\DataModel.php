@@ -454,7 +454,7 @@ class DataModel {
 	public function editEntity( $data = [] ) {
 
 		// can auto-generate a summary
-		if( !empty( $data['summary'] ) ) {
+		if( !isset( $data['summary'] ) ) {
 			$data['summary'] = $this->getEditSummary();
 		}
 

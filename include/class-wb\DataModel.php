@@ -361,7 +361,7 @@ class DataModel {
 
 		$descriptions = $this->getDescriptions();
 		if( $descriptions ) {
-			\mw\Log::info( "descriptions: ");
+			\cli\Log::info( "descriptions: ");
 			foreach( $descriptions as $description ) {
 				\cli\Log::info( "\t" . $description );
 			}

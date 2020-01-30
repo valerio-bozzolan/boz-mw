@@ -49,6 +49,8 @@ class API extends \network\HTTPRequest {
 	/**
 	 * Default MediaWiki API maxlag
 	 *
+	 * See https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
+	 *
 	 * @var int
 	 */
 	static $DEFAULT_MAXLAG = 5;
@@ -302,7 +304,8 @@ class API extends \network\HTTPRequest {
 			$exception = API\Exception::createFromApiError( $response->error );
 			if( $exception instanceof API\MaxLagException ) {
 				// retry after some time when server lags
-				Log::warn( "Lag! ({$this->api})" );
+				Log::warn( "Lag! ({$this->api}) {$response->error->info}" );
+
 				$response = $this->fetch( $request_data, [
 					'wait-anti-dos' => true,
 				] );

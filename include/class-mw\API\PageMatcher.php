@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018 Valerio Bozzolan
+# Copyright (C) 2018, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -67,7 +67,7 @@ class PageMatcher {
 	 * @param $page_containers string|array Page container e.g. 'query'
 	 * @see https://it.wikipedia.org/w/api.php?action=query&prop=info&titles=Ghhh|%20Main%20page
 	 */
-	public function __construct( $response_query, $my_pages, $page_containers = 'query' ) {
+	public function __construct( $response_query, $my_stuff, $page_containers = 'query' ) {
 		$this->responseQuery = $response_query;
 		if( $page_containers ) {
 			if( ! is_array( $page_containers ) ) {
@@ -81,7 +81,7 @@ class PageMatcher {
 				}
 			}
 		}
-		$this->myPages = $my_pages;
+		$this->myPages = $my_stuff;
 	}
 
 	/**
@@ -156,24 +156,42 @@ class PageMatcher {
 	/**
 	 * Walk the response pages matching mine (from a custom key)
 	 *
-	 * @param $my_pages array Array of your custom page objects. Each page object rappresents a requested page.
 	 * @param $matched_callback callback Callback that will be called for each match between a response page and your custom object:
-	 * 	The 1° argument is the response page object.
-	 * 	The 2° argument is your related custom page object.
+	 * 	The 1° argument of the callback will be the response page object.
+	 * 	The 2° argument of the callback will be your related custom page object.
+	 *  The 3° argument of the callback will be the used join key (for debugging purposes).
+	 *  If you return FALSE, the matcher stops.
 	 * @param $my_page_callback callback Callback that must return something from your custom page object:
 	 * 	The 1° argoment is your object.
-	 * 	It must return something (the join key).
+	 * 	It must return something: the join key (often it's the normalized page title or the page id).
 	 * @param $response_page_callback callback Callback that must return something from a response page:
 	 * 	The 1° is a response page object.
-	 * 	It must return something (the join key).
+	 * 	It must return something: the join key (often it's the normalized page title or the page id).
 	 */
 	public function matchByCustomJoin( $matched_callback, $my_page_callback, $response_page_callback ) {
+
+		// for each response page
 		foreach( $this->getResponseQueryPages() as $response_page ) {
+
+			// get a value to be used as join key from response key
 			$response_page_value = $response_page_callback( $response_page );
+
+			// for each of my pages
 			foreach( $this->getMyPages() as $my_page ) {
+
+				// get a value to be used as join key from my page
 				$my_page_value = $my_page_callback( $my_page );
+
+				// compare
 				if( $my_page_value === $response_page_value ) {
-					$matched_callback( $response_page, $my_page );
+
+					// found
+					$loop = $matched_callback( $response_page, $my_page, $my_page_value );
+
+					// if the user returns false, just stop
+					if( $loop === false ) {
+						return;
+					}
 				}
 			}
 		}
@@ -182,7 +200,6 @@ class PageMatcher {
 	/**
 	 * Walk the response pages matching mine (from the page id)
 	 *
-	 * @param $my_pages array Array of your custom page objects. Each page object rappresents a requested page.
 	 * @param $matched_callback callback Callback that will be called for each match between a response page and your custom object:
 	 * 	The 1° argument is the response page object.
 	 * 	The 2° argument is your related custom page object.
@@ -207,36 +224,54 @@ class PageMatcher {
 	/**
 	 * Walk the response pages, matching them and your own objects (from the page title)
 	 *
-	 * @param $my_pages array Array of your custom page objects. Each object rappresents a requested page.
-	 * @param $my_page_id_callback callback Callback that must returns a page title from your custom object.
-	 * 	The 1° is your object.
-	 * 	It must return a page title.
-	 * @param $callback callback Callback that will be called for each of your matched pages.
-	 * 	The 1° argument is your object.
-	 *    If unspecified it means that your object it's the title itself
+	 * @param $matched_callback callback Callback that will be called for each of your matched pages.
+	 *  The 1st argument of the callback will be the response page object.
+	 *  The 2nd argument of the callback will be your related custom page object.
+	 *  The 3° argument of the callback will be the used join key (for debugging purposes).
+	 *  If you return FALSE, the matcher stops.
+	 * @param $my_page_title_callback callback Callback that must returns a page title from your custom object.
+	 * 	 The 1st argument of the callback will be your object.
+	 * 	 It must return a page title.
+	 *   If unspecified it means that your object it's the title itself
 	 */
 	public function matchByTitle( $matched_callback, $my_page_title_callback = null ) {
 		$this->matchByCustomJoin(
 			$matched_callback,
 
-			// callback that returns the page title from my custom page object... normalized!
+			// callback that returns the normalized page title from my custom page object
 			function ( $my_page ) use ( $matched_callback, $my_page_title_callback ) {
 
 				// callback that returns the page title from my custom page object...
 				$title =
-					$my_page_title_callback
+					  $my_page_title_callback
 					? $my_page_title_callback( $my_page )
 					: $my_page; // or it's just the string title itself?
 
-				// normalized!
+				// normalize it
 				return $this->getNormalizedTitle( $title );
 			},
 
-			// callback that returns the page title from the response page object
+			// callback that returns the normalized page title from the response page object
 			function ( $response_page ) {
+
+				// this is the response page title and its always normalized
 				return $response_page->title;
 			}
 		);
 	}
 
+	/**
+	 * Get every match indexed by my original requested page title (not normalized).
+	 *
+	 * @return array Associative array of title => page object
+	 */
+	public function getMatchesByMyTitle() {
+		$matches_by_my_title = [];
+
+		$this->matchByTitle( function( $matched_page, $my_title ) use ( & $matches_by_my_title ) {
+			$matches_by_my_title[ $my_title ] = $matched_page;
+		} );
+
+		return $matches_by_my_title;
+	}
 }

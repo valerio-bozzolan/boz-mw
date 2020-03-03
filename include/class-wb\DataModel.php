@@ -379,9 +379,9 @@ class DataModel {
 				foreach( $claims as $claim ) {
 					$snak = $claim->getMainsnak();
 					if( $snak ) {
-						\cli\Log::info( "\t\t" . $snak->getDataValue() );
+						\cli\Log::info( "\t\t" . $snak->getDataValue()->toPrintableWikitext( $this->site ) );
 					} else {
-						\cli\Log::info( "\t\t" . $claim );
+						\cli\Log::info( "\t\t" . $claim->toPrintableWikitext( $site ) );
 					}
 				}
 			}
@@ -415,7 +415,7 @@ class DataModel {
 		foreach( $this->getClaims() as $claim ) {
 			$snak = $claim->getMainsnak();
 			if( $snak ) {
-				$changes[] = '+' . $snak;
+				$changes[] = '+' . $snak->toPrintableWikitext( $this->site );
 			} elseif( $claim->isMarkedForRemoval() ) {
 				$changes[] = '-claim id=' . $claim->getID();
 			} else {

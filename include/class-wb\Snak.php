@@ -166,15 +166,34 @@ class Snak {
 	/**
 	 * Get a wikilink to this property
 	 *
-	 * @return string
+	 * This may be awared about which is the wiki that will contain this value,
+	 * in order to properly choose a correct permalink in wikilinks etc.
+	 *
+	 * See https://gitpull.it/T221
+	 *
+	 * @param $site object You can eventually specify in which site you want to print this value
+	 * @return      string
 	 */
-	protected function getPropertyWLink() {
+	protected function getPropertyWLink( \mw\Site $site = null ) {
+
+		/**
+		 * If you are on every wiki but Wikidata,
+		 * links to items and properties will fail without
+		 * an interwiki prefix.
+		 *
+		 * See https://gitpull.it/T221
+		 */
+		$prefix = '';
+		if( $site && $site::UID !== 'wikidatawiki' ) {
+			$prefix = 'wikidata:';
+		}
+
 		$prop  = $this->getProperty();
 		$label = $this->getPropertyLabel();
-		if( ! $label ) {
+		if( !$label ) {
 			$label = $prop;
 		}
-		return sprintf( '[[P:%s|%s]]', $prop, $label );
+		return sprintf( '[[%sP:%s|%s]]', $prefix, $prop, $label );
 	}
 
 	/**
@@ -262,12 +281,27 @@ class Snak {
 	}
 
 	/**
+	 * Get a wikitext-compatible version of this value
+	 *
+	 * This may be awared about which is the wiki that will contain this value,
+	 * in order to properly choose a correct permalink in wikilinks etc.
+	 *
+	 * See https://gitpull.it/T221
+	 *
+	 * @param $site object You can eventually specify in which site you want to print this value
+	 * @return      string
+	 */
+	public function toPrintableWikitext( \mw\Site $site = null ) {
+		return sprintf( '%s: %s',
+			$this->getPropertyWLink( $site ),
+			$this->getDataValue()->toPrintableWikitext( $site )
+		);
+	}
+
+	/**
 	 * @return string
 	 */
 	public function __toString() {
-		return sprintf( '%s: %s',
-			$this->getPropertyWLink(),
-			$this->getDataValue()
-		);
+		return $this->toPrintableWikitext();
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2019 Valerio Bozzolan
+# Copyright (C) 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -184,7 +184,7 @@ class Reference {
 
 		// reference snaks
 		if( !isset( $reference_raw['snaks'] ) ) {
-			throw new WrongDataException( 'bad reference object: no snaks field' );
+			throw new WrongDataException( __CLASS__, 'no snaks field' );
 		}
 		foreach( $reference_raw['snaks'] as $property => $snaks_raw ) {
 			foreach( $snaks_raw as $snak_raw ) {

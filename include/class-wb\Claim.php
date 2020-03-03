@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -432,17 +432,40 @@ class Claim {
 	}
 
 	/**
-	 * @override
+	 * Get a wikitext-compatible version of this value
+	 *
+	 * This may be awared about which is the wiki that will contain this value,
+	 * in order to properly choose a correct permalink in wikilinks etc.
+	 *
+	 * See https://gitpull.it/T221
+	 *
+	 * @param $site You can eventually specify in which site you want to print this value
 	 */
-	public function __toString() {
+	public function toPrintableWikitext( \mw\Site $site = null ) {
+
+		// if it's a Snak, just print the DataValue
 		$snak = $this->getMainsnak();
 		if( $snak ) {
-			return $snak->getDataValue();
+			return $snak
+				->getDataValue()
+				->toPrintableWikitext( $site );
 		}
+
+		// eventually show that this Claim is marked for removal
 		$id = $this->getID();
 		if( $id && $this->isMarkedForRemoval() ) {
 			return "remove claim id = $id";
 		}
+
+		// I really can't figure out what do you want to do with me
 		throw new \Exception( 'empty claim' );
+	}
+
+	/**
+	 * @override
+	 */
+	public function __toString() {
+		throw new Exception("asd");
+		return $this->toPrintableWikitext();
 	}
 }

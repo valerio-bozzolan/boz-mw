@@ -497,14 +497,23 @@ class DataModel {
 				$dataModel->setDescription( Description::createFromData( $description ) );
 			}
 		}
-		if( ! empty( $data[ 'claims' ] ) ) {
+
+		/**
+		 * Process the claims... or statements... or whatever damn name they have!
+		 *
+		 * See https://gitpull.it/T223
+		 * See https://phabricator.wikimedia.org/T149410
+		 */
+		$claims = $data['claims'] ?? $data['statements'] ?? null;
+		if( !empty( $claims ) ) {
 			// TODO: Claims::createFromData()
-			foreach( $data[ 'claims' ] as $claims ) {
+			foreach( $claims as $claims ) {
 				foreach( $claims as $claim ) {
 					$dataModel->addClaim( Claim::createFromData( $claim ) );
 				}
 			}
 		}
+
 		if( ! empty( $data[ 'sitelinks' ] ) ) {
 			$dataModel->setSitelinks( Sitelinks::createFromData( $data[ 'sitelinks' ] ) );
 		}

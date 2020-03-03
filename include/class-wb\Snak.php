@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -194,21 +194,37 @@ class Snak {
 	 * @return self
 	 */
 	public static function createFromData( $data ) {
-		if( ! isset( $data['snaktype'], $data['property'], $data['datatype'] ) ) {
-			var_dump( $data );
-			throw new WrongDataException( __CLASS__ );
+
+		// check if the data has these attributes
+		$required_attributes = [
+			'snaktype',
+			'property',
+			'datatype',
+		];
+		foreach( $required_attributes as $required_attribute ) {
+			if( !isset( $data[ $required_attribute ] ) ) {
+				throw new WrongDataException( __CLASS__, "missing $required_attribute" );
+			}
 		}
+
+		// create the Snak
 		$snak = new self(
 			$data['snaktype'],
 			$data['property'],
 			$data['datatype']
 		);
+
+		// eventually set the DataValue
 		if( isset( $data['datavalue'] ) ) {
 			$snak->setDataValue( DataValue::createFromData( $data['datavalue'] ) );
 		}
+
+		// eventually set the hash
 		if( isset( $data['hash'] ) ) {
 			$snak->setHash( $data['hash'] );
 		}
+
+		// that's all
 		return $snak;
 	}
 

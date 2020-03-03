@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -18,11 +18,28 @@
 # Wikibase
 namespace wb;
 
+/**
+ * Exception throw when something in a Wikibase API data is unexpected
+ */
 class WrongDataException extends \Exception {
-	public function __construct( $subject, $code = 0, Throwable $previous = null ) {
-		parent::__construct( sprintf(
-			'invalid %s data',
-			$subject
-		), $code, $previous );
+
+	/**
+	 * Constructor
+	 *
+	 * @param string $subject Class name or subject of the problem
+	 * @param string $message Some additional details
+	 */
+	public function __construct( $subject, $message = null, $code = 0, Throwable $previous = null ) {
+
+		// build an error message
+		$message_prefix = sprintf( "invalid %s data", $subject );
+		if( $message ) {
+			$message = "$message_prefix: $message";
+		} else {
+			$message = $message_prefix;
+		}
+
+		// call the standard parent constructor
+		parent::__construct( $message, $code, $previous );
 	}
 }

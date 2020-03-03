@@ -195,11 +195,19 @@ class Snak {
 	 */
 	public static function createFromData( $data ) {
 
-		// check if the data has these attributes
+		/**
+		 * Check if the data has these attributes
+		 *
+		 * Note that Wikimedia Commons' Structured Data may
+		 * not return any 'datatype'.
+		 *
+		 * See https://gitpull.it/T223
+		 * See https://phabricator.wikimedia.org/T246809
+		 */
 		$required_attributes = [
 			'snaktype',
 			'property',
-			'datatype',
+//			'datatype',
 		];
 		foreach( $required_attributes as $required_attribute ) {
 			if( !isset( $data[ $required_attribute ] ) ) {
@@ -211,7 +219,7 @@ class Snak {
 		$snak = new self(
 			$data['snaktype'],
 			$data['property'],
-			$data['datatype']
+			$data['datatype'] ?? null
 		);
 
 		// eventually set the DataValue

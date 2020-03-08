@@ -283,10 +283,12 @@ class HTTPRequest {
 		// suppress warnings about error 500 (handled later)
 		$response = @file_get_contents( $url, false, $stream_context );
 
-		// Here $http_response_header exists magically (PHP merda!)
-		if( ! isset( $http_response_header ) ) {
-			throw new Exception( 'undefined http_response_header variable: wrong request?' );
+		// here $http_response_header should magically exist but sometime it's not
+		if( !isset( $http_response_header ) ) {
+			throw new MissingResponseHeadersException( $url, $stream_context );
 		}
+
+		// load the response headers
 		$this->loadHTTPResponseHeaders( $http_response_header );
 
 		// Check the HTTP status
@@ -509,7 +511,7 @@ class HTTPRequest {
 
 		// wtf
 		if( null === $status ) {
-			throw new \Exception( 'HTTP response without an HTTP status code' );
+			throw new Exception( "HTTP response without an HTTP status code" );
 		}
 
 		return [ $headers, $status ];

@@ -384,7 +384,7 @@ class HTTPRequest {
 	 * @return bool
 	 */
 	public function haveCookies() {
-		return isset( $this->cookies );
+		return $this->cookies;
 	}
 
 	/**

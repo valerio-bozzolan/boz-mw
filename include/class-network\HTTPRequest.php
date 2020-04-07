@@ -33,7 +33,7 @@ class HTTPRequest {
 	 *
 	 * @var string
 	 */
-	const VERSION = 0.6;
+	const VERSION = 0.7;
 
 	/**
 	 * Source code URL
@@ -109,6 +109,8 @@ class HTTPRequest {
 
 	/**
 	 * Latest HTTP response headers
+	 *
+	 * They are indexed by lowercase header name.
 	 *
 	 * @var array
 	 */
@@ -361,7 +363,9 @@ class HTTPRequest {
 	}
 
 	/**
-	 * Get latest HTTP response headers.
+	 * Get the latest HTTP response headers
+	 *
+	 * They will be indexed by lowercase HTTP header name.
 	 *
 	 * @return array
 	 */
@@ -425,7 +429,7 @@ class HTTPRequest {
 	}
 
 	/**
-	 * Get an array of all the cookies
+	 * Get an array of all the HTTP cookies
 	 *
 	 * @return array
 	 */
@@ -455,11 +459,14 @@ class HTTPRequest {
 	 * It will be analyzed the 'Set-Cookie' response header.
 	 */
 	private function loadHTTPResponseHeaders( $http_response_headers ) {
+
+		// parse the HTTP respose headers and save the last headers and the last status
 		list( $this->latestHttpResponseHeaders, $this->latestHttpResponseStatus )
 			= self::parseHTTPResponseHeaders( $http_response_headers );
 
-		if( isset( $this->latestHttpResponseHeaders['Set-Cookie'] ) ) {
-			foreach( $this->latestHttpResponseHeaders['Set-Cookie'] as $cookie ) {
+		// parse each cookie (the header name will be always case insensitive)
+		if( isset( $this->latestHttpResponseHeaders['set-cookie'] ) ) {
+			foreach( $this->latestHttpResponseHeaders['set-cookie'] as $cookie ) {
 				$this->setRawCookie( $cookie );
 			}
 		}
@@ -485,18 +492,26 @@ class HTTPRequest {
 	/**
 	 * Group HTTP headers by keys and get the HTTP Status.
 	 *
-	 * @param array $http_response_headers
+	 * Note that the keys always will be lowercase e.g. 'set-cookie'.
+	 *
+	 * @param  array $http_response_headers
 	 * @return array The first element contains an associative array of header name and value(s). The second one contains the Status.
 	 */
 	private static function parseHTTPResponseHeaders( $http_response_headers ) {
+
 		$status = null;
 		$headers = [];
 		foreach( $http_response_headers as $header ) {
-			// Check if it's an header like 'Foo: bar'
+
+			// check if it's an header like 'Foo: bar'
 			$header_parts = explode(':', $header, 2);
 			if( 2 === count( $header_parts ) ) {
 				list( $name, $value ) = $header_parts;
-				if( ! isset( $headers[ $name ] ) ) {
+
+				// the header names must be considered case-insensitive
+				$name = strtolower( $name );
+
+				if( !isset( $headers[ $name ] ) ) {
 					$headers[ $name ] = [];
 				}
 				$headers[ $name ][] = ltrim( $value );

@@ -132,7 +132,7 @@ foreach( $requests as $request ) {
 
 			// allow to pause the script
 			if( $INTERACTIVE ) {
-				Input::ask( "press ENTER" );
+				Input::askInput( "(Press ENTER)" );
 			}
 		}
 

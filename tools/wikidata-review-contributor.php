@@ -35,11 +35,12 @@ ConfigWizard::requireOrCreate( __DIR__ . '/config.php' );
 
 // register all CLI parameters
 $opts = new Opts( [
-	new ParamFlag( 'help', 'h', "Show this help and quit" ),
+	new ParamFlag( 'help',        'h', "Show this help and quit" ),
+	new ParamFlag( 'interactive', 'i', "Enter in interactive mode" ),
 ] );
 
 // check if the software is interactive or not
-$INTERACTIVE = true;
+$INTERACTIVE = $opts->getArg( 'interactive' );
 
 // command line arguments
 $arguments = Opts::unnamedArguments();

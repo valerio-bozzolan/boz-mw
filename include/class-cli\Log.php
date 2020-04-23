@@ -45,11 +45,6 @@ class Log {
 	public static $SENSITIVE = false;
 
 	/**
-	 *
-	 */
-	public static $NO_STDOUT = null;
-
-	/**
 	 * Format in use when we are in command line mode
 	 *
 	 * Order of arguments:
@@ -78,6 +73,13 @@ class Log {
 	 * @var string
 	 */
 	public static $DATE_FORMAT = 'Y-m-d H:i:s';
+
+	/**
+	 * If defined, this file will be used to append log shit
+	 *
+	 * @var string
+	 */
+	public static $DEDICATED_FILEPATH = null;
 
 	/**
 	 * Show a warning
@@ -176,12 +178,32 @@ class Log {
 		$date = date( self::$DATE_FORMAT );
 		$msg = sprintf( $format, $date, $type, $message );
 
-		if( $cli ) {
-			// in command line, just print everything to stdout
-			echo $msg;
+		// check if we have to write into a dedicated file (default to no)
+		if( self::$DEDICATED_FILEPATH ) {
+
+			// try to append something in the log file
+			$status = file_put_contents( self::$DEDICATED_FILEPATH, $msg, FILE_APPEND | LOCK_EX );
+
+			// no log no party
+			if( $status === false ) {
+				throw new \Exception( sprintf(
+					"apologize Sir but we are very sad to note that we cannot write in your damn log file '%s'",
+					self::$DEDICATED_FILEPATH
+				) );
+			}
+
 		} else {
-			// in a webserver, just print everything in the syslog
-			error_log( $msg );
+
+			// do not write into a dedicated file
+
+			// check if we are in command line mode
+			if( $cli ) {
+				// in command line, just print everything to stdout
+				echo $msg;
+			} else {
+				// in a webserver, just print everything in the syslog
+				error_log( $msg );
+			}
 		}
 	}
 

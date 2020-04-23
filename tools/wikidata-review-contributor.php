@@ -37,10 +37,14 @@ ConfigWizard::requireOrCreate( __DIR__ . '/config.php' );
 $opts = new Opts( [
 	new ParamFlag( 'help',        'h', "Show this help and quit" ),
 	new ParamFlag( 'interactive', 'i', "Enter in interactive mode" ),
+	new ParamFlag( 'nologin',     'n', "If you do not want to login" ),
 ] );
 
 // check if the software is interactive or not
 $INTERACTIVE = $opts->getArg( 'interactive' );
+
+// check if we want to login
+$NOLOGIN = $opts->getArg( 'nologin' );
 
 // command line arguments
 $arguments = Opts::unnamedArguments();
@@ -81,7 +85,9 @@ if( $show_help ) {
 $wikidata = Wikidata::instance();
 
 // login to download more infos
-$wikidata->login();
+if( !$NOLOGIN ) {
+	$wikidata->login();
+}
 
 // an array of item IDs
 $ids = [];
@@ -142,14 +148,14 @@ foreach( $requests as $request ) {
 
 	}
 
-	Log::info( "Last date: $lastcontribdate (total $allcontribs)" );
+	Log::info( "Last date: $lastcontribdate (read $allcontribs contribs)" );
 }
 
 // riepilogue
 Log::info( "RIEPILOGUE"                                  );
 Log::info( "  Read contributions:      $allcontribs"     );
 Log::info( "  Last contribution read:  $lastcontribdate" );
-Log::info( "  Total founds:            $founds"          );
+Log::info( "  Total matches:           $founds"          );
 
 if( !$founds ) {
 	Log::error( "Sorry, no results found!" );

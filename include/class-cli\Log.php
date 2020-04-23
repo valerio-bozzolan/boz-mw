@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -43,6 +43,41 @@ class Log {
 	 * @var bool
 	 */
 	public static $SENSITIVE = false;
+
+	/**
+	 *
+	 */
+	public static $NO_STDOUT = null;
+
+	/**
+	 * Format in use when we are in command line mode
+	 *
+	 * Order of arguments:
+	 *   Date, Type, Message
+	 *
+	 * @var string
+	 */
+	public static $FORMAT_COMMAND_LINE = '[%1$s][%2$s] %3$s';
+
+	/**
+	 * Format in use when we are in webserver mode
+	 *
+	 * Order of arguments:
+	 *   Date, Type, Message
+	 *
+	 * As default the Date is not printed because usually
+	 * Apache or Nginx already append it.
+	 *
+	 * @var string
+	 */
+	public static $FORMAT_WEBSERVER = '%2$s %3$s';
+
+	/**
+	 * Format used to eventually print dates in the log
+	 *
+	 * @var string
+	 */
+	public static $DATE_FORMAT = 'Y-m-d H:i:s';
 
 	/**
 	 * Show a warning
@@ -124,14 +159,29 @@ class Log {
 			'newline' => true,
 		], $args );
 
-		if( $args[ 'newline' ] ) {
+		// eventually end with a newline
+		if( $args['newline'] ) {
 			$message .= "\n";
 		}
-		if( isset( $_SERVER['argv'] ) ) {
-			$date = date( 'Y-m-d H:i:s' );
-			printf( "[%s][%s] %s", $date, $type, $message );
+
+		// check if we are in command line mode
+		$cli = isset( $_SERVER['argv'] );
+
+		// are we in command line?
+		$format = $cli
+			? self::$FORMAT_COMMAND_LINE
+			: self::$FORMAT_WEBSERVER;
+
+		// in command line print a nice format with a date
+		$date = date( self::$DATE_FORMAT );
+		$msg = sprintf( $format, $date, $type, $message );
+
+		if( $cli ) {
+			// in command line, just print everything to stdout
+			echo $msg;
 		} else {
-			error_log( "$type $message" );
+			// in a webserver, just print everything in the syslog
+			error_log( $msg );
 		}
 	}
 

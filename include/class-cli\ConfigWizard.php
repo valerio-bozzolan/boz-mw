@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2019 Valerio Bozzolan
+# Copyright (C) 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -54,7 +54,7 @@ class ConfigWizard {
 					"Example name:",
 					"  VolleyImportStuff\"",
 					"",
-					"Now from check the permissions you will use and then click again on \"Create\".",
+					"Now check all the permissions you will need and then click again on \"Create\".",
 					"",
 					"Example generated username (note that it has '@'):",
 					"  JhonDoo@VolleyImportStuff",
@@ -65,7 +65,7 @@ class ConfigWizard {
 				'mw\API::$DEFAULT_PASSWORD',
 				"Generated bot password",
 				"Please paste here your generated bot password", [
-					"Note that it shold be very long and without '@'.",
+					"Note that it should be very long and without '@'.",
 				]
 			);
 
@@ -75,6 +75,12 @@ class ConfigWizard {
 			// write the configuration file
 			echo "Writing '$configuration_path'...\n";
 			file_put_contents( $configuration_path, $content );
+
+			echo " _____________________________________ \n";
+			echo "|                                     |\n";
+			echo "| END OF THE CONFIGURATION WIZARD     |\n";
+			echo "|_____________________________________|\n";
+			echo "\n";
 		}
 
 		// include the configuration file

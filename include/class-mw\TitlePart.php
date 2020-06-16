@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -56,8 +56,24 @@ class TitlePart {
 		return $s;
 	}
 
+	/**
+	 * Convert underscores to spaces
+	 *
+	 * @param string $s
+	 * @return s
+	 */
 	public static function underscore2space( $s ) {
-		return str_replace('_', ' ', $s);
+		return str_replace( '_', ' ', $s );
+	}
+
+	/**
+	 * Convert spaces to underscores
+	 *
+	 * @param string $s
+	 * @return s
+	 */
+	public static function space2underscore( $s ) {
+		return str_replace( ' ', '_', $s );
 	}
 
 	/**

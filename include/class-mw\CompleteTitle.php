@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2019 Valerio Bozzolan
+# Copyright (C) 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -43,9 +43,9 @@ class CompleteTitle {
 	/**
 	 * Constructor
 	 *
-	 * @param $wiki object
-	 * @param $ns object
-	 * @param $title object
+	 * @param $wiki  object Dependency injection of the wiki
+	 * @param $ns    object Dependency injection of the namespace
+	 * @param $title object Dependency injection of the Title object (the part after the namespace)
 	 */
 	public function __construct( $wiki, Ns $ns, Title $title ) {
 		$this->wiki  = $wiki;
@@ -72,7 +72,7 @@ class CompleteTitle {
 	}
 
 	/**
-	 * Get the complete title, as displayed in a page
+	 * Get the complete title, as displayed in a page, without underscores
 	 *
 	 * @return string
 	 */
@@ -80,9 +80,32 @@ class CompleteTitle {
 		$title = $this->getTitle()->get();
 		$ns = $this->getNs()->getName();
 		if( $ns ) {
-			$ns .= ":";
+			$ns .= ':';
 		}
 		return $ns . $title;
+	}
+
+	/**
+	 * Get the complete title, as displayed in a page, but with underscores
+	 *
+	 * @return string
+	 */
+	public function getCompleteTitleUnderscored() {
+		$title = $this->getCompleteTitle();
+		return TitlePart::space2underscore( $title );
+	}
+
+	/**
+	 * Get the {{SUBPAGENAME}} for this complete page title
+	 *
+	 * It reproduces the MediaWiki {{SUBPAGENAME}} behaviour, so:
+	 *  - return 'asd'        from 'Discussion:The/asd'
+	 *  - return 'Discussion' from 'Discussion:Asd'
+	 *
+	 * See https://www.mediawiki.org/wiki/Help:Magic_words
+	 */
+	public function getSubPageName() {
+		return $this->getTitle()->getSubPageName();
 	}
 
 	/**
@@ -127,6 +150,17 @@ class CompleteTitle {
 	 */
 	public function createWikilink( $alias = null ) {
 		return new Wikilink( $this, $alias );
+	}
+
+	/**
+	 * Get the URL to this page
+	 *
+	 * @return string
+	 */
+	public function getURL() {
+		$title = $this->getCompleteTitleUnderscored();
+		$title = urlencode( $title );
+		return $this->wiki->getBaseURL() . $title;
 	}
 
 	/**

@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,9 @@
 # MediaWiki
 namespace mw;
 
+/**
+ * A generic MediaWiki website
+ */
 class Site {
 
 	/**
@@ -49,12 +52,28 @@ class Site {
 	private $uid;
 
 	/**
+	 * Public MediaWiki base URL
+	 *
+	 * e.g. 'https://www.mediawiki.org/wiki/'
+	 *
+	 * It's the base for every public page.
+	 *
+	 * @var string
+	 */
+	private $baseURL;
+
+	/**
 	 * Constructor
 	 *
-	 * @param $url string MediaWiki API URL
+	 * @param $api_url string MediaWiki API URL
 	 */
-	public function __construct( $url ) {
-		$this->api = new API( $url );
+	public function __construct( $api_url ) {
+		$this->api = new API( $api_url );
+
+		// just for laziness, to avoid some refactors.
+		// actually the user provides the API URL and not
+		// other stuff. So just use the API URL.
+		$this->guessBaseURLFromAPIURL( $api_url );
 	}
 
 	/**
@@ -277,6 +296,30 @@ class Site {
 	}
 
 	/**
+	 * Set the MediaWiki base URL
+	 *
+	 * Often it ends with '/wiki/'
+	 *
+	 * @param string $base_url
+	 * @return self
+	 */
+	public function setBaseURL( $base_url ) {
+		$this->baseURL = $base_url;
+		return $this;
+	}
+
+	/**
+	 * Get the MediaWiki base URL
+	 *
+	 * Often it ends with '/wiki/'
+	 *
+	 * @return string
+	 */
+	public function getBaseURL() {
+		return $this->baseURL;
+	}
+
+	/**
 	 * Get the UID
 	 *
 	 * @return null|string e.g. 'enwiki'
@@ -343,5 +386,25 @@ class Site {
 	 */
 	public static function createFromAPIURL( $url ) {
 		return new static( $url );
+	}
+
+	/**
+	 * Guess the MediaWiki base URL from the API URL
+	 *
+	 * I know, I know, it's not that simple! Calm down.
+	 * Anyway 99% of the world has the API in /w/api.php and the website at /wiki/.
+	 * If you do not appreciate this, just call setBaseURL() manually.
+	 *
+	 * I do not want to start adding random arguments in the Site() constructor.
+	 *
+	 * I thought: a smart default plus the ability to override it should be effective.
+	 * ...isn't it?
+	 *
+	 * @param string $api_url API URL
+	 */
+	protected function guessBaseURLFromAPIURL( $api_url ) {
+
+		// I know, I know, it's not that simple
+		$this->setBaseURL( str_replace( '/w/api.php', '/wiki/', $api_url ) );
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2019 Valerio Bozzolan
+# Copyright (C) 2017, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -36,6 +36,17 @@ class Title extends TitlePartCapitalized {
 	public function __construct( $name, $site ) {
 		parent::__construct( $name );
 		$this->site = $site;
+	}
+
+	/**
+	 * Get the {{SUBPAGENAME}} for this complete page title
+	 *
+	 * Returns 'asd' from 'The/great/asd'
+	 *
+	 * See https://www.mediawiki.org/wiki/Help:Magic_words
+	 */
+	public function getSubPageName() {
+		return basename( $this->get() );
 	}
 
 	/**

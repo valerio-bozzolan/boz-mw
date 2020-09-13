@@ -45,7 +45,12 @@ class Input {
 				$choice = strtoupper( $choice );
 			}
 		}
-		return self::askInput( "$question [" . implode( '/', $choices ) . "]", $default );
+
+		// ask the user input
+		$result = self::askInput( "$question [" . implode( '/', $choices ) . "]", $default );
+
+		// eventually convert the default Y to y again
+		return strtolower( $result );
 	}
 
 	/**

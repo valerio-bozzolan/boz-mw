@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -200,6 +200,10 @@ class API extends \network\HTTPRequest {
 	 * Login into MediaWiki using an username/password pair.
 	 *
 	 * Yes, I'm talking about a bot password.
+	 *
+	 * @param  string $username Username
+	 * @param  string $password Password
+	 * @return self
 	 */
 	public function login( $username = null, $password = null ) {
 
@@ -212,15 +216,17 @@ class API extends \network\HTTPRequest {
 			$password = self::$DEFAULT_PASSWORD;
 		}
 
-		if( ! $username || ! $password ) {
+		// no password no party
+		if( !$username || !$password ) {
 			throw new \Exception( sprintf(
 				'you must call %1$s#login( $username, $password ) or '.
 				'set %1$s::$DEFAULT_USERNAME and %1$s::$DEFAULT_PASSWORD ' .
-				'before POSTing',
+				'before trying to login',
 				__CLASS__
 			) );
 		}
 
+		// keep track of the login
 		Log::info( "login with username '$username'" );
 
 		// Login
@@ -230,13 +236,18 @@ class API extends \network\HTTPRequest {
 			'lgpassword' => $password,
 			'lgtoken'    => $this->getToken( Tokens::LOGIN ),
 		], [
-			'sensitive' => true
+			// do not show this sensitive data in cleartext in the log
+			'sensitive' => true,
 		] );
-		if( ! isset( $response->login->result ) || $response->login->result !== 'Success' ) {
+
+		// no success no party
+		// TODO: create ExceptionLoginFailed and pass $response to it
+		if( !isset( $response->login->result ) || $response->login->result !== 'Success' ) {
 			print_r( $response );
 			throw new \Exception("login failed");
 		}
 
+		// remember the username
 		$this->username = $response->login->lgusername;
 
 		return $this;

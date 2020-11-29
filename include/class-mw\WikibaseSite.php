@@ -31,6 +31,8 @@ class WikibaseSite extends Site {
 	 *
 	 * @param $entity_id string Entity Q-ID
 	 * @param $data array Additional data such as [ 'props' => '..' ]
+	 *   Some available props:
+	 *      aliases, claims, datatype, descriptions, info, labels, sitelinks, sitelinks/urls
 	 * @return wb\DataModel
 	 */
 	public function fetchSingleEntity( $entity_id, $data = [] ) {

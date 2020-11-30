@@ -132,29 +132,9 @@ if( ! $help && $opts->getArg( 'regex' ) && $opts->getArg( 'plain' ) ) {
 if( $help ) {
 	echo "Usage:\n {$argv[ 0 ]} [OPTIONS] SEARCH... REPLACE...\n";
 	echo "Allowed OPTIONS:\n";
-	foreach( $opts->getParams() as $param ) {
-		$commands = [];
-		if( $param->hasLongName() ) {
-			$commands[] = '--' . $param->getLongName();
-		}
-		if( $param->hasShortName() ) {
-			$commands[] = '-' . $param->getShortName();
-		}
-		$command = implode( '|', $commands );
-		if( $command && ! $param->isFlag() ) {
-			$command .= $param->isValueOptional()
-				? '=[VALUE]'
-				: '=VALUE';
-		}
-		if( $param instanceof APIParamSub ) {
-			echo ' ';
-		}
-		printf( ' % -20s ', $command );
-		if( $param->hasDescription() ) {
-			echo ' ' . $param->getDescription();
-		}
-		echo "\n";
-	}
+
+	$opts->printParams();
+
 	echo "Example:\n {$argv[ 0 ]} --wiki=itwiki --generator=allpages 'a' 'afa'\n";
 	if( is_string( $help ) ) {
 		echo "\nError: $help\n";

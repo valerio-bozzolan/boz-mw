@@ -1,6 +1,7 @@
 #!/usr/bin/php
 <?php
-# Copyright (C) 2019 Valerio Bozzolan
+# boz-mw - Another MediaWiki API framework
+# Copyright (C) 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -86,26 +87,9 @@ if( $show_help ) {
 if( $show_help ) {
 	echo "Usage:\n {$argv[ 0 ]} --wiki=WIKI --file=out.xml [OPTIONS] Page_title\n";
 	echo "Allowed OPTIONS:\n";
-	foreach( $opts->getParams() as $param ) {
-		$commands = [];
-		if( $param->hasLongName() ) {
-			$commands[] = '--' . $param->getLongName();
-		}
-		if( $param->hasShortName() ) {
-			$commands[] = '-' . $param->getShortName();
-		}
-		$command = implode( '|', $commands );
-		if( $command && ! $param->isFlag() ) {
-			$command .= $param->isValueOptional()
-				? '=[VALUE]'
-				: '=VALUE';
-		}
-		printf( ' % -20s ', $command );
-		if( $param->hasDescription() ) {
-			echo ' ' . $param->getDescription();
-		}
-		echo "\n";
-	}
+
+	$opts->printParams();
+
 	foreach( $messages as $msg ) {
 		echo "\nError: $msg";
 	}

@@ -64,4 +64,20 @@ abstract class MediaWikis {
 		return false;
 	}
 
+	/**
+	 * Get all the registered MediaWiki UIDs ordered alphabetically
+	 *
+	 * @return array
+	 */
+	public static function allUIDs() {
+		$all = [];
+
+		foreach( self::all() as $wiki ) {
+			$all[] = $wiki::UID;
+		}
+
+		sort( $all );
+
+		return $all;
+	}
 }

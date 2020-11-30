@@ -40,11 +40,7 @@ use \web\MediaWikis;
 use \mw\API\PageMatcher;
 
 // all the available wiki UIDs
-$mediawiki_uids = [];
-foreach( MediaWikis::all() as $site ) {
-	$mediawiki_uids[] = $site::UID;
-}
-$mediawiki_uids = implode( ', ', $mediawiki_uids );
+$mediawiki_uids = implode( ', ', MediaWikis::allUIDs() );
 
 // register all CLI parameters
 $opts = new Opts( [

@@ -35,3 +35,30 @@
 function wiki( $uid ) {
 	return \web\MediaWikis::findFromUID( $uid );
 }
+
+/**
+ * Get Wikidata
+ *
+ * @return wm\Wikidata
+ */
+function wikidata() {
+	return wiki( 'wikidatawiki' );
+}
+
+/**
+ * Get Wikimedia Commons
+ *
+ * @return wm\Wikidata
+ */
+function commons() {
+	return wiki( 'commonswiki' );
+}
+
+/**
+ * Get the Italian Wikipedia
+ *
+ * @return wm\WikipediaIt
+ */
+function itwiki() {
+	return wiki( 'itwiki' );
+}

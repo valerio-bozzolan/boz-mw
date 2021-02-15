@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -342,7 +342,7 @@ class Site {
 	 *
 	 * @param $title string Page title without namespace prefix
 	 * @param $ns int Namespace number
-	 * @return object
+	 * @return CompleteTitle
 	 */
 	public function createTitle( $title, $ns = 0 ) {
 		return new CompleteTitle( $this, $this->getNamespace( $ns ), new Title( $title, $this ) );
@@ -352,7 +352,7 @@ class Site {
 	 * Create a CompleteTitle object
 	 *
 	 * @param $s Page title with namespace prefix
-	 * @return object
+	 * @return CompleteTitle
 	 */
 	public function createTitleParsing( $s ) {
 		return CompleteTitle::createParsingTitle( $this, $s );

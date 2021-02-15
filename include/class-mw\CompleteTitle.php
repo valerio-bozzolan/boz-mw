@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2019, 2020 Valerio Bozzolan
+# Copyright (C) 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -56,7 +56,7 @@ class CompleteTitle {
 	/**
 	 * Get the namespace object
 	 *
-	 * @return object
+	 * @return Ns
 	 */
 	public function getNs() {
 		return $this->ns;
@@ -65,7 +65,7 @@ class CompleteTitle {
 	/**
 	 * Get the title object
 	 *
-	 * @return object
+	 * @return Title
 	 */
 	public function getTitle() {
 		return $this->title;

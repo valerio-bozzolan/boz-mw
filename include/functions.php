@@ -1,6 +1,7 @@
+#!/usr/bin/php
 <?php
-# Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018, 2019, 2020, 2021 Valerio Bozzolan
+# boz-mw - Another MediaWiki API framework
+# Copyright (C) 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -16,19 +17,21 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Minimal autoload (without functions)
- *
- * This is useful if you like creating frameworks.
- *
- * If you love creating bots instead, see the 'autoload-with-laser-cannon.php'.
+ * Shortcuts very useful when you are creating a bot
  */
 
 /**
- * Autoload classes on-demand
+ * Get a single wiki from its UID
+ *
+ * Some known UIDs:
+ *  wikidatawiki - Wikidata
+ *  commonswiki  - Wikimedia Commons
+ *  metawiki     - Meta-wiki
+ *  itwiki       - Wikipedia (it)
+ *
+ * @param string $uid
+ * @return mw\StaticSite
  */
-spl_autoload_register( function( $name ) {
-	$path = __DIR__ . "/include/class-$name.php";
-	if( is_file( $path ) ) {
-		require $path;
-	}
-} );
+function wiki( $uid ) {
+	return \web\MediaWikis::findFromUID( $uid );
+}

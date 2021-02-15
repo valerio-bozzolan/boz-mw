@@ -16,19 +16,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Minimal autoload (without functions)
+ * Complete autoload (with functions)
  *
- * This is useful if you like creating frameworks.
+ * This is useful if you like to create bots.
  *
- * If you love creating bots instead, see the 'autoload-with-laser-cannon.php'.
+ * If you love creating frameworks instead, see the 'autoload.php'.
  */
 
-/**
- * Autoload classes on-demand
- */
-spl_autoload_register( function( $name ) {
-	$path = __DIR__ . "/include/class-$name.php";
-	if( is_file( $path ) ) {
-		require $path;
-	}
-} );
+// autoload the classes
+require __DIR__ . '/autoload.php';
+
+// load some functions
+require __DIR__ . '/include/functions.php';

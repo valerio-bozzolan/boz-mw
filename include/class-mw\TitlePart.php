@@ -94,4 +94,11 @@ class TitlePart {
 		// [[_ _ Main_ _ _ page _ _ ]]
 		return str_replace( ' ', '[ _]+', $s );
 	}
+
+	/**
+	 * Simple version to obtain the content of this
+	 */
+	public function __toString() {
+		return $this->get();
+	}
 }

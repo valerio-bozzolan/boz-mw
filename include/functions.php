@@ -61,3 +61,12 @@ function commons() {
 function itwiki() {
 	return wiki( 'itwiki' );
 }
+
+/**
+ * Enable debug mode
+ *
+ * @param $status status Enable debug or not
+ */
+function bozmw_debug( $status = true ) {
+	\cli\Log::$DEBUG = $status;
+}

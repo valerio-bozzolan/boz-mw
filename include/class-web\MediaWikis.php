@@ -1,6 +1,6 @@
 <?php
-# Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018, 2019 Valerio Bozzolan
+# boz-mw - Another MediaWiki API handler in PHP
+# Copyright (C) 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,8 @@ abstract class MediaWikis {
 	/**
 	 * Get all the registered MediaWiki classes
 	 *
+	 * TODO: Smarter way.
+	 *
 	 * @return array
 	 */
 	protected static function allClasses() {
@@ -34,6 +36,7 @@ abstract class MediaWikis {
 			\wm\Wikidata         ::class,
 			\wm\Commons          ::class,
 			\wm\MetaWiki         ::class,
+			\web\WikimediaCH     ::class,
 			\web\LandscapeforWiki::class,
 		];
 	}

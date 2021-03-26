@@ -1,4 +1,3 @@
-#!/usr/bin/php
 <?php
 # boz-mw - Another MediaWiki API framework
 # Copyright (C) 2019, 2020, 2021 Valerio Bozzolan

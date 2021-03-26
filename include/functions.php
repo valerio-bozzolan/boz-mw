@@ -63,6 +63,15 @@ function itwiki() {
 }
 
 /**
+ * Get the Wikimedia CH members wiki
+ *
+ * @return web\WikimediaCH
+ */
+function wmch() {
+	return wiki( 'wmch' );
+}
+
+/**
  * Enable debug mode
  *
  * @param $status status Enable debug or not

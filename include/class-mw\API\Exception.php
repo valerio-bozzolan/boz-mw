@@ -66,6 +66,7 @@ class Exception extends \Exception {
 			ProtectedPageException   ::class,
 			PermissionDeniedException::class,
 			ReadOnlyException        ::class,
+			ReadApiDeniedException   ::class,
 
 			// Wikibase related
 			NoSuchEntityException      ::class,

@@ -70,3 +70,25 @@ function itwiki() {
 function bozmw_debug( $status = true ) {
 	\cli\Log::$DEBUG = $status;
 }
+
+/**
+ * Serialize some data and write into a file
+ *
+ * @param $file string File path
+ * @param $data mixed Your data
+ */
+function file_put_data( $file, $data ) {
+	$data_raw = serialize( $data );
+	file_put_contents( $file, $data_raw );
+}
+
+/**
+ * Unserialize some data from a file
+ *
+ * @param $file string File path
+ * @return mixed Data
+ */
+function file_get_data( $file ) {
+	$contents = file_get_contents( $file );
+	return unserialize( $contents );
+}

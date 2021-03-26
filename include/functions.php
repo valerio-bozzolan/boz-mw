@@ -45,6 +45,15 @@ function wikidata() {
 }
 
 /**
+ * Get Wikimedia Meta-wiki
+ *
+ * @return wm\MetaWiki
+ */
+function meta() {
+	return wiki( 'metawiki' );
+}
+
+/**
  * Get Wikimedia Commons
  *
  * @return wm\Wikidata

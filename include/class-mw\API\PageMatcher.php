@@ -1,6 +1,6 @@
 <?php
-# Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018, 2019, 2020 Valerio Bozzolan
+# boz-mw - Another MediaWiki API handler in PHP
+# Copyright (C) 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -41,6 +41,13 @@ class PageMatcher {
 	private $normalizedTitles;
 
 	/**
+	 * Name of the data container
+	 *
+	 * @var string
+	 */
+	private $dataContainer;
+
+	/**
 	 * Array of my custom page objects
 	 *
 	 * @var array
@@ -64,24 +71,52 @@ class PageMatcher {
 	 * 		]
 	 * 	}
 	 * @param $my_pages array My custom page objects
-	 * @param $page_containers string|array Page container e.g. 'query'
+	 * @param $query_containers string|array Container of the queried response e.g. [ 'query' ]
+	 * @param $data_container   string       Container of the pages e.g. 'pages'
 	 * @see https://it.wikipedia.org/w/api.php?action=query&prop=info&titles=Ghhh|%20Main%20page
 	 */
-	public function __construct( $response_query, $my_stuff, $page_containers = 'query' ) {
+	public function __construct( $response_query, $my_stuff, $query_containers = null, $data_container = null ) {
+
+		// default containers
+		if( !$query_containers ) {
+			$query_containers = [ 'query' ];
+		}
+
+		// default container of the results
+		if( !$data_container ) {
+			$data_container = 'pages';
+		}
+
 		$this->responseQuery = $response_query;
-		if( $page_containers ) {
-			if( ! is_array( $page_containers ) ) {
-				$page_containers = [ $page_containers ];
+		if( $query_containers ) {
+			if( !is_array( $query_containers ) ) {
+				$query_containers = [ $query_containers ];
 			}
-			foreach( $page_containers as $page_container ) {
-				if( isset( $this->responseQuery->{ $page_container } ) ) {
-					$this->responseQuery = $this->responseQuery->{ $page_container };
+			foreach( $query_containers as $query_container ) {
+				if( isset( $this->responseQuery->{ $query_container } ) ) {
+					$this->responseQuery = $this->responseQuery->{ $query_container };
 				} else {
-					throw new \Exception( "missing property $page_container in the response" );
+					throw new \Exception( "missing property $query_container in the response" );
 				}
 			}
 		}
+
 		$this->myPages = $my_stuff;
+
+		$this->dataContainer = $data_container;
+
+		$this->validate();
+	}
+
+	/**
+	 * Check if this object has sense or throw
+	 */
+	private function validate() {
+
+		// check if ->query->pages exists
+		if( !isset( $this->getResponseQuery()->{ $this->dataContainer } ) ) {
+			throw new \Exception( "expected '->{$this->dataContainer}' in the response - try updating your '\$data_container' - see the constructor (4 argument)" );
+		}
 	}
 
 	/**
@@ -99,7 +134,7 @@ class PageMatcher {
 	 * @return array
 	 */
 	public function getResponseQueryPages() {
-		return $this->getResponseQuery()->pages;
+		return $this->getResponseQuery()->{ $this->dataContainer };
 	}
 
 	/**
@@ -126,6 +161,8 @@ class PageMatcher {
 	 * @result array e.g. [ ' a' => 'A', ... ]
 	 */
 	public function getNormalizedTitles() {
+
+		// initialize only once
 		if( null === $this->normalizedTitles ) {
 			$this->normalizedTitles = [];
 			if( $this->hasNormalizedTitles() ) {
@@ -134,6 +171,7 @@ class PageMatcher {
 				}
 			}
 		}
+
 		return $this->normalizedTitles;
 	}
 
@@ -168,7 +206,12 @@ class PageMatcher {
 	 * 	The 1° is a response page object.
 	 * 	It must return something: the join key (often it's the normalized page title or the page id).
 	 */
-	public function matchByCustomJoin( $matched_callback, $my_page_callback, $response_page_callback ) {
+	public function matchByCustomJoin( $matched_callback, $my_page_callback, $response_page_callback = null ) {
+
+		// allow lazy calls
+		if( !$response_page_callback ) {
+			$response_page_callback = $my_page_callback;
+		}
 
 		// for each response page
 		foreach( $this->getResponseQueryPages() as $response_page ) {

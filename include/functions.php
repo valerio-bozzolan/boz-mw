@@ -81,6 +81,22 @@ function wmch() {
 }
 
 /**
+ * Merge your custom page objects with the API response pages
+ *
+ * Useful when you try to retrieve informations from many pages
+ * with less request as possible.
+ *
+ * @param $response_query   object
+ * @param $my_stuff         array
+ * @param $query_containers array|string e.g. 'query'
+ * @param $page_containers  string e.g. 'pages' or 'users'
+ * @return array
+ */
+function response_matcher( $response_query, $my_stuff, $query_containers = [], $page_container = null ) {
+	return new \mw\API\PageMatcher( $response_query, $my_stuff, $query_containers, $page_container );
+}
+
+/**
  * Enable debug mode
  *
  * @param $status status Enable debug or not

@@ -1,6 +1,6 @@
 <?php
-# Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018 Valerio Bozzolan
+# boz-mw - Another MediaWiki API handler in PHP
+# Copyright (C) 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -77,18 +77,27 @@ class Param {
 	private $description;
 
 	/**
+	 * Default value
+	 *
+	 * @var string|null
+	 */
+	private $defaultVal;
+
+	/**
 	 * Constructor
 	 *
-	 * @param $long_name string Long name
-	 * @param $short_name string Short name
-	 * @param $value_kind int Value kind
-	 * @param $description string Description
+	 * @param $long_name   string Long name like 'custom-option-name'
+	 * @param $short_name  string Short name like 'c'
+	 * @param $value_kind  int    Value kind (1 = NO VALUE, 2 = OPTIONAL VALUE, 3 = REQUIRED VALUE)
+	 * @param $description string Short human description
+	 * @param $default_val string Default value
 	 */
-	public function __construct( $long_name, $short_name, $value_kind, $description ) {
+	public function __construct( $long_name, $short_name = null, $value_kind = null, $description = null, $default_val = null ) {
 		$this->longName = $long_name;
 		$this->setShortName( $short_name );
 		$this->setValueKind( $value_kind );
 		$this->setDescription( $description );
+		$this->defaultVal = $default_val;
 	}
 
 	/**
@@ -158,6 +167,24 @@ class Param {
 	}
 
 	/**
+	 * Check if the option has a default value
+	 *
+	 * @return boolean
+	 */
+	public function hasDefaultValue() {
+		return null !== $this->getDefaultValue();
+	}
+
+	/**
+	 * Get the default value (if any)
+	 *
+	 * @return string|null
+	 */
+	public function getDefaultValue() {
+		return $this->defaultVal;
+	}
+
+	/**
 	 * Check if a name belongs to this parameter
 	 *
 	 * @param string $name Long or short parameter name
@@ -179,11 +206,17 @@ class Param {
 	/**
 	 * Get the parameter's argument or a default one
 	 *
-	 * @param $default string Default value
+	 * @param $default_val string Default value
 	 * @return string|null
 	 */
-	public function getValue( $default = null ) {
-		return $this->value ? $this->value : $default;
+	public function getValue( $default_val = null ) {
+
+		// eventually inherit the default value
+		if( $default_val === null ) {
+			$default_val = $this->getDefaultValue();
+		}
+
+		return $this->value ? $this->value : $default_val;
 	}
 
 	/**

@@ -29,7 +29,7 @@ class ParamFlagLong extends ParamFlag {
 	 * @param $long_name string Long name
 	 * @param $description string Description
 	 */
-	public function __construct( $long_name, $description ) {
+	public function __construct( $long_name, $description = null ) {
 		parent::__construct( $long_name, null, $description );
 	}
 

@@ -126,3 +126,13 @@ function file_get_data( $file ) {
 	$contents = file_get_contents( $file );
 	return unserialize( $contents );
 }
+
+/**
+ * Shortcut to get the Opts class
+ *
+ * It's useful to get and set your command line argument list
+ */
+function cli_options() {
+	return \cli\Opts::instance();
+}
+

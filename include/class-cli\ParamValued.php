@@ -1,6 +1,6 @@
 <?php
-# Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018 Valerio Bozzolan
+# boz-mw - Another MediaWiki API handler in PHP
+# Copyright (C) 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -26,12 +26,13 @@ class ParamValued extends Param {
 	/**
 	 * Constructor
 	 *
-	 * @param $long_name string Long name
-	 * @param $short_name string Short name
-	 * @param $description string Description
+	 * @param $long_name   string Long name like 'revision-text'
+	 * @param $short_name  string Short name like 'r'
+	 * @param $description string Short human description
+	 * @param $default_val string Default value
 	 */
-	public function __construct( $long_name, $short_name, $description ) {
-		parent::__construct( $long_name, $short_name, self::REQUIRED_VALUE, $description );
+	public function __construct( $long_name, $short_name = null, $description = null, $default_val = null ) {
+		parent::__construct( $long_name, $short_name, self::REQUIRED_VALUE, $description, $default_val );
 	}
 
 }

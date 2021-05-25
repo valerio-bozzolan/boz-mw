@@ -1,6 +1,6 @@
 <?php
-# Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018, 2019, 2020 Valerio Bozzolan
+# boz-mw - Another MediaWiki API handler in PHP
+# Copyright (C) 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -90,6 +90,109 @@ class Opts {
 	}
 
 	/**
+	 * Add a flag option
+	 *
+	 * @param $long_name   string Long name like 'is-enabled'
+	 * @param $short_name  string Short name like 'e'
+	 * @param $description string Short human description
+	 * @param $default_val
+	 * @return self
+	 */
+	public function addFlag( $long_name, $short_name = null, $description = null ) {
+		return $this->add( new ParamFlag( $long_name, $short_name, $description ) );
+	}
+
+	/**
+	 * Add a valued option
+	 *
+	 * @param $long_name   string Long name like 'revision-text'
+	 * @param $short_name  string Short name like 'r'
+	 * @param $description string Short human description
+	 * @param $default_val string Default value
+	 * @return self
+	 */
+	public function addValued( $long_name, $short_name = null, $description = null, $default_val = null ) {
+		return $this->add( new ParamValued( $long_name, $short_name, $description, $default_val ) );
+	}
+
+	/**
+	 * Get a single argument
+	 *
+	 * @param $name string Param name (short or long)
+	 * @param $default_val string Default param value
+	 * @return string|null
+	 */
+	public function get( $name, $default_val = null ) {
+		return $this->populate()->findParamFromName( $name )->getValue( $default_val );
+	}
+
+	/**
+	 * Get all the registered parameters
+	 *
+	 * @return array
+	 * @deprecated
+	 */
+	public function getAll() {
+		return $this->params;
+	}
+
+	/**
+	 * Get all the unnamed arguments
+	 *
+	 * @return array
+	 */
+	public static function unnamedArguments() {
+		$args = [];
+		foreach( $GLOBALS[ 'argv' ] as $arg ) {
+			if( '-' !== $arg[ 0 ] ) {
+				$args[] = $arg;
+			}
+		}
+		array_shift( $args );
+		return $args;
+	}
+
+	/**
+	 * Print all the parameters in an human readable format
+	 */
+	public function printParams() {
+
+		foreach( $this->getParams() as $param ) {
+
+			$commands = [];
+
+			if( $param->hasLongName() ) {
+				$commands[] = '--' . $param->getLongName();
+			}
+
+			if( $param->hasShortName() ) {
+				$commands[] = '-' . $param->getShortName();
+			}
+
+			$command = implode( '|', $commands );
+			if( $command && ! $param->isFlag() ) {
+				$command .= $param->isValueOptional()
+					? '=[VALUE]'
+					: '=VALUE';
+			}
+
+			printf( ' % -20s ', $command );
+
+			// eventually print an human description
+			if( $param->hasDescription() ) {
+				echo ' ' . $param->getDescription();
+			}
+
+			// eventually show the default value
+			if( $param->hasDefaultValue() ) {
+				printf( ' (default VALUE: %s)', $param->getDefaultValue() );
+			}
+
+			echo "\n";
+		}
+	}
+
+	/**
 	 * Populate all parameters with their arguments
 	 *
 	 * @see getopt()
@@ -156,69 +259,21 @@ class Opts {
 	 * Get all the registered parameters
 	 *
 	 * @return array
+	 * @deprecated
 	 */
 	public function getParams() {
-		return $this->params;
+		return $this->getAll();
 	}
 
 	/**
 	 * Get a single argument
 	 *
 	 * @param $name string Param name (short or long)
-	 * @param $default string Default param value
+	 * @param $default_val string Default param value
 	 * @return string|null
+	 * @deprecated
 	 */
-	public function getArg( $name, $default = null ) {
-		return $this->populate()->findParamFromName( $name )->getValue( $default );
-	}
-
-	/**
-	 * Get all the unnamed arguments
-	 *
-	 * @return array
-	 */
-	public static function unnamedArguments() {
-		$args = [];
-		foreach( $GLOBALS[ 'argv' ] as $arg ) {
-			if( '-' !== $arg[ 0 ] ) {
-				$args[] = $arg;
-			}
-		}
-		array_shift( $args );
-		return $args;
-	}
-
-	/**
-	 * Print all the parameters
-	 */
-	public function printParams() {
-
-		foreach( $this->getParams() as $param ) {
-
-			$commands = [];
-
-			if( $param->hasLongName() ) {
-				$commands[] = '--' . $param->getLongName();
-			}
-
-			if( $param->hasShortName() ) {
-				$commands[] = '-' . $param->getShortName();
-			}
-
-			$command = implode( '|', $commands );
-			if( $command && ! $param->isFlag() ) {
-				$command .= $param->isValueOptional()
-					? '=[VALUE]'
-					: '=VALUE';
-			}
-
-			printf( ' % -20s ', $command );
-
-			if( $param->hasDescription() ) {
-				echo ' ' . $param->getDescription();
-			}
-
-			echo "\n";
-		}
+	public function getArg( $name, $default_val = null ) {
+		return $this->get( $name, $default_val );
 	}
 }

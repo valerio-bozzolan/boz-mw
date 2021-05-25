@@ -1,2 +1,5 @@
 # Configuration file
 /tools/config.php
+
+# unuseful caches
+/.phpunit.result.cache

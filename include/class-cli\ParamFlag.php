@@ -1,6 +1,6 @@
 <?php
-# Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018 Valerio Bozzolan
+# boz-mw - Another MediaWiki API handler in PHP
+# Copyright (C) 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -26,11 +26,12 @@ class ParamFlag extends Param {
 	/**
 	 * Constructor
 	 *
-	 * @param $long_name string Long name
-	 * @param $short_name string Short name
-	 * @param $description string
+	 * @param $long_name   string Long name like 'is-enabled'
+	 * @param $short_name  string Short name like 'e'
+	 * @param $description string Short human description
+	 * @return self
 	 */
-	public function __construct( $long_name, $short_name, $description ) {
+	public function __construct( $long_name, $short_name = null, $description = null ) {
 		parent::__construct( $long_name, $short_name, self::NO_VALUE, $description );
 	}
 

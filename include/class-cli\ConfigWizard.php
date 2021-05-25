@@ -52,7 +52,7 @@ class ConfigWizard {
 					"",
 					"From that page fill the \"Create a new bot password\" form with a useful name",
 					"Example name:",
-					"  VolleyImportStuff\"",
+					"  VolleyImportStuff",
 					"",
 					"Now check all the permissions you will need and then click again on \"Create\".",
 					"",

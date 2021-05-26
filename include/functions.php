@@ -136,3 +136,13 @@ function cli_options() {
 	return \cli\Opts::instance();
 }
 
+/**
+ * Load a configuration file
+ *
+ * If the file does not exist, a wizard will help you in the creation.
+ *
+ * @param string $file Filename
+ */
+function config_wizard( $file ) {
+	return \cli\ConfigWizard::requireOrCreate( $file );
+}

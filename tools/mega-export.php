@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 # boz-mw - Another MediaWiki API framework
-# Copyright (C) 2019, 2020 Valerio Bozzolan
+# Copyright (C) 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -20,60 +20,51 @@
 $argv or exit( 1 );
 
 // load boz-mw
-require __DIR__ . '/../autoload.php';
+require __DIR__ . '/../autoload-with-laser-cannon.php';
 
 // the number '500' gives to much <This result was truncated because it would otherwise be larger than the limit of 12,582,912 bytes>
 $DEFAULT_LIMIT = 100;
 
 // load configuration
-include 'config.php';
+config_wizard( 'config.php' );
 
-use \cli\Log;
-use \cli\Input;
-use \cli\Opts;
-use \cli\Param;
-use \cli\ParamFlag;
-use \cli\ParamFlagLong;
-use \cli\ParamValued;
-use \cli\ParamValuedLong;
 use \web\MediaWikis;
-use \mw\API\PageMatcher;
+use \cli\Log;
 
 // all the available wiki UIDs
 $mediawiki_uids = implode( ', ', MediaWikis::allUIDs() );
 
 // register all CLI parameters
-$opts = new Opts( [
-	new ParamValuedLong( 'wiki',          "Available wikis: $mediawiki_uids" ),
-	new ParamValuedLong( 'limit',         "Number of revisions for each request" ),
-	new ParamValuedLong( 'file',          "Output filename" ),
-	new ParamFlag(       'help',    'h',  "Show this help and quit" ),
-] );
+$opts = cli_options()
+	->addValued( 'wiki',  null, "Available wikis: $mediawiki_uids"                     )
+	->addValued( 'limit', null, "Number of revisions for each request", $DEFAULT_LIMIT )
+	->addValued( 'file',  null, "Output filename"                                      )
+	->addFlag(   'help',  'h',  "Show this help and quit"                              );
 
 $messages = [];
 
 // choosen wiki
-$wiki_uid = $opts->getArg( 'wiki' );
+$wiki_uid = $opts->get( 'wiki' );
 if( !$wiki_uid ) {
 	$messages[] = "Please specify --wiki=WIKI";
 }
 
 // page titles
-$page_titles = Opts::unnamedArguments();
+$page_titles = $opts::unnamedArguments();
 if( !$page_titles ) {
 	$messages[] = "Please specify some page titles";
 }
 
 // output filename
-$filename = $opts->getArg( 'file' );
+$filename = $opts->get( 'file' );
 if( !$filename ) {
 	$messages[] = "Please specify a filename";
 }
 
-$limit = (int) $opts->getArg( 'limit', $DEFAULT_LIMIT );
+$limit = (int) $opts->get( 'limit' );
 
 // show the help
-$show_help = $opts->getArg( 'help' );
+$show_help = $opts->get( 'help' );
 if( $show_help ) {
 	$messages = [];
 } else {
@@ -90,7 +81,8 @@ if( $show_help ) {
 		echo "\nError: $msg";
 	}
 	echo "\n";
-	exit( $opts->getArg( 'help' ) ? 0 : 1 );
+
+	exit( $opts->get( 'help' ) ? 0 : 1 );
 }
 
 // try to open the file
@@ -100,9 +92,10 @@ if( !$file ) {
 	exit( 1 );
 }
 
-$wiki = MediaWikis::findFromUID( $wiki_uid );
-$wiki->login();
+// pick the wiki and login
+$wiki = wiki( $wiki_uid )->login();
 
+// build the MediaWiki API query
 $requests = $wiki->createQuery( [
 	'action' => 'query',
 	'titles' => $page_titles,
@@ -129,6 +122,9 @@ $total = 0;
 // do not print to the out
 $out  = '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.10/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mediawiki.org/xml/export-0.10/ http://www.mediawiki.org/xml/export-0.10.xsd" version="0.10" xml:lang="it">' . "\n";
 foreach( $requests as $request ) {
+
+	// show a kind of progress
+	echo '.';
 
 	foreach( $request->query->pages as $page ) {
 
@@ -190,6 +186,9 @@ foreach( $requests as $request ) {
 	fwrite( $file, $out );
 	$out = '';
 }
+
+// clear the line of dots
+echo "\n";
 
 Log::info( "you mega-exported $total revisions! nice shot!" );
 

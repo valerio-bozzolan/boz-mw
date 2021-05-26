@@ -182,7 +182,7 @@ class Log {
 		if( self::$DEDICATED_FILEPATH ) {
 
 			// try to append something in the log file
-			$status = file_put_contents( self::$DEDICATED_FILEPATH, $msg, FILE_APPEND | LOCK_EX );
+			$status = file_put_contents( self::$DEDICATED_FILEPATH, $msg, FILE_APPEND );
 
 			// no log no party
 			if( $status === false ) {

@@ -29,4 +29,19 @@ class DataValueString extends DataValue {
 	public function __construct( $value ) {
 		parent::__construct( DataType::STRING, $value );
 	}
+
+	/**
+	 * Get a wikitext-compatible version of this value
+	 *
+	 * This may be awared about which is the wiki that will contain this value,
+	 * in order to properly choose a correct permalink in wikilinks etc.
+	 *
+	 * See https://gitpull.it/T221
+	 *
+	 * @param $site You can eventually specify in which site you want to print this value
+	 */
+	public function toPrintableWikitext( \mw\Site $site = null ) {
+		return $this->getValue();
+	}
+
 }

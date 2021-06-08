@@ -29,7 +29,31 @@ class DataValueCommonsCategory extends DataValueString {
 	 * @return string
 	 */
 	public function __toString() {
-		return "[[c:Category:{$this->getValue()}]]";
+		return $this->toPrintableWikitext();
+	}
+
+	/**
+	 * Get a wikitext-compatible version of this value
+	 *
+	 * This may be awared about which is the wiki that will contain this value,
+	 * in order to properly choose a correct permalink in wikilinks etc.
+	 *
+	 * See https://gitpull.it/T221
+	 *
+	 * @param $site You can eventually specify in which site you want to print this value
+	 */
+	public function toPrintableWikitext( \mw\Site $site = null ) {
+
+		// commons prefix
+		$prefix = 'c:Category:';
+
+		// stupid way to create a simple wikilink
+		// that's good enough for an automatically generated edit summary
+		return sprintf(
+			'[[%s%s]]',
+			$prefix,
+			$this->getValue()
+		);
 	}
 
 }

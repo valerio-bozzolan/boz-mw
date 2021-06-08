@@ -1,6 +1,6 @@
 <?php
-# Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018 Valerio Bozzolan
+# boz-mw - Another MediaWiki API handler in PHP
+# Copyright (C) 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -32,4 +32,27 @@ class DataValueCommonsMedia extends DataValueString {
 		return "[[c:File:{$this->getValue()}]]";
 	}
 
+	/**
+	 * Get a wikitext-compatible version of this value
+	 *
+	 * This may be awared about which is the wiki that will contain this value,
+	 * in order to properly choose a correct permalink in wikilinks etc.
+	 *
+	 * See https://gitpull.it/T221
+	 *
+	 * @param $site You can eventually specify in which site you want to print this value
+	 */
+	public function toPrintableWikitext( \mw\Site $site = null ) {
+
+		// commons prefix
+		$prefix = 'c:File:';
+
+		// stupid way to create a simple wikilink
+		// that's good enough for an automatically generated edit summary
+		return sprintf(
+			'[[%s%s]]',
+			$prefix,
+			$this->getValue()
+		);
+	}
 }

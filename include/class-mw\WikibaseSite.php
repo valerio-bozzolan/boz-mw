@@ -1,6 +1,6 @@
 <?php
-# Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
+# boz-mw - Another MediaWiki API handler in PHP
+# Copyright (C) 2017, 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -44,7 +44,7 @@ class WikibaseSite extends Site {
 
 		$entity = $this->fetch( $data );
 		if( ! isset( $entity->entities->{ $entity_id } ) ) {
-			throw new Exception( "$wikidata_item does not exist" );
+			throw new Exception( "$entity_id does not exist" );
 		}
 
 		return $this->createDataModelFromObject( $entity->entities->{ $entity_id } );

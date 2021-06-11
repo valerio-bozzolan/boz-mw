@@ -1,6 +1,6 @@
 <?php
-# Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# boz-mw - Another MediaWiki API handler in PHP
+# Copyright (C) 2017, 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -42,11 +42,17 @@ class Wikidata extends \mw\StaticWikibaseSite {
 	 * @return array
 	 */
 	public static function querySPARQL( $query ) {
+
+		// do some cleanage
+		$query = trim( $query );
+
 		$request = new \network\HTTPRequest( 'https://query.wikidata.org/sparql' );
 		$response = $request->fetch( [
 			'format' => 'json',
-			'query'  => $query
+			'query'  => $query,
 		] );
+
+		// TODO: nice exceptions
 		$response_obj = json_decode( $response );
 		return $response_obj->results->bindings;
 	}

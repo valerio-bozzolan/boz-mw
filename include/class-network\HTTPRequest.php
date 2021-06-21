@@ -1,6 +1,6 @@
 <?php
-# Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
+# boz-mw - Another MediaWiki API handler in PHP
+# Copyright (C) 2017, 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -205,6 +205,8 @@ class HTTPRequest {
 		$context = [
 			'http' => [],
 		];
+
+		// GET or POST
 		$context['http']['method'] = $args['method'];
 
 		// populate the User-Agent
@@ -316,7 +318,7 @@ class HTTPRequest {
 
 		Log::debug( $status->getHeader() );
 
-		return static::onFetched( $response, $data );
+		return static::onFetched( $response, $data, $args['method'] );
 	}
 
 	/**
@@ -577,9 +579,10 @@ class HTTPRequest {
 	 *
 	 * @param $response mixed Response
 	 * @param $request_data mixed GET/POST data
+	 * @param $method string HTTP Method 'GET'/'POST'
 	 * @return mixed Response
 	 */
-	protected function onFetched( $response, $request_data ) {
+	protected function onFetched( $response, $request_data, $method ) {
 		return $response;
 	}
 }

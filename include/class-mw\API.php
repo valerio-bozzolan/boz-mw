@@ -1,6 +1,6 @@
 <?php
-# Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
+# boz-mw - Another MediaWiki API handler in PHP
+# Copyright (C) 2017, 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -297,10 +297,11 @@ class API extends \network\HTTPRequest {
 	 *
 	 * @param $response mixed Response
 	 * @param $request_data array GET/POST request data
+	 * @param $method string HTTP Method 'GET'/'POST'
 	 * @override \network\HTTPRequest#onFetched()
 	 * @throws \mw\API\Exception
 	 */
-	protected function onFetched( $response_raw, $request_data ) {
+	protected function onFetched( $response_raw, $request_data, $method ) {
 		$response = json_decode( $response_raw );
 		if( null === $response ) {
 			Log::debug( $response_raw );
@@ -317,9 +318,20 @@ class API extends \network\HTTPRequest {
 				// retry after some time when server lags
 				Log::warn( "Lag! ({$this->api}) {$response->error->info}" );
 
-				$response = $this->fetch( $request_data, [
+				$args = [
 					'wait-anti-dos' => true,
-				] );
+				];
+
+				if( $method === 'POST' ) {
+
+					$response = $this->post( $request_data, $args );
+
+				} else {
+
+					$response = $this->fetch( $request_data, $args );
+
+				}
+
 			} else {
 				throw $exception;
 			}

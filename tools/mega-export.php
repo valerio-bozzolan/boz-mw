@@ -38,7 +38,7 @@ $mediawiki_uids = implode( ', ', MediaWikis::allUIDs() );
 $opts = cli_options()
 	->addValued( 'wiki',  null, "Available wikis: $mediawiki_uids"                     )
 	->addValued( 'limit', null, "Number of revisions for each request", $DEFAULT_LIMIT )
-	->addValued( 'file',  null, "Output filename"                                      )
+	->addValued( 'file',  null, "Output filename",                      'export.xml'   )
 	->addFlag(   'help',  'h',  "Show this help and quit"                              );
 
 $messages = [];
@@ -72,7 +72,7 @@ if( $show_help ) {
 }
 
 if( $show_help ) {
-	echo "Usage:\n {$argv[ 0 ]} --wiki=WIKI --file=out.xml [OPTIONS] Page_title\n";
+	echo "Usage:\n {$argv[ 0 ]} --wiki=WIKI --file=export.xml [OPTIONS] Page_title\n";
 	echo "Allowed OPTIONS:\n";
 
 	$opts->printParams();
@@ -119,12 +119,19 @@ $requests = $wiki->createQuery( [
 // total number of revisions
 $total = 0;
 
+$n_requests = 1;
+
 // do not print to the out
 $out  = '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.10/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mediawiki.org/xml/export-0.10/ http://www.mediawiki.org/xml/export-0.10.xsd" version="0.10" xml:lang="it">' . "\n";
 foreach( $requests as $request ) {
 
 	// show a kind of progress
-	echo '.';
+	Log::info( sprintf(
+		"processing request %d (continuing from $total revisions)",
+		$n_requests++
+	) );
+
+	$response_warning_shown = false;
 
 	foreach( $request->query->pages as $page ) {
 
@@ -138,14 +145,11 @@ foreach( $requests as $request ) {
 
 			// avoid nonsense revisions
 			if( empty( $revision->comment ) ) {
-				if( $alert_much_revisions ) {
-					$count = count( $page->revisions );
-					if( $count !== $limit ) {
-						Log::warn( "response with $count revisions instead of $limit: consider to lower your limit" );
-						$alert_much_revisions = false;
-					}
+				$count = count( $page->revisions );
+				if( $count !== $limit && !$response_warning_shown ) {
+					Log::warn( "response with $count revisions instead of $limit: consider to lower your limit (ignore if you see this just once)" );
+					$response_warning_shown = true;
 				}
-				continue;
 			}
 
 			$total++;
@@ -187,10 +191,10 @@ foreach( $requests as $request ) {
 	$out = '';
 }
 
-// clear the line of dots
-echo "\n";
-
-Log::info( "you mega-exported $total revisions! nice shot!" );
+Log::info( sprintf(
+	"you mega-exported $total revisions! nice shot! See %s",
+	$opts->get( 'file' )
+) );
 
 fwrite( $file, "</mediawiki>\n" );
 fclose( $file );

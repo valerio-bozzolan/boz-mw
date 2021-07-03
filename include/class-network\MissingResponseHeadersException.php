@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018, 2019, 2020 Valerio Bozzolan
+# Copyright (C) 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,12 @@ namespace network;
 
 /**
  * Exception thrown when from the response there are no headers
+ *
+ * NOTE: This exception is never thrown.
+ * TODO: Remove this file in 2024.
+ * See https://gitpull.it/T886
+ *
+ * @deprecated
  */
 class MissingResponseHeadersException extends Exception {
 

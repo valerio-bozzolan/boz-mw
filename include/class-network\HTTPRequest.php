@@ -33,7 +33,7 @@ class HTTPRequest {
 	 *
 	 * @var string
 	 */
-	const VERSION = 0.7;
+	const VERSION = 1.0;
 
 	/**
 	 * Source code URL
@@ -139,6 +139,21 @@ class HTTPRequest {
 	public function __construct( $api, $args = [] ) {
 		$this->api = $api;
 		$this->setArgs( $args );
+
+		// initialize cURL session
+		$this->curl = curl_init();
+
+		// keep cookies just for this session
+		curl_setopt( $this->curl, CURLOPT_COOKIESESSION, true );
+	}
+
+	/**
+	 * Destructor
+	 *
+	 * Free some resources
+	 */
+	public function __destruct() {
+		curl_close( $this->curl );
 	}
 
 	/**
@@ -194,6 +209,8 @@ class HTTPRequest {
 	 */
 	public function fetch( $data = [], $args = [] ) {
 
+		$curl = $this->curl;
+
 		// merge the default arguments with the specified ones (the last have more priority)
 		$args = array_replace( $this->args, $args );
 
@@ -202,23 +219,22 @@ class HTTPRequest {
 
 		// HTTP query using file_get_contents()
 		$url = $this->api;
-		$context = [
-			'http' => [],
-		];
 
-		// GET or POST
-		$context['http']['method'] = $args['method'];
+		// well, we support Cookies
+		// TODO: use CURLOPT_COOKIEJAR and CURLOPT_COOKIEFILE
+		if( $this->haveCookies() ) {
+			curl_setopt( $curl, CURLOPT_COOKIE, $this->getCookieHeaderValue() );
+		}
 
 		// populate the User-Agent
 		if( $args['user-agent'] ) {
-			$args['headers'][] = self::header( 'User-Agent', $args['user-agent'] );
+			curl_setopt( $curl, CURLOPT_USERAGENT, $args['user-agent'] );
 		}
 
-		// well, we support Cookie
-		if( $this->haveCookies() ) {
-			$args['headers'][] = $this->getCookieHeader();
-		}
+		// request method
+		curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, $args['method'] );
 
+		// process query string
 		$query = '';
 		switch( $args['method'] ) {
 			case 'POST':
@@ -237,8 +253,10 @@ class HTTPRequest {
 					$query = http_build_query( $data );
 				}
 
-				$context['http']['content'] = $query;
-				$args['headers'][] = self::header( 'Content-Type', $args['content-type'] );
+				$args['headers'][ 'Content-Type' ] = $args['content-type'];
+
+				// set contend (works for both PUT and POST)
+				curl_setopt( $curl, CURLOPT_POSTFIELDS, $query );
 
 				Log::sensitive( "{$args['method']} $url $query", "{$args['method']} $url" );
 				break;
@@ -251,9 +269,9 @@ class HTTPRequest {
 				break;
 		}
 
-		if( $args['headers'] ) {
-			$context['http']['header'] = self::implodeHTTPHeaders( $args['headers'] );
-		}
+		// set headers
+		// note that this will reset headers from the previous session
+		curl_setopt( $curl, CURLOPT_HTTPHEADER, self::headersFlatArray( $args['headers'] ) );
 
 		// eventually preserve server resources to avoid a denial of serve
 		if( isset( $args['wait-anti-dos'] ) ) {
@@ -281,42 +299,63 @@ class HTTPRequest {
 			usleep( $args['wait'] * 1000000 );
 		}
 
-		// build context for the shitty but handy file_get_contents()
-		$stream_context = stream_context_create( $context );
+		// URL
+		curl_setopt( $curl, CURLOPT_URL, $url );
 
-		// suppress warnings about error 500 (handled later)
-		$response = @file_get_contents( $url, false, $stream_context );
+		// internal cURL shit to do not show the result as output but return it
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
 
-		// here $http_response_header should magically exist but sometime it's not
-		if( !isset( $http_response_header ) ) {
-			throw new MissingResponseHeadersException( $url, $stream_context );
-		}
+		// internal cURL shit to return headers
+		curl_setopt( $curl, CURLOPT_HEADER, true );
 
-		// load the response headers
-		$this->loadHTTPResponseHeaders( $http_response_header );
+		// this contains also the headers
+		$http_response_raw = curl_exec( $curl );
+
+		// load the response with the headers
+		$response = $this->loadHTTPResponseRaw( $http_response_raw );
 
 		// Check the HTTP status
-		$status = $this->getLatestHTTPResponseStatus();
-		if( ! $status->isOK() ) {
-			if( $status->isServerError() ) {
+		$http_status = $this->getLatestHTTPResponseStatus();
+
+		// no status no party
+		if( !$http_status ) {
+
+			// oh nose!
+			Log::error( "Huston, we have not valid headers" );
+
+			// retry but without DOSsing
+			$args = array_replace( $args, [
+				'wait-anti-dos' => true,
+			] );
+
+			// retry...
+			return $this->fetch( $data, $args );
+
+		} elseif( !$http_status->isOK() ) {
+
+			// retry again if it's a server error
+			if( $http_status->isServerError() ) {
 
 				// oh nose!
 				Log::error( sprintf( "Huston, we have the code %s: %s",
-					$status->getCode(),
-					$status->getMessage()
+					$http_status->getCode(),
+					$http_status->getMessage()
 				) );
 
-				// override the upstream wait
+				// retry but without DOSsing
 				$args = array_replace( $args, [
 					'wait-anti-dos' => true,
 				] );
 
+				// retry
 				return $this->fetch( $data, $args );
 			}
-			throw new NotOKException( $status );
+
+			throw new NotOKException( $http_status );
 		}
 
-		Log::debug( $status->getHeader() );
+		// show what's happening
+		Log::debug( $http_status->getHeader() );
 
 		return static::onFetched( $response, $data, $args['method'] );
 	}
@@ -415,18 +454,27 @@ class HTTPRequest {
 	}
 
 	/**
+	 * Get the 'Cookie' HTTP header value
+	 *
+	 * @return string
+	 */
+	public function getCookieHeaderValue() {
+		$cookies = [];
+		foreach( $this->getCookies() as $name => $value ) {
+			$cookies[] = urlencode( $name ) . '=' . urlencode( $value );
+		}
+		return implode( '; ', $cookies );
+	}
+
+	/**
 	 * Get the 'Cookie' HTTP header
 	 *
 	 * @return string
 	 */
 	public function getCookieHeader() {
-		$cookies = [];
-		foreach( $this->getCookies() as $name => $value ) {
-			$cookies[] = urlencode( $name ) . '=' . urlencode( $value );
-		}
 		return self::header(
 			'Cookie',
-			implode( '; ', $cookies )
+			$this->getCookieHeaderValue()
 		);
 	}
 
@@ -456,15 +504,102 @@ class HTTPRequest {
 	}
 
 	/**
-	 * Load HTTP response headers filling cookies
+	 * Load the raw HTTP response that contains HTTP status code(s), empty line(s) and the body
+	 *
+	 * It returns the body.
+	 *
+	 * Note that, after a POST, you can have two HTTP status codes (one is an unuseful 100 continue).
+	 * In this case, the 100 continue is ignored.
 	 *
 	 * It will be analyzed the 'Set-Cookie' response header.
+	 *
+	 * @param string $http_response_raw HTTP raw response with headers and all the stuff
+	 * @return string HTTP response body without headers
 	 */
-	private function loadHTTPResponseHeaders( $http_response_headers ) {
+	private function loadHTTPResponseRaw( $http_response_raw ) {
 
-		// parse the HTTP respose headers and save the last headers and the last status
-		list( $this->latestHttpResponseHeaders, $this->latestHttpResponseStatus )
-			= self::parseHTTPResponseHeaders( $http_response_headers );
+		$SEPARATOR = "\r\n";
+
+		// each line has this separator
+		$lines = explode( $SEPARATOR, $http_response_raw );
+
+		$http_status = null;
+		$is_header = true;
+
+		// document body
+		$body = '';
+
+		// parse each line
+		foreach( $lines as $line ) {
+
+			// have we already found the HTTP status code?
+			if( $http_status ) {
+
+				// are we in the header?
+				if( $is_header ) {
+
+					// is this an empty line?
+					if( $line === '' ) {
+
+						// the next line is the body
+						$is_header = false;
+
+					// is this line not empty?
+					} else {
+
+						// check if it's an header like 'Foo: bar'
+						$header_parts = explode( ':', $line, 2 );
+
+						// is this line with a semicolon?
+						if( 2 === count( $header_parts ) ) {
+
+							list( $name, $value ) = $header_parts;
+
+							// the header names must be considered case-insensitive
+							$name = strtolower( $name );
+
+							if( !isset( $headers[ $name ] ) ) {
+								$headers[ $name ] = [];
+							}
+							$headers[ $name ][] = ltrim( $value );
+
+						// is this line without a semicolon?
+						} else {
+
+							Log::warning( sprintf(
+								"nonsense header %s",
+								$line
+							) );
+						}
+					}
+
+				// is this the body?
+				} else {
+
+					$body .= $line . $SEPARATOR;
+				}
+
+			// is the HTTP status missing?
+			} else {
+
+				// in this case it's an HTTP/1.1 200 or something like that
+				try {
+					$http_status = Status::createFromHeader( $line );
+
+					// skip unuseufl transactional states
+					if( $http_status->getCode() === '100' ) {
+						$http_status = null;
+					}
+
+				} catch( InvalidArgumentException $e ) {
+					$headers[ $line ] = true;
+				}
+			}
+		}
+
+		// remember this stuff
+		$this->latestHttpResponseStatus = $http_status;
+		$this->latestHttpResponseHeaders = $headers;
 
 		// parse each cookie (the header name will be always case insensitive)
 		if( isset( $this->latestHttpResponseHeaders['set-cookie'] ) ) {
@@ -472,6 +607,32 @@ class HTTPRequest {
 				$this->setRawCookie( $cookie );
 			}
 		}
+
+		return $body;
+	}
+
+	/**
+	 * Convert an array of headers (with values as strings or associative arrays)
+	 * to a simple array of strings.
+	 *
+	 * @param array $headers
+	 * @return array headers
+	 */
+	public static function headersFlatArray( $headers ) {
+
+		$flat = [];
+		foreach( $headers as $key => $header ) {
+
+			// convert 'Key' => 'Value'
+			// to      'Key: Value'
+			if( is_string( $key ) ) {
+				$header = self::header( $key, $header );
+			}
+
+			$flat[] = $header;
+		}
+
+		return $flat;
 	}
 
 	/**
@@ -481,13 +642,17 @@ class HTTPRequest {
 	 * @return string
 	 */
 	public static function implodeHTTPHeaders( $headers ) {
-		$s = '';
-		if( ! $headers ) {
+
+		// no headers no party
+		if( !$headers ) {
 			return null;
 		}
-		foreach( $headers as $header ) {
+
+		$s = '';
+		foreach( $headers as $key => $header ) {
 			$s .= "$header\r\n";
 		}
+
 		return $s;
 	}
 
@@ -499,39 +664,21 @@ class HTTPRequest {
 	 * @param  array $http_response_headers
 	 * @return array The first element contains an associative array of header name and value(s). The second one contains the Status.
 	 */
-	private static function parseHTTPResponseHeaders( $http_response_headers ) {
+	private static function parseHTTPResponseHeaders( $lines ) {
 
-		$status = null;
+		$http_status = null;
 		$headers = [];
 		foreach( $http_response_headers as $header ) {
 
-			// check if it's an header like 'Foo: bar'
-			$header_parts = explode(':', $header, 2);
-			if( 2 === count( $header_parts ) ) {
-				list( $name, $value ) = $header_parts;
-
-				// the header names must be considered case-insensitive
-				$name = strtolower( $name );
-
-				if( !isset( $headers[ $name ] ) ) {
-					$headers[ $name ] = [];
-				}
-				$headers[ $name ][] = ltrim( $value );
-			} else {
-				try {
-					$status = Status::createFromHeader( $header );
-				} catch( InvalidArgumentException $e ) {
-					$headers[ $header ] = true;
-				}
-			}
 		}
 
+		// do not generate an exception - just retry
 		// wtf
-		if( null === $status ) {
-			throw new Exception( "HTTP response without an HTTP status code" );
-		}
+		//if( null === $http_status ) {
+			// throw new Exception( "HTTP response without an HTTP status code" );
+		//}
 
-		return [ $headers, $status ];
+		return [ $headers, $http_status ];
 	}
 
 	/**

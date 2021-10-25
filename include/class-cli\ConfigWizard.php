@@ -97,7 +97,7 @@ class ConfigWizard {
 	public static function askVariableContent( $variable, $title, $question, $comment_lines = [] ) {
 
 		// start printing some hints
-		echo $title . "\n\n" . implode( $comment_lines, "\n" ) . "\n\n";
+		echo $title . "\n\n" . implode( "\n", $comment_lines ) . "\n\n";
 
 		// ask the variable content
 		do {

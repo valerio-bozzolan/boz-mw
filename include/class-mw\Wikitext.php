@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -252,7 +252,7 @@ class Wikitext {
 	 * It has a Category? (it checks only the wikitext)
 	 *
 	 * @param $category_name string Category without namespace prefix
-	 * @return bool
+	 * @return bool True if the category was found in the wikitext
 	 */
 	public function hasCategory( $category_name ) {
 
@@ -274,9 +274,11 @@ class Wikitext {
 	 *
 	 * @param $category_name string Category name without category prefix
 	 * @param $sortkey string
-	 * @return bool
+	 * @return bool True if the category was not found and added successfully
 	 */
 	public function addCategory( $category_name, $sortkey = false ) {
+
+		// no category no party
 		if( $this->hasCategory( $category_name ) ) {
 			return false;
 		}
@@ -296,9 +298,11 @@ class Wikitext {
 	 * Removes a category
 	 *
 	 * @param string $category_name Category name, unprefixed
-	 * @return bool
+	 * @return bool True if the category was found and removed from wikitext, false otherwise
 	 */
 	public function removeCategory( $category_name ) {
+
+		// no category no party
 		if( !$this->hasCategory( $category_name ) ) {
 			return false;
 		}

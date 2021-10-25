@@ -82,10 +82,16 @@ class TitlePart {
 	 * Spaces will be converted into optional tabs/spaces.
 	 *
 	 * @param $s string
-	 * @param $delimiter string
+	 * @param $delimiter string Set it to FALSE to do not have any delimiter.
 	 * @return string
 	 */
 	public static function regex( $s, $delimiter = null ) {
+
+		// the whole system is based on the fact that delimiters are escaped
+		if( $delimiter === null ) {
+			$delimiter = '/';
+		}
+
 		$s = preg_quote( $s, $delimiter );
 
 		// These are all valids

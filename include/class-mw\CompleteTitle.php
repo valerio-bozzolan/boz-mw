@@ -131,6 +131,7 @@ class CompleteTitle {
 		] );
 
 		// title regex
+		// see mw\Title#getRegex()
 		$title = $this->getTitle()->getRegex();
 
 		// @TODO: handle anchor

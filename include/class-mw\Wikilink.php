@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2019 Valerio Bozzolan
+# Copyright (C) 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -97,6 +97,9 @@ class Wikilink {
 	 * @return string
 	 */
 	public function getRegexTitle( $args = [] ) {
+
+		// see CompleteTitle#getRegex()
+
 		return $this->title
 			? $this->title->getRegex( $args )
 			: '[' . self::legalTitleCharset() . ']*';
@@ -203,6 +206,7 @@ class Wikilink {
 		$title_regex = $this->getRegexTitle( [
 			'wikilink' => $args[ 'wikilink' ],
 		] );
+
 		$title_regex = \regex\Generic::groupNamed( $title_regex, $args[ 'title-group-name' ] );
 
 		// regex matching the anchor

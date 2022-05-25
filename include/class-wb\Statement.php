@@ -116,6 +116,24 @@ class Statement extends Claim {
 	}
 
 	/**
+	 * Set the rank as "preferred"
+	 *
+	 * @return self
+	 */
+	public function setRankPreferred() {
+		return $this->setRank( 'preferred' );
+	}
+
+	/**
+	 * Set the rank as "deprecated"
+	 *
+	 * @return self
+	 */
+	public function setRankDeprecated() {
+		return $this->setRank( 'deprecated' );
+	}
+
+	/**
 	 * Create a statement from raw data returned from API responses
 	 *
 	 * @param $data array

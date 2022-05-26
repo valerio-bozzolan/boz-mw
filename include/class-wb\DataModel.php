@@ -186,7 +186,7 @@ class DataModel {
 	}
 
 	/**
-	 * Add a claim
+	 * Add a Claim
 	 *
 	 * @param $claim Claim
 	 * @return self
@@ -509,7 +509,10 @@ class DataModel {
 			// TODO: Claims::createFromData()
 			foreach( $claims as $claims ) {
 				foreach( $claims as $claim ) {
-					$dataModel->addClaim( Claim::createFromData( $claim ) );
+//					$dataModel->addClaim( Claim::createFromData( $claim ) );
+
+					// these are really statements ("type": "statement")
+					$dataModel->addClaim( Statement::createFromData( $claim ) );
 				}
 			}
 		}

@@ -1,6 +1,6 @@
 <?php
 # boz-mw - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019, 2020, 2021 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -307,12 +307,24 @@ class API extends \network\HTTPRequest {
 			Log::debug( $response_raw );
 			throw new \Exception( 'response is not JSON-encoded' );
 		}
-		if( isset( $response->warnings ) ) {
-			foreach( $response->warnings as $subject => $warning ) {
-				Log::warn( sprintf( '%s: %s', $subject, $warning->{'*'} ) );
-			}
+
+		// print warnings
+		$warnings = $response->warnings ?? [];
+		foreach( $warnings as $subject => $warning ) {
+			Log::warn( sprintf( '%s: %s', $subject, $warning->{'*'} ) );
 		}
+
 		if( isset( $response->error ) ) {
+
+			// print messages
+			$messages = $response->error->messages ?? [];
+			foreach( $messages as $message ) {
+				Log::warn( sprintf( '%s: %s', $message->name, $message->html->{'*'} ) );
+				foreach( $message->parameters ?? [] as $message_parameter ) {
+					Log::warn( "  $message_parameter" );
+				}
+			}
+
 			$exception = API\Exception::createFromApiError( $response->error );
 			if( $exception instanceof API\MaxLagException ) {
 				// retry after some time when server lags

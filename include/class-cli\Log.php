@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -82,6 +82,15 @@ class Log {
 	public static $DEDICATED_FILEPATH = null;
 
 	/**
+	 * Maximum length of a message in command line
+	 *
+	 * If the message is largher than this, will be split in lines.
+	 *
+	 * NOTE: This does not take into consideration the prefix (date).
+	 */
+	public static $CLI_MAX_MSG_LEN = 80;
+
+	/**
 	 * Show a warning
 	 *
 	 * Use it for errors that can be solved without interaction
@@ -161,11 +170,6 @@ class Log {
 			'newline' => true,
 		], $args );
 
-		// eventually end with a newline
-		if( $args['newline'] ) {
-			$message .= "\n";
-		}
-
 		// check if we are in command line mode
 		$cli = isset( $_SERVER['argv'] );
 
@@ -176,13 +180,18 @@ class Log {
 
 		// in command line print a nice format with a date
 		$date = date( self::$DATE_FORMAT );
-		$msg = sprintf( $format, $date, $type, $message );
+		$message_formatted = self::formatMessageLine( $format, $date, $type, $message );
+
+		// eventually end with a newline
+		if( $args['newline'] ) {
+			$message_formatted .= "\n";
+		}
 
 		// check if we have to write into a dedicated file (default to no)
 		if( self::$DEDICATED_FILEPATH ) {
 
 			// try to append something in the log file
-			$status = file_put_contents( self::$DEDICATED_FILEPATH, $msg, FILE_APPEND );
+			$status = file_put_contents( self::$DEDICATED_FILEPATH, $message_formatted, FILE_APPEND );
 
 			// no log no party
 			if( $status === false ) {
@@ -198,13 +207,65 @@ class Log {
 
 			// check if we are in command line mode
 			if( $cli ) {
+
 				// in command line, just print everything to stdout
-				echo $msg;
+
+				// but break terminal lines
+				$lines = self::splitMessageInLines( $message );
+				foreach( $lines as $i => $line ) {
+
+					// after the first line just indent a bit so you understand they are not separated info
+					if( $i ) {
+						$line = " $line";
+					}
+
+					// print this line to standard output
+					echo self::formatMessageLine( $format, $date, $type, "$line\n" );
+				}
+
 			} else {
 				// in a webserver, just print everything in the syslog
-				error_log( $msg );
+				error_log( $message_formatted );
 			}
 		}
+	}
+
+	/**
+	 * Format a command line message
+	 *
+	 * @return string
+	 */
+	private static function formatMessageLine( $format, $date, $type, $message ) {
+		return sprintf( $format, $date, $type, $message );
+	}
+
+	/**
+	 * Split a message in terminal lines
+	 *
+	 * @param string $message
+	 * @return array
+	 */
+	private static function splitMessageInLines( $message ) {
+
+		$all = [];
+
+		// split by lines
+		$lines = explode( "\n", $message );
+		foreach( $lines as $line ) {
+
+			// try do not overlap in your terminal (for more cuteness)
+			foreach( str_split( $line, static::$CLI_MAX_MSG_LEN ) as $part ) {
+
+				// do not trim lines: spaces are sometime useful to indent better
+				// $part = trim( $part );
+
+				if( $part ) {
+					$all[] = $part;
+				}
+			}
+		}
+
+		return $all;
 	}
 
 }

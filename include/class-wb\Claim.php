@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -337,6 +337,24 @@ class Claim {
 	public function markForRemoval() {
 		$this->remove = 1;
 		return $this;
+	}
+
+	/**
+	 * Set the rank as "preferred"
+	 *
+	 * @return self
+	 */
+	public function setRankPreferred() {
+		return $this->setRank( 'preferred' );
+	}
+
+	/**
+	 * Set the rank as "deprecated"
+	 *
+	 * @return self
+	 */
+	public function setRankDeprecated() {
+		return $this->setRank( 'deprecated' );
 	}
 
 	/**

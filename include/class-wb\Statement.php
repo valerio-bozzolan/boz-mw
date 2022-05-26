@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -41,12 +41,13 @@ class Statement extends Claim {
 	 */
 	private $type = 'statement';
 
-	/**
-	 * Rank of this statement
-	 *
-	 * @var string
-	 */
-	private $rank = 'normal';
+	public function __construct( $mainsnak = null ) {
+
+		parent::__construct( $mainsnak );
+
+		// set a default rank
+		$this->setRank( 'normal' );
+	}
 
 	/**
 	 * Get the type
@@ -55,15 +56,6 @@ class Statement extends Claim {
 	 */
 	public function getType() {
 		return $this->type;
-	}
-
-	/**
-	 * Get the rank
-	 *
-	 * @return string
-	 */
-	public function getRank() {
-		return $this->rank;
 	}
 
 	/**
@@ -105,35 +97,6 @@ class Statement extends Claim {
 	}
 
 	/**
-	 * Set a rank
-	 *
-	 * @param  string $rank
-	 * @return self
-	 */
-	public function setRank( $rank ) {
-		$this->rank = $rank;
-		return $this;
-	}
-
-	/**
-	 * Set the rank as "preferred"
-	 *
-	 * @return self
-	 */
-	public function setRankPreferred() {
-		return $this->setRank( 'preferred' );
-	}
-
-	/**
-	 * Set the rank as "deprecated"
-	 *
-	 * @return self
-	 */
-	public function setRankDeprecated() {
-		return $this->setRank( 'deprecated' );
-	}
-
-	/**
 	 * Create a statement from raw data returned from API responses
 	 *
 	 * @param $data array
@@ -145,13 +108,19 @@ class Statement extends Claim {
 		}
 		$statement = parent::createFromData( $data );
 		$statement->setType( $data['type'] );
-		$statement->setRank( $data['rank'] );
+
+		if( isset( $data['rank'] ) ) {
+			$statement->setRank( $data['rank'] );
+		}
+
 		if( $data['id'] ) {
 			$statement->setID( $data['id'] );
 		}
-		if( $data['references'] ) {
+
+		if( isset( $data['references'] ) ) {
 			$statement->setReferences( References::createFromData( $data['references'] ) );
 		}
+
 		return $statement;
 	}
 

@@ -44,7 +44,7 @@ Other options:
 
 You can see some [examples](./examples).
 
-### Mega export - `mega-export.php`
+### Mega export - `mega-export-xml.php`
 
 This is a script that acts similar to the `[[Special:Export]]` page, but exporting the full page history.
 
@@ -52,7 +52,7 @@ Note that you have to provide your user credentials in the `config.php` script i
 
 ```
 Usage:
- ./mega-export.php --wiki=WIKI --file=out.xml [OPTIONS] Page_title
+ ./mega-export-xml.php --wiki=WIKI --file=out.xml [OPTIONS] Page_title
 Allowed OPTIONS:
  --wiki=VALUE          Available wikis: itwiki, wikidatawiki, commonswiki, metawiki, landscapeforwiki
  --limit=VALUE         Number of revisions for each request
@@ -66,4 +66,24 @@ E.g. to download the full history of the [Software libero](https://it.wikipedia.
 ./mega-export.php --wiki=itwiki --file=out.xml "Software libero"
 ```
 
-Note that actually the official MediaWiki/XML format is actually mistreated at least for the heading section: you will not obtain the namespace list, the wiki name, and other unuseful things. Just revisions. Much revisions.
+### Mega export - `mega-export-csv.php`
+
+This is a script that acts similar to the `[[Special:Export]]` page, but exporting the full page history.
+
+Note that you have to provide your user credentials in the `config.php` script in order to download more than `50` revisions at time.
+
+```
+Usage:
+ ./mega-export-xml.php --wiki=WIKI --file=out.xml [OPTIONS] Page_title
+Allowed OPTIONS:
+ --wiki=VALUE          Available wikis: itwiki, wikidatawiki, commonswiki, metawiki, landscapeforwiki
+ --limit=VALUE         Number of revisions for each request
+ --file=VALUE          Output filename
+ --help|-h             Show this help and quit
+```
+
+E.g. to download the full history of the [Software libero](https://it.wikipedia.org/wiki/Software_libero) page:
+
+```
+./mega-export-csv.php --wiki=itwiki --file=out.csv "Software libero"
+```

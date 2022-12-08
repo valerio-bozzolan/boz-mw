@@ -95,8 +95,15 @@ if( !$file ) {
 	exit( 1 );
 }
 
-// pick the wiki and login
-$wiki = wiki( $wiki_uid )->login();
+// pick the wiki
+$wiki = wiki( $wiki_uid );
+if(!$wiki) {
+	echo "Unrecognized wiki\n";
+	exit( 2 );
+}
+
+// login (if you are a bot you have smaller limitations)
+$wiki->login();
 
 // build the MediaWiki API query
 $requests = $wiki->createQuery( [

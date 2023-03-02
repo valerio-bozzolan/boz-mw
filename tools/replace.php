@@ -22,10 +22,10 @@ $argv or exit( 1 );
 $DEFAULT_ALWAYS_WAIT = 3;
 
 // load boz-mw
-require __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload.php';
+require __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload-with-laser-cannon.php';
 
 // load configuration
-include 'config.php';
+config_wizard( 'config.php' );
 
 use \cli\Log;
 use \cli\Input;

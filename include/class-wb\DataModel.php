@@ -395,6 +395,7 @@ class DataModel {
 	 * @return string
 	 */
 	public function getEditSummary() {
+
 		$changes = [];
 
 		$labels = $this->getLabels();
@@ -412,12 +413,13 @@ class DataModel {
 			$changes[] = $this->sitelinks->__toString();
 		}
 
-		foreach( $this->getClaims() as $claim ) {
+		foreach( $this->getClaimsGrouped() as $property => $claim ) {
 			$snak = $claim->getMainsnak();
 			if( $snak ) {
 				$changes[] = '+' . $snak->toPrintableWikitext( $this->site );
 			} elseif( $claim->isMarkedForRemoval() ) {
-				$changes[] = '-claim id=' . $claim->getID();
+				//$changes[] = '-claim id=' . $claim->getID(); // too much verbose as edit summary
+				$changes[] = '-claim ' . $snak->getPropertyWLink( $this->site );
 			} else {
 				throw new \Exception( "unexpected undefined main snak, that it's allowed only in claims marked for deletion" );
 			}

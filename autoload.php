@@ -16,9 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Minimal autoload (without functions)
+ * Minimal autoload that works also without Composer! yeeh!
  *
- * This is useful if you like creating frameworks.
+ * This file is useful if you like creating frameworks without Composer.
  *
  * If you love creating bots instead, see the 'autoload-with-laser-cannon.php'.
  */

@@ -9,5 +9,8 @@
             "email": "nsa+gitspam@succhia.cz"
         }
     ],
-    "require": {}
+    "require": {},
+    "autoload": {
+        "classmap": ["include"]
+    }
 }

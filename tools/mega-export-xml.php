@@ -93,7 +93,9 @@ if( !$file ) {
 }
 
 // pick the wiki and login
-$wiki = wiki( $wiki_uid )->login();
+$wiki = wiki( $wiki_uid );
+
+$wiki->login();
 
 // build the MediaWiki API query
 $requests = $wiki->createQuery( [

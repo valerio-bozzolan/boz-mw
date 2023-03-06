@@ -25,8 +25,8 @@ namespace wb;
  */
 class Label {
 
-	var $language;
-	var $value;
+	public $language;
+	public $value;
 
 	public function __construct( $language, $value ) {
 		$this->setLanguage( $language )

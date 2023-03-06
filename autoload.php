@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018, 2019, 2020, 2021 Valerio Bozzolan
+# Copyright (C) 2018-2023 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,10 @@
  * Autoload classes on-demand
  */
 spl_autoload_register( function( $name ) {
+
+	// traits have not a dedicated class, so this trick autoloads them
+	$name = str_replace( 'Trait', '', $name );
+
 	$path = __DIR__ . "/include/class-$name.php";
 	if( is_file( $path ) ) {
 		require $path;

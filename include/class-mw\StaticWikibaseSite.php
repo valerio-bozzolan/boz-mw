@@ -18,9 +18,6 @@
 # MediaWiki
 namespace mw;
 
-# traits can't be autoloaded, so...
-require_once 'class-mw\StaticSite.php';
-
 /**
  * A static MediaWiki site with Wikibase enabled
  */

@@ -18,9 +18,6 @@
 # MediaWiki
 namespace mw;
 
-// traits can't be autoloaded, so...
-require_once 'class-generic\Singleton.php';
-
 /**
  * The behaviours for a static site
  *

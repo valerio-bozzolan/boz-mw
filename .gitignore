@@ -3,3 +3,6 @@
 
 # unuseful caches
 /.phpunit.result.cache
+
+# Composer stuff
+/vendor/

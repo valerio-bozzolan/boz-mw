@@ -1,0 +1,13 @@
+{
+    "name": "valerio-boz/boz-mw",
+    "description": "A wonderful PHP library for interacting with MediaWiki, Wikibase, wikitext, API, reading, writing, and even doing file uploads.",
+    "type": "library",
+    "license": "GNU AGPL v3+",
+    "authors": [
+        {
+            "name": "Valerio Bozzolan",
+            "email": "nsa+gitspam@succhia.cz"
+        }
+    ],
+    "require": {}
+}

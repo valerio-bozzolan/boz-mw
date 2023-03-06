@@ -222,7 +222,7 @@ class API extends \network\HTTPRequest {
 				'you must call %1$s#login( $username, $password ) or '.
 				'set %1$s::$DEFAULT_USERNAME and %1$s::$DEFAULT_PASSWORD ' .
 				'before trying to login',
-				__CLASS__
+				self::class
 			) );
 		}
 

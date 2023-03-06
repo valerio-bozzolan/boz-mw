@@ -93,7 +93,7 @@ class DataValue {
 	 */
 	public static function createFromData( $data ) {
 		if( ! isset( $data['type'], $data['value'] ) ) {
-			throw new WrongDataException( __CLASS__ );
+			throw new WrongDataException( self::class );
 		}
 		return new self( $data['type'], $data['value'] );
 	}

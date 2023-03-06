@@ -120,7 +120,7 @@ class Sitelink {
 	 */
 	public static function createFromData( $data ) {
 		if( ! isset( $data[ 'site' ], $data[ 'title' ] ) ) {
-			throw new WrongDataException( __CLASS__ );
+			throw new WrongDataException( self::class );
 		}
 		return new self( $data[ 'site' ], $data[ 'title' ] );
 	}

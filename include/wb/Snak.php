@@ -230,7 +230,7 @@ class Snak {
 		];
 		foreach( $required_attributes as $required_attribute ) {
 			if( !isset( $data[ $required_attribute ] ) ) {
-				throw new WrongDataException( __CLASS__, "missing $required_attribute" );
+				throw new WrongDataException( self::class, "missing $required_attribute" );
 			}
 		}
 

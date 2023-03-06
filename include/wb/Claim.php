@@ -378,7 +378,7 @@ class Claim {
 
 		// wtf is this shit
 		if( ! isset( $data['mainsnak'] ) ) {
-			throw new WrongDataException( __CLASS__ );
+			throw new WrongDataException( self::class );
 		}
 
 		// initialize the claim

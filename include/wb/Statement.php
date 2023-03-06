@@ -104,7 +104,7 @@ class Statement extends Claim {
 	 */
 	public static function createFromData( $data ) {
 		if( ! isset( $data['type'], $data['rank'] ) ) {
-			throw new WrongDataException( __CLASS__ );
+			throw new WrongDataException( self::class );
 		}
 		$statement = parent::createFromData( $data );
 		$statement->setType( $data['type'] );

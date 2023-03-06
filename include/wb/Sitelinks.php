@@ -103,7 +103,7 @@ class Sitelinks {
 	 */
 	public static function createFromData( $data ) {
 		if( ! is_array( $data ) ) {
-			throw new WrongDataException( __CLASS__ );
+			throw new WrongDataException( self::class );
 		}
 		$sitelinks = new self();
 		foreach( $data as $sitelink ) {

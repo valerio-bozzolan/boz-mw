@@ -184,7 +184,7 @@ class Reference {
 
 		// reference snaks
 		if( !isset( $reference_raw['snaks'] ) ) {
-			throw new WrongDataException( __CLASS__, 'no snaks field' );
+			throw new WrongDataException( self::class, 'no snaks field' );
 		}
 		foreach( $reference_raw['snaks'] as $property => $snaks_raw ) {
 			foreach( $snaks_raw as $snak_raw ) {

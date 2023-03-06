@@ -53,7 +53,7 @@ class Label {
 
 	public static function createFromData( $data ) {
 		if( ! isset( $data['language'], $data['value'] ) ) {
-			throw new WrongDataException( __CLASS__ );
+			throw new WrongDataException( self::class );
 		}
 		return new static( $data['language'], $data['value'] );
 	}

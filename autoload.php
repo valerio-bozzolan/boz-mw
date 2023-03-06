@@ -31,7 +31,12 @@ spl_autoload_register( function( $name ) {
 	// traits have not a dedicated class, so this trick autoloads them
 	$name = str_replace( 'Trait', '', $name );
 
-	$path = __DIR__ . "/include/class-$name.php";
+	// classes are inside directories
+	// for example the class foo\Bar is inside path foo/Bar
+	// the '\\' is just an escape to get the literal '\'
+	$full_name = str_replace( '\\', '/', $name );
+
+	$path = __DIR__ . "/include/$full_name.php";
 	if( is_file( $path ) ) {
 		require $path;
 	}

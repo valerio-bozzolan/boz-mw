@@ -106,7 +106,7 @@ class Param {
 	 * @param $short_name string|null
 	 */
 	public function setShortName( $short_name ) {
-		if( strlen( $short_name ) > 1 ) {
+		if( $short_name !== null && strlen( $short_name ) > 1 ) {
 			throw new \InvalidArgumentException( 'short option must be 1 characters long' );
 		}
 		$this->shortName = $short_name;

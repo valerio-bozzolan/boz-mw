@@ -216,7 +216,7 @@ class Param {
 			$default_val = $this->getDefaultValue();
 		}
 
-		return $this->value ? $this->value : $default_val;
+		return $this->value ?: $default_val;
 	}
 
 	/**

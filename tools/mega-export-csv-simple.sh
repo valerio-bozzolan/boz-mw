@@ -95,5 +95,9 @@ if [ -z "$filename" ]; then
 	echo "  $file"
 fi
 
+# find the current directory - so to understand where we are
+# https://unix.stackexchange.com/a/17802/85666
+my_directory="$(dirname "$(readlink -f "$0")")"
+
 # execute the tool
-./mega-export-csv.php --wiki="$wiki" --file="$wiki-$title.csv" "$title"
+${my_directory}/mega-export-csv.php --wiki="$wiki" --file="$wiki-$title.csv" "$title"

@@ -46,10 +46,10 @@ trait Singleton {
 	}
 
 	/**
-  * Throw an usage error
-  * @return never
-  */
- protected static function throwSingletonUsage() {
+	  * Throw an usage error
+	  * @return never
+	  */
+	protected static function throwSingletonUsage() {
 		throw new \Exception( sprintf(
 			'wrong singleton usage, you must call %s::instance()',
 			static::class

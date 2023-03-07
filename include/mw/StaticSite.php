@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019, 2020, 2021 Valerio Bozzolan
+# Copyright (C) 2017-2023 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -18,12 +18,14 @@
 # MediaWiki
 namespace mw;
 
+use generic\Singleton;
+
 /**
  * A generic MediaWiki website
  *
  * This class is designed to have just one instance of this site
  */
-class StaticSite {
+class StaticSite extends Singleton {
 
 	/**
 	 * A sort of $wgCapitalLinks
@@ -65,11 +67,6 @@ class StaticSite {
 	private $baseURL;
 
 	/**
-	 * Array of class instances by their class name
-	 */
-	private static $instances = [];
-
-	/**
 	 * Constructor
 	 *
 	 * @param $api_url string MediaWiki API URL
@@ -97,27 +94,6 @@ class StaticSite {
 		}
 
 		return $site;
-	}
-
-	/**
-	 * Get an instance of this class
-	 *
-	 * The instance will be created only once.
-	 *
-	 * @return self
-	 */
-	public static function instance() {
-
-		// try to check if we already have one instance
-		if( !array_key_exists( static::class, self::$instances ) ) {
-
-			// let's create one instance, not calling the constructor directly
-			// but our static method designed for this purpose
-			self::$instances[ static::class ] = static::create();
-		}
-
-		// yeeh! now this exists
-		return self::$instances[ static::class ];
 	}
 
 	/**
@@ -459,17 +435,6 @@ class StaticSite {
 
 		// I know, I know, it's not that simple
 		$this->setBaseURL( str_replace( '/w/api.php', '/wiki/', $api_url ) );
-	}
-
-	/**
-	  * Throw an usage error
-	  * @return never
-	  */
-	protected static function throwSingletonUsage() {
-		throw new \Exception( sprintf(
-			'wrong singleton usage, you must call %s::instance()',
-			static::class
-		) );
 	}
 
 }

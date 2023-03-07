@@ -29,6 +29,15 @@ class Singleton {
 	private static $instances = [];
 
 	/**
+	 * Constructor
+	 *
+	 * It's just a reminder to avoid this directly.
+	 */
+	public function __construct() {
+		self::throwSingletonUsage();
+	}
+
+	/**
 	 * Get an instance of this class
 	 *
 	 * The instance will be created only once.
@@ -36,11 +45,17 @@ class Singleton {
 	 * @return self
 	 */
 	public static function instance() {
-		$instance = self::$instances[ static::class ] ?: null;
-		if( !$instance ) {
+
+		// try to check if we already have one instance
+		if( !array_key_exists( static::class, self::$instances ) ) {
+
+			// let's create one instance, not calling the constructor directly
+			// but our static method designed for this purpose
 			self::$instances[ static::class ] = static::create();
 		}
-		return $instance;
+
+		// yeeh! now this exists
+		return self::$instances[ static::class ];
 	}
 
 	/**

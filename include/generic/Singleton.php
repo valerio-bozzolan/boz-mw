@@ -21,17 +21,24 @@ namespace generic;
 /**
  * A singleton gives an #instance() method
  */
-trait Singleton {
+class Singleton {
+
+	/**
+	 * Array of class instances by their class name
+	 */
+	private static $instances = [];
 
 	/**
 	 * Get an instance of this class
 	 *
+	 * The instance will be created only once.
+	 *
 	 * @return self
 	 */
 	public static function instance() {
-		static $instance;
-		if( ! $instance ) {
-			$instance = static::create();
+		$instance = self::$instances[ static::class ] ?: null;
+		if( !$instance ) {
+			self::$instances[ static::class ] = static::create();
 		}
 		return $instance;
 	}

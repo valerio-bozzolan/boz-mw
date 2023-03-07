@@ -328,7 +328,7 @@ class HTTPRequest {
 		if( !$http_status ) {
 
 			// oh nose!
-			Log::error( "Huston, we have not valid headers" );
+			Log::error( "Houston, we have not valid headers" );
 
 			// retry but without DOSsing
 			$args = array_replace( $args, [
@@ -344,7 +344,7 @@ class HTTPRequest {
 			if( $http_status->isServerError() ) {
 
 				// oh nose!
-				Log::error( sprintf( "Huston, we have the code %s: %s",
+				Log::error( sprintf( "Houston, we have the code %s: %s",
 					$http_status->getCode(),
 					$http_status->getMessage()
 				) );

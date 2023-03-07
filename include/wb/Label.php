@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017-2023 Valerio Bozzolan, contributors
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,38 +19,81 @@
 namespace wb;
 
 /**
- * An entity Label.
+ * A Wikibase Label
  *
- * @see https://www.wikidata.org/wiki/Wikidata:Glossary#Label
+ * https://www.wikidata.org/wiki/Wikidata:Glossary#Label
  */
 class Label {
 
+	/**
+	 * @var string
+	 */
 	public $language;
+
+	/**
+	 * @var string
+	 */
 	public $value;
 
+	/**
+	 * Constructor
+	 *
+	 * @var $language string Language code
+	 * @var $value string Label value
+	 */
 	public function __construct( $language, $value ) {
 		$this->setLanguage( $language )
 		     ->setValue( $value );
 	}
 
+	/**
+	 * Get the language code
+	 *
+	 * @return string Language code
+	 */
 	public function getLanguage() {
 		return $this->language;
 	}
 
+	/**
+	 * Get the language value
+	 *
+	 * @return string
+	 */
 	public function getValue() {
 		return $this->value;
 	}
 
+	/**
+	 * Change the language
+	 *
+	 * This is more an internal method and should be avoided.
+	 *
+	 * @param $language string Language code
+	 * @return self
+	 */
 	public function setLanguage( $language ) {
 		$this->language = $language;
 		return $this;
 	}
 
+	/**
+	 * Set the label value
+	 *
+	 * @param $value Label value
+	 * @return self
+	 */
 	public function setValue( $value ) {
 		$this->value = $value;
 		return $this;
 	}
 
+	/**
+	 * Create a Label object from raw array data
+	 *
+	 * @param $data array
+	 * @return self
+	 */
 	public static function createFromData( $data ) {
 		if( ! isset( $data['language'], $data['value'] ) ) {
 			throw new WrongDataException( self::class );

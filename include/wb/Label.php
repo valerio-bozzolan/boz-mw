@@ -72,7 +72,7 @@ class Label {
 	 * @param $language string Language code
 	 * @return self
 	 */
-	public function setLanguage( $language ) {
+	protected function setLanguage( $language ) {
 		$this->language = $language;
 		return $this;
 	}

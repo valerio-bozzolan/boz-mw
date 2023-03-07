@@ -24,6 +24,8 @@ namespace wb;
 class Labels {
 
 	/**
+	 * Labels indexed by language code
+	 *
 	 * @var array
 	 */
 	private $labels = [];
@@ -46,37 +48,28 @@ class Labels {
 	 * @return Label
 	 */
 	public function get( $language ) {
-		foreach( $this->labels as $label ) {
-			if( $label->getLanguage() === $language ) {
-				return $label;
-			}
-		}
-		return false;
+		return $this->labels[ $language ] ?? false;
 	}
 
 	/**
-	 * Does it have a certain label?
+	 * Do our labels have this one?
 	 *
 	 * @param $language string
 	 * @return bool
 	 */
 	public function have( $language ) {
-		return false !== $this->get( $language );
+		return $this->get( $language ) !== false;
 	}
 
 	/**
-	 * Set/add a certain label
+	 * Set/add a certain Label
 	 *
 	 * @param $label Label
 	 * @return self
 	 */
 	public function set( Label $label ) {
-		$existing = $this->get( $label->getLanguage() );
-		if( $existing ) {
-			$existing = $language;
-		} else {
-			$this->labels[] = $label;
-		}
+		$lang_code = $label->getLanguage();
+		$this->labels[ $lang_code ] = $label;
 		return $this;
 	}
 

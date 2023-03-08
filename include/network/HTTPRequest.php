@@ -309,7 +309,7 @@ class HTTPRequest {
 		// URL
 		curl_setopt( $curl, CURLOPT_URL, $url );
 
-		// internal cURL shit to do not show the result as output but return it
+		// cURL execution will return the result on success, false on failure
 		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
 
 		// internal cURL shit to return headers
@@ -317,6 +317,10 @@ class HTTPRequest {
 
 		// this contains also the headers
 		$http_response_raw = curl_exec( $curl );
+		// if the execution fails, then the detailed error is logged
+		if ($http_response_raw === false) {
+			Log::error("cURL error: " . curl_error($curl));
+		}
 
 		// load the response with the headers
 		$response = $this->loadHTTPResponseRaw( $http_response_raw );

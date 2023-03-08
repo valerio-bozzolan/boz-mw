@@ -52,6 +52,33 @@ class Labels {
 	}
 
 	/**
+	 * Get a certain Label value by its language
+	 *
+	 * @param $language string
+	 * @return string The language value or NULL
+	 */
+	public function getLanguageValue( $language ) {
+		$value = null;
+		$label = $this->get( $language );
+		if( $label ) {
+			$value = $label->getValue();
+		}
+		return $value;
+	}
+
+	/**
+	 * Get a certain Label value by its language
+	 *
+	 * @param $language string
+	 * @param string The language value or NULL
+	 * @return self
+	 */
+	public function setLanguageValue( $language, $value ) {
+		$label = $this->createSingleFromLanguageValue( $language, $value );
+		return $this->set( $label );
+	}
+
+	/**
 	 * Do our labels have this one?
 	 *
 	 * @param $language string
@@ -95,6 +122,17 @@ class Labels {
 			$codes[] = $label->getLanguage();
 		}
 		return implode( $glue, $codes );
+	}
+
+	/**
+	 * Create a single element from a language and its value
+	 *
+	 * @param $language string Language code
+	 * @param $value string Label value
+	 * @return Label
+	 */
+	protected function createSingleFromLanguageValue( $language, $value ) {
+		return new Label( $language, $value );
 	}
 
 	/**

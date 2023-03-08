@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017-2023 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,17 @@ namespace wb;
  * Description collector
  */
 class Descriptions extends Labels {
+
+	/**
+	 * Create a single element from a language and its value
+	 *
+	 * @param $language string Language code
+	 * @param $value string Label value
+	 * @return Description
+	 */
+	protected function createSingleFromLanguageValue( $language, $value ) {
+		return new Description( $language, $value );
+	}
 
 	/**
 	 * String rappresentation

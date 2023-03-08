@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
+# Copyright (C) 2017-2023 Valerio Bozzolan, contributors
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,8 @@
 namespace wb;
 
 use \mw\WikibaseSite;
+use \wb\Label;
+use \wb\Description;
 
 /**
  * Wikibase data container
@@ -270,7 +272,34 @@ class DataModel {
 	}
 
 	/**
+	 * Get a label in a specific language
+	 *
+	 * @param $language Language code, as accepted by Wikidata
+	 * @return string|null
+	 */
+	public function getLabelValue( $language ) {
+		return $this->labels->getLanguageValue( $language );
+	}
+
+	/**
+	 * Set a label in a specific language
+	 *
+	 * @param $language Language code, as accepted by Wikidata
+	 * @param $value Language value
+	 * @return self
+	 */
+	public function setLabelValue( $language, $value ) {
+		$this->labels->setLanguageValue( $language, $value );
+		return $this;
+	}
+
+	/**
 	 * Set, delete, preserve if it exists, a label.
+	 *
+	 * You may want to use setLabelValue() instead that is more user-friendly.
+	 *
+	 * @param $label Label object
+	 * @return self
 	 */
 	public function setLabel( $label ) {
 		$this->labels->set( $label );
@@ -278,13 +307,35 @@ class DataModel {
 	}
 
 	/**
-	 * Check if a label of a certain language exists
+	 * Check if a description exists in a certain language
 	 *
-	 * @param $language string
+	 * @param $language string Language code, as accepted by Wikidata
 	 * @return bool
 	 */
 	public function hasDescriptionInLanguage( $language ) {
 		return $this->descriptions->have( $language );
+	}
+
+	/**
+	 * Get a description in a specific language
+	 *
+	 * @param $language Language code, as accepted by Wikidata
+	 * @return string|null
+	 */
+	public function getDescriptionValue( $language ) {
+		return $this->descriptions->getLanguageValue( $language );
+	}
+
+	/**
+	 * Set a label in a specific language
+	 *
+	 * @param $language Language code, as accepted by Wikidata
+	 * @param $value Language value
+	 * @return self
+	 */
+	public function setDescriptionValue( $language, $value ) {
+		$this->descriptions->setLanguageValue( $language, $value );
+		return $this;
 	}
 
 	/**

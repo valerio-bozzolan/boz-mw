@@ -82,6 +82,13 @@ class HTTPRequest {
 	private $retries = 0;
 
 	/**
+	 * Counter of executed HTTP queries
+	 *
+	 * @var int
+	 */
+	private $queries = 0;
+
+	/**
 	 * Maximum number of retries before quitting
 	 */
 	public static $MAX_RETRIES = 8;
@@ -297,8 +304,9 @@ class HTTPRequest {
 			Log::warn( sprintf( "wait and retry (%d of %d)", $this->retries, self::$MAX_RETRIES ) );
 		}
 
+		// if this query is not the first one
 		// wait before executing the query
-		if( $args['wait'] ) {
+		if( $args['wait'] && $this->queries ) {
 			Log::debug( sprintf(
 				"waiting %.2f seconds",
 				$args['wait']
@@ -317,6 +325,9 @@ class HTTPRequest {
 
 		// this contains also the headers
 		$http_response_raw = curl_exec( $curl );
+
+		// yeah! another one
+		$this->queries++;
 
 		// if the cURL execution fails, then the detailed error message is reported
 		if( $http_response_raw === false ) {

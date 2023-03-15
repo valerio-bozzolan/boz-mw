@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
+# Copyright (C) 2017-2023 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -189,11 +189,20 @@ class Snak {
 		}
 
 		$prop  = $this->getProperty();
-		$label = $this->getPropertyLabel();
-		if( !$label ) {
-			$label = $prop;
-		}
-		return sprintf( '[[%sP:%s|%s]]', $prefix, $prop, $label );
+
+		// this part is now commented since, nowadays,
+		// Wikibase is smart enough and, if the summary contains
+		// stuff like [[Property:123]] - it automatically generate its label,
+		// so we don't have anymore to do weird manual things to
+		// make it more cute and readable. Anyway, if you need it,
+		// feel free to re-enable it for some reasons.4
+//		$label = $this->getPropertyLabel();
+//		if( !$label ) {
+//			$label = $prop;
+//		}
+//		return sprintf( '[[%sP:%s|%s]]', $prefix, $prop, $label );
+
+		return sprintf( '[[%sProperty:%s]]', $prefix, $prop );
 	}
 
 	/**

@@ -25,7 +25,7 @@ use generic\Singleton;
  *
  * This class is designed to have just one instance of this site
  */
-class StaticSite extends Singleton {
+class StaticSite extends Singleton implements Site {
 
 	/**
 	 * A sort of $wgCapitalLinks

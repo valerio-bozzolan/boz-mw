@@ -1,6 +1,7 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
+# Copyright (C) 2017-2022 Valerio Bozzolan
+#               2022 Valerio Bozzolan, Luca Mauri
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -37,4 +38,6 @@ class DataType {
 	const ENTITY_ID        = 'wikibase-entityid';
 	const PROPERTY         = 'wikibase-property';
 
+	// https://www.mediawiki.org/wiki/Extension:Wikibase_Local_Media
+	const LOCALMEDIA       = 'localMedia';
 }

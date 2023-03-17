@@ -36,5 +36,5 @@ class DataType {
 	const ITEM             = 'wikibase-item';
 	const ENTITY_ID        = 'wikibase-entityid';
 	const PROPERTY         = 'wikibase-property';
-
+	const LOCALMEDIA       = 'localMedia';
 }

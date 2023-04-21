@@ -66,6 +66,13 @@ class SnakTime extends Snak {
 		if( $time instanceof \DateTime ) {
 			$time = $time->format( '+Y-m-d\TH:i:s\Z' );
 		}
+		
+		/*
+		Bacause of the note
+		<Hour, minute, and second are currently unused and should always be 00.>
+		then we need to insure the instant is always 0
+		*/
+		$time = substr($time, 0, 11) . "T00:00:00Z";
 
 		return parent::__construct( 'value', $property, DataType::TIME,
 			new DataValueTime( $time, $precision, $args )

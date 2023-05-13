@@ -42,6 +42,8 @@ abstract class MediaWikis {
 			\wm\MetaWiki         ::class,
 			\web\WikimediaCH     ::class,
 			\web\LandscapeforWiki::class,
+			\web\WikiTrek        ::class,
+			\web\DataTrek        ::class,
 		];
 	}
 

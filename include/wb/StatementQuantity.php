@@ -19,7 +19,7 @@
 namespace wb;
 
 /**
- * A StatementString is a Statement that contains a SnakString.
+ * A StatementQuantity is a Statement that contains a SnakQuantity.
  */
 class StatementQuantity extends Statement {
 

@@ -24,8 +24,11 @@ namespace wb;
 class SnakQuantity extends Snak {
 
 	/**
-	 * @param $property string Wikidata property as 'P123'
-	 * @param $value    string
+	 * @param $property string Property as 'P123'
+	 * @param $value mixed amount Any number e.g. 0
+	 * @param $wikidata_unit_id string Wikidata ID of a unit e.g. 'Q11573' for metre
+	 * @param $upper_bound mixed The $value at its maximum error e.g. +1
+	 * @param $lower_bound mixed The $value at its minimum error e.g. -1
 	 */
 	public function __construct( $property, $amount, $unit, $upper_bound = null, $lower_bound = null ) {
 		return parent::__construct(

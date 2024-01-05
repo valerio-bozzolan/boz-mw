@@ -526,6 +526,39 @@ class DataModel {
 		return $this->getWikibaseSite()->editEntity( $data );
 	}
 
+		/**
+	 * Removes Wikibase claims using the wbremoveclaims API
+	 *
+	 * You do not need to send the CSRF 'token' and the 'action' parameters.
+	 *
+	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbremoveclaims
+	 *
+	 * @param $data array API data request
+	 * 	Allowed extensions:
+	 * 		summary.pre  Add something before the summary
+	 * 		summary.post Add something after  the summary
+	 * @return mixed
+	 */
+	public function removeClaim( $data = [] ) {
+
+		// can auto-generate a summary
+		if( !isset( $data['summary'] ) ) {
+			$data['summary'] = $this->getEditSummary();
+		}
+
+		// eventually prefill ID
+		if( !isset( $data['id'] ) ) {
+			$data['id'] = $this->hasEntityID() ? $this->getEntityID() : null;
+		}
+
+		// tell the wiki that a bot is performing the edit
+		if( !isset( $data['bot'] ) ) {
+			$data['bot'] = true;
+		}
+
+		return $this->getWikibaseSite()->removeClaim( $data );
+	}
+
 	/**
 	 * Static constructor from an associative array
 	 *

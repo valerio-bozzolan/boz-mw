@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -329,7 +329,7 @@ class Claim {
 	}
 
 	/**
-	 * Mark this claim as to be remove
+	 * Mark this Claim as to be removed.
 	 *
 	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 	 * @return self
@@ -358,7 +358,7 @@ class Claim {
 	}
 
 	/**
-	 * Clone this claim and obtain a claim marked for removal
+	 * Clone this claim and obtain a Claim marked for removal.
 	 *
 	 * @return self
 	 */

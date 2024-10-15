@@ -1,6 +1,6 @@
 <?php
 # boz-mw - Another MediaWiki API handler in PHP
-# Copyright (C) 2017-2023 Valerio Bozzolan, contributors
+# Copyright (C) 2017-2024 Valerio Bozzolan, contributors
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ class HTTPRequest {
 	 *
 	 * @var string
 	 */
-	const VERSION = 1.0;
+	const VERSION = 1.1;
 
 	/**
 	 * Source code URL
@@ -89,7 +89,8 @@ class HTTPRequest {
 	private $queries = 0;
 
 	/**
-	 * Maximum number of retries before quitting
+	 * Maximum number of retries before quitting.
+	 * I like to insist a bit.
 	 */
 	public static $MAX_RETRIES = 8;
 
@@ -317,6 +318,53 @@ class HTTPRequest {
 		// URL
 		curl_setopt( $curl, CURLOPT_URL, $url );
 
+		//
+		// Set a speed-based timeout.
+		//
+		// Set a reasonable speed-based timeout to avoid to be stuck forever in cURL,
+		// for example when you successfully initialize a TCP/IP connection but then
+		// the connection is dropped for whatever reason.
+		// Interestingly, we were VERY often stuck in cURL for years, for example when
+		// (I think) Wikimedia Foundation SRE do their super-interesting networking tricks
+		// in Wikimedia Toolforge or in other WMCloud services and friends.
+		// The intention here is to drop our cURL connection if we are not exchanging
+		// sufficient bytes in a very-high time frame. Note that this is probably
+		// generally better than just putting a generic fixed timeout in seconds.
+		// I wonder why this is not a default in cURL. I don't know. Anyway...
+		//
+	  // We apply this combination:
+	  //
+	  //   CURLOPT_LOW_SPEED_LIMIT
+	  //     https://www.php.net/manual/en/curl.constants.php#constant.curlopt-low-speed-limit
+	  //       The transfer speed, in bytes per second, that the transfer should be below during
+	  //       the count of CURLOPT_LOW_SPEED_TIME seconds before PHP considers the transfer too
+	  //       slow and aborts.
+	  //   CURLOPT_LOW_SPEED_TIME
+	  //     https://www.php.net/manual/en/curl.constants.php#constant.curlopt-low-speed-time
+	  //       The number of seconds the transfer speed should be below CURLOPT_LOW_SPEED_LIMIT
+	  //       before PHP considers the transfer too slow and aborts.
+	  //
+	  // With the above combination we can trigger the following desired exception:
+	  //
+		//    "Operation too slow. Less than 1 bytes/sec transferred the last 120 seconds"
+		//
+		// If you are affected by this exception, maybe because you are downloading
+		// something VERY VERY VERY SLOW; PLEASE STOP connecting with carrier pigeons
+		// (or whatever you are doing) and use a decent Internet connection.
+		// To the dear SRE team: if you are reading, PLEASE stop pulling network plugs
+		// at random LOL in the middle of a nice TCP conversation... thaaanks <3 <3 <3 <3 asd
+		// Special thanks to Parma1983 and all the other itwiki folks, for all their patient bug
+		// reporting over these very long and boring years...
+		// This bug affected at least itwiki since 2019, 2020, 2021, 2022, 2023 and 2024 (!!!!).
+		// https://it.wikipedia.org/w/index.php?title=Discussioni_utente:BotCancellazioni&oldid=141641187#Bot_fermo
+		// https://it.wikipedia.org/w/index.php?title=Discussioni_utente:BotCancellazioni&oldid=141641187#Bot_fermo_2
+		// https://it.wikipedia.org/w/index.php?title=Discussioni_utente:BotCancellazioni&oldid=141641187#Bot_Fermo_3
+		// https://phabricator.wikimedia.org/T375937
+		// https://gitpull.it/T1274
+		//   - [[User:Valerio_Bozzolan]] 2024-10-15 16:51
+		curl_setopt( $curl, CURLOPT_LOW_SPEED_LIMIT, 1 ); // bytes
+		curl_setopt( $curl, CURLOPT_LOW_SPEED_TIME, 120 ); // seconds
+
 		// cURL execution will return the result on success, false on failure
 		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
 
@@ -333,7 +381,17 @@ class HTTPRequest {
 		if( $http_response_raw === false ) {
 			$error_msg = curl_error( $curl );
 			$error_num = curl_errno( $curl );
-			CURLException::throwFromErrorMsgAndNum( $error_msg, $error_num );
+
+			// In some well-known cases, suppress the exception to retry later.
+			try {
+				CURLException::throwFromErrorMsgAndNum( $error_msg, $error_num );
+			} catch (CURLExceptionTransport $e) {
+				Log::error( sprintf(
+					"A wild cURL transport problem appears: %s: %s",
+					get_class($e),
+					$e->getMessage()
+				) );
+			}
 		}
 
 		// load the response with the headers
@@ -346,7 +404,7 @@ class HTTPRequest {
 		if( !$http_status ) {
 
 			// oh nose!
-			Log::error( "Houston, we have not valid headers" );
+			Log::error( "Houston, we have not a valid response status" );
 
 			// retry but without DOSsing
 			$args = array_replace( $args, [

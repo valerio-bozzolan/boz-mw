@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2018-2023 Valerio Bozzolan
+# Copyright (C) 2018-2024 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -82,13 +82,14 @@ class CURLException extends \Exception {
 		// feel free to implement specific classes here
 		// if you need a tip:
 		//     https://www.php.net/manual/en/function.curl-errno.php#103128
-//		switch( $curl_error_num ) {
-//			case 1:  return CURLExceptionUnsupportedProtocol( $curl_error_msg, $curl_error_num );
-//			case 2:  return CURLExceptionFailedInit         ( $curl_error_msg, $curl_error_num );
-//                      ...
-//			case 58: return CURLExceptionCertificateProblem ( $curl_error_msg, $curl_error_num );
-//			...
-//		}
+		switch ($curl_error_num ) {
+//			case 1:  return new CURLExceptionUnsupportedProtocol( $curl_error_msg, $curl_error_num );
+//			case 2:  return new CURLExceptionFailedInit         ( $curl_error_msg, $curl_error_num );
+//			case 6:  return new CURLExceptionCouldNotResolveHost( $curl_error_msg, $curl_error_num );
+//			case 7:  return new CurlExceptionFailedToConnect(     $curl_error_msg, $curl_error_num );
+//			case 58: return CURLExceptionCertificateProblem (     $curl_error_msg, $curl_error_num );
+			case 28:  return new CURLExceptionOperationTimedOutMonstrouslySlow( $curl_error_msg, $curl_error_num );
+		}
 
 		// this is the base case - probably it's enough for everything
 		// at the moment it just throws a generic exception

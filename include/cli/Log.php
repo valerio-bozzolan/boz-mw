@@ -1,6 +1,6 @@
 <?php
 # Boz-MW - Another MediaWiki API handler in PHP
-# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Valerio Bozzolan
+# Copyright (C) 2017-2026 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,9 @@ namespace cli;
 
 /**
  * Show log messages (when in CLI)
+ *
+ * This classed was initially designed as a static class,
+ * but we should slowly use it as an instance.
  */
 class Log {
 
@@ -82,13 +85,22 @@ class Log {
 	public static $DEDICATED_FILEPATH = null;
 
 	/**
-	 * Maximum length of a message in command line
+	 * Default maximum length of a message in command line
 	 *
 	 * If the message is largher than this, will be split in lines.
 	 *
 	 * NOTE: This does not take into consideration the prefix (date).
+	 *
+	 * @deprecated
 	 */
 	public static $CLI_MAX_MSG_LEN = 80;
+
+	/**
+	 * Cache for the available terminal columns.
+	 *
+	 * @var int|false|null False means unitialized. Null means not available. Int means available.
+	 */
+	private static $CACHE_AVAILABLE_TERM_COLS = false;
 
 	/**
 	 * Show a warning
@@ -211,16 +223,10 @@ class Log {
 				// in command line, just print everything to stdout
 
 				// but break terminal lines
-				$lines = self::splitMessageInLines( $message );
+				$lines = self::splitMessageInLines($message, $format, $date, $type);
 				foreach( $lines as $i => $line ) {
-
-					// after the first line just indent a bit so you understand they are not separated info
-					if( $i ) {
-						$line = " $line";
-					}
-
-					// print this line to standard output
-					echo self::formatMessageLine( $format, $date, $type, "$line\n" );
+					// Print this line to standard output, as it fits the available space.
+					echo self::formatMessageLine($format, $date, $type, "$line\n", $i);
 				}
 
 			} else {
@@ -231,30 +237,127 @@ class Log {
 	}
 
 	/**
+	 * Get the a cached number of terminal COLUMNS, or null if columns cannot be estimated.
+	 *
+	 * This is generally useful to print a decent terminal output, without exceding.
+	 *
+	 * @return int|null
+	 */
+	public static function availableTerminalColumns() {
+		if (self::$CACHE_AVAILABLE_TERM_COLS === false) {
+			self::$CACHE_AVAILABLE_TERM_COLS = self::parseAvailableTerminalColumns();
+		}
+		return self::$CACHE_AVAILABLE_TERM_COLS;
+	}
+
+	/**
+	 * Force the unavailability of terminal columns.
+	 */
+	public static function doNotFillTerminalColumns() {
+		self::$CACHE_AVAILABLE_TERM_COLS = null;
+	}
+
+	/**
+	 * Parse the number of terminal COLUMNS at runtime,
+	 * or null if columns cannot be estimated.
+	 *
+	 * This method should be considered internal and should not be used directly.
+	 * See availableTerminalColumns() instead, which is cached.
+	 *
+	 * @return int|null
+	 */
+	public static function parseAvailableTerminalColumns() {
+		$cols = (int)getenv('COLUMNS');
+
+		if ($cols <= 1) {
+			$cols = null;
+		}
+
+		if ($cols === null) {
+			try {
+				if (php_sapi_name() === 'cli') {
+					$cols = (int)@shell_exec('tput cols');
+					if ($cols <= 1) {
+						$cols = null;
+					}
+				}
+			} catch(Throwable $e) {
+				// Silently ignore. Probably the shell is not available.
+			}
+		}
+
+		return $cols;
+	}
+
+	/**
 	 * Format a command line message
 	 *
+	 * @param string $format
+	 * @param string $date
+	 * @param string $type
+	 * @param string $message
+	 * @param int $line_n For multi-line messages, this is the line number, starting from zero.
 	 * @return string
 	 */
-	private static function formatMessageLine( $format, $date, $type, $message ) {
+	private static function formatMessageLine(string $format, string $date, string $type, string $message, int $line_n = 0): string {
+		// For multi-line messages, indent a bit the consequent lines.
+		if ($line_n) {
+			$message = " {$message}";
+		}
 		return sprintf( $format, $date, $type, $message );
 	}
 
 	/**
-	 * Split a message in terminal lines
+	 * Split a message in terminal lines.
+	 *
+	 * The lines are designed in a way that, even when prefixed with our log format,
+	 * lines will still be contained in your small terminal horizontal space.
+	 *
+	 * @TODO: uniform the parameters with formatMessageLine().
 	 *
 	 * @param string $message
+	 * @param string $format
+	 * @param string $date
+	 * @param string $type
 	 * @return array
 	 */
-	private static function splitMessageInLines( $message ) {
+	private static function splitMessageInLines(string $message, string $format, string $date, string $type) {
 
 		$all = [];
 
+		// The message should fit your terminal.
+		// The format prefix must be considered to fit the terminal.
+		$terminal_columns = self::availableTerminalColumns();
+		if ($terminal_columns) {
+			$message_prefix = self::formatMessageLine($format, $date, $type, '');
+			$message_prefix_len = mb_strlen($message_prefix);
+			$terminal_columns -= $message_prefix_len;
+			if ($terminal_columns <= 10) {
+				$terminal_columns = null;
+			}
+		}
+
 		// split by lines
 		$lines = explode( "\n", $message );
-		foreach( $lines as $line ) {
-
+		foreach( $lines as $i => $line ) {
 			// try do not overlap in your terminal (for more cuteness)
-			foreach( str_split( $line, static::$CLI_MAX_MSG_LEN ) as $part ) {
+			$parts = null;
+			if ($terminal_columns) {
+				$parts = [];
+
+				// The first line part can fit the whole terminal space.
+				$parts[] = mb_substr($line, 0, $terminal_columns);
+
+				// Remaining line parts will be padded with an extra space.
+				$remaining_line = mb_substr($line, $terminal_columns);
+				$terminal_columns--;
+				$remaining_parts = mb_str_split($remaining_line, $terminal_columns);
+				$parts = array_merge($parts, $remaining_parts);
+			} else {
+				$parts = [ $line ];
+			}
+
+			foreach ($parts as $part) {
 
 				// do not trim lines: spaces are sometime useful to indent better
 				// $part = trim( $part );

@@ -2,6 +2,8 @@
 // use the phpunit framework
 use PHPUnit\Framework\TestCase;
 
+use cli\Log;
+
 /**
  * Test Query class
  */
@@ -95,6 +97,46 @@ final class CliTest extends TestCase {
 
 	public function testCliShortcut() {
 		$this->assertEquals( cli_options() instanceof \cli\Opts, true );
+	}
+
+	/**
+	 * Test that terminal columns can be parsed.
+	 */
+	public function testCliTerminalColumns() {
+		putenv('COLUMNS=17');
+		$columns = Log::parseAvailableTerminalColumns();
+		$this->assertEquals(17, $columns);
+
+		putenv('COLUMNS=18');
+		$columns = Log::parseAvailableTerminalColumns();
+		$this->assertEquals(18, $columns);
+
+		// Test that in a small terminal the first line is capped exactly
+		// at that terminal limit, and the remaining lines are smaller than
+		// that.
+		putenv('COLUMNS=80');
+		$columns = Log::availableTerminalColumns();
+		$this->assertEquals(80, $columns);
+		$min_lines = 5;
+		$long_message = str_repeat('VeryLongString', $columns * $min_lines);
+		ob_start();
+		Log::info($long_message);
+		$logged_content = ob_get_clean();
+		$logged_content_lines = explode("\n", $logged_content);
+		$this->assertGreaterThan($min_lines, count($logged_content_lines), "Test lines are splitted");
+		$first_line = array_shift($logged_content_lines);
+		$this->assertEquals($columns, mb_strlen($first_line), "Test first line fitting the whole terminal");
+		foreach ($logged_content_lines as $logged_content_line) {
+			$this->assertTrue(mb_strlen($logged_content_line) <= $columns, "Test other lines not exceeding the space");
+		}
+
+		Log::doNotFillTerminalColumns();
+		$long_message = str_repeat('VeryLongString', 1000);
+		ob_start();
+		Log::info($long_message);
+		$logged_content = trim(ob_get_clean());
+		$logged_content_lines = explode("\n", $logged_content);
+		$this->assertEquals(1, count($logged_content_lines), "Test single line to adhere options");
 	}
 
 }

@@ -276,7 +276,12 @@ class Log {
 		if ($cols === null) {
 			try {
 				if (php_sapi_name() === 'cli') {
-					$cols = (int)@shell_exec('tput cols');
+					// Use standard unix-like utility 'tput' to get terminal columns.
+					// When the command is not available (frequent in Kubernetes),
+					// suppress the standard error, as otherwise its passed through
+					// (and this is undocumented behaviour of shell_exec().. lol).
+					// Maybe there is an easier way to STFU, working also in non-unix systems.
+					$cols = (int)@shell_exec('tput cols 2>/dev/null');
 					if ($cols <= 1) {
 						$cols = null;
 					}

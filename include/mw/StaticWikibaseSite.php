@@ -84,6 +84,38 @@ class StaticWikibaseSite extends StaticSite {
 		], $data ) );
 	}
 
+		/**
+	 * Removes Wikibase claims using the wbremoveclaims API
+	 *
+	 * You do not need to send the CSRF 'token' and the 'action' parameters.
+	 *
+	 * @see https://www.wikidata.org/w/api.php?action=help&modules=wbremoveclaims
+	 *
+	 * @param $data array API data request
+	 * @param $claimGUID string containing claim's GUID to be retrieved
+	 *                   using getClaimsInProperty()->getID() 
+	 * @return mixed
+	 */
+	public function removeClaim( $data = [] ) {
+
+		// extends the API arguments adding a 'summary.pre' argument
+		if( isset( $data[ 'summary.pre' ] ) ) {
+			$data[ 'summary' ] = $data[ 'summary.pre' ] . $data[ 'summary' ];
+			unset( $data[ 'summary.pre' ] );
+		}
+
+		// extends the API arguments adding a 'summary.post' argument
+		if( isset( $data[ 'summary.post' ] ) ) {
+			$data[ 'summary' ] .= $data[ 'summary.post' ];
+			unset( $data[ 'summary.post' ] );
+		}
+
+		return $this->post( array_replace( [
+			'action' => 'wbremoveclaims',
+			'token'  => $this->getToken( \mw\Tokens::CSRF ),
+		], $data ) );
+	}
+
 	/**
 	 * Create an empty Wikibase data model related to this site
 	 *
